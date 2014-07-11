@@ -1,0 +1,69 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <link rel="Stylesheet" type="text/css" href="/static/css/style.css">
+        <link rel="Stylesheet" type="text/css" href="/static/css/tango.css">
+        <title>mac下gcc的坑 - crow coffin</title>
+        <meta name="keywords" content="python web"/>
+        <meta name="description" content="Learning in the hard way."/>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+
+    <body>
+        <div id="header">
+            <ul>
+                <li>
+                    <a href="/" style="color: wheat;border-right: solid 1px gray;">crow coffin</a>
+                </li>
+                <li>
+                    <a href="https://github.com/wlwang41" target="_blank">my github</a>
+                </li>
+                <li>
+                    <a href="http://about.me/wlwang41" target="_blank">about.me</a>
+                </li>
+                <li>
+                    <a href="http://aboutcrow.herokuapp.com/" target="_blank">resume</a>
+                </li>
+                <li>
+                    <a href="mailto:wlwang41@gmail.com">email</a>
+                </li>
+            </ul>
+        </div>
+        <div id="container">
+            
+    <div id="content_header">
+        <div id="post-nav">
+            
+            <a href="/">Home</a> » <a href="/#ops">ops</a> » mac下gcc的坑
+            
+        </div>
+    </div>
+    <div class="clearfix"></div>
+    <div id="title">mac下gcc的坑</div>
+    <div id="content">
+        <p>某一天我更新了OSX和xcode之后，突然发现装PIL的时候出错了.</p>
+<p>查了半天在苹果官网上找到下面这样的说明:</p>
+<blockquote>
+<p>As of Apple LLVM compiler version 5.1 (clang-502) and later, the optimization level -O4 no longer implies link time optimization (LTO). In order to build with LTO explicitly use the-flto option in addition to the optimization level flag. (15633276)</p>
+<p>The Apple LLVM compiler in Xcode 5.1 treats unrecognized command-line options as errors. This issue has been seen when building both Python native extensions and Ruby Gems, where some invalid compiler options are currently specified.
+Projects using invalid compiler options will need to be changed to remove those options. To help ease that transition, the compiler will temporarily accept an option to downgrade the error to a warning:
+-Wno-error=unused-command-line-argument-hard-error-in-future</p>
+<p>Note: This option will not be supported in the future.</p>
+<p>To workaround this issue, set the ARCHFLAGS environment variable to downgrade the error to a warning. For example, you can install a Python native extension with:
+$ ARCHFLAGS=-Wno-error=unused-command-line-argument-hard-error-in-future easy_install ExtensionName
+Similarly, you can install a Ruby Gem with:
+$ ARCHFLAGS=-Wno-error=unused-command-line-argument-hard-error-in-future gem install GemName</p>
+</blockquote>
+<p>这就意味着, 以后装的库只要带gcc make的都需要加上<code>ARCHFLAGS=-Wno-error=unused-command-line-argument-hard-error-in-future</code></p>
+    </div>
+
+        </div>
+        <div id="footer">
+            <span>
+                Copyright © now-forever crow.
+                Powered by <a href="https://github.com/wlwang41/cb" target="_blank">Cb</a>.
+                UI by <a href="https://github.com/tankywoo/wiki.tankywoo.com">yasimple</a>
+            </span>
+        </div>
+    </body>
+</html>
