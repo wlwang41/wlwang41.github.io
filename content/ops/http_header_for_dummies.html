@@ -1,0 +1,183 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <link rel="Stylesheet" type="text/css" href="/static/css/style.css">
+        <link rel="Stylesheet" type="text/css" href="/static/css/tango.css">
+        <title>http header for dummies - crow coffin</title>
+        <meta name="keywords" content="python web"/>
+        <meta name="description" content="Learning in the hard way."/>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+
+    <body>
+        <div id="header">
+            <ul>
+                <li>
+                    <a href="/" style="color: wheat;border-right: solid 1px gray;">crow coffin</a>
+                </li>
+                <li>
+                    <a href="https://github.com/wlwang41" target="_blank">my github</a>
+                </li>
+                <li>
+                    <a href="http://about.me/wlwang41" target="_blank">about.me</a>
+                </li>
+                <li>
+                    <a href="http://aboutcrow.herokuapp.com/" target="_blank">resume</a>
+                </li>
+                <li>
+                    <a href="mailto:wlwang41@gmail.com">email</a>
+                </li>
+            </ul>
+        </div>
+        <div id="container">
+            
+    <div id="content_header">
+        <div id="post-nav">
+            
+            <a href="/">Home</a> » <a href="/#ops">ops</a> » http header for dummies
+            
+        </div>
+    </div>
+    <div class="clearfix"></div>
+    <div id="title">http header for dummies</div>
+    <div id="content">
+        <p>由于最近工作有个功能是要到处excel给用户下载, 所以要用到<code>Content-Disposition</code>, 所以想顺便把http header里面常用的几个总结一下.</p>
+<p>HTTP的headers是HTTP requests和responses的核心部分, 它携带了包括客户端浏览器的信息和请求的页面内容以及server部分信息的内容.能够通过HTTP的HEAD方法直接拿到.</p>
+<p>对于HTTP Request而言, 它的结构第一行称为request line, 它包括HTTP方法, 请求路径以及协议三个部分.</p>
+<p>对于HTTP Response而言, 它的结构第一行称为status line, 它包括协议和返回码两部分.</p>
+<p>状态码大致可分为:
+<em> 200's are used for successful requests.
+</em> 300's are for redirections.
+<em> 400's are used if there was a problem with the request.
+</em> 500's are used if there was a problem with the server.</p>
+<p>具体的内容可以点击<a href="http://en.wikipedia.org/wiki/List_of_HTTP_status_codes">这里</a></p>
+<p>其他的部分以键值对的形式存在每一行中.</p>
+<h2 id="http-request">HTTP Request</h2>
+<h3 id="host">Host</h3>
+<p>HTTP请求必须发送给一个确定的IP地址, 但是由于大多数的服务器是可以host多个服务用同一个IP的, 所以HTTP请求必须清楚指明具体的域名.</p>
+<div class="hlcode"><pre><span class="n">Host</span><span class="o">:</span> <span class="n">wlwang41</span><span class="o">.</span><span class="na">github</span><span class="o">.</span><span class="na">io</span>
+</pre></div>
+
+
+<h3 id="user-agent">User-Agent</h3>
+<p>这个头可以包括以下信息:</p>
+<ul>
+<li>浏览器的名称以及版本</li>
+<li>操作系统的名称以及版本</li>
+<li>默认的语言环境</li>
+</ul>
+<p>这个可以用来判断用户使用的环境是手机还是PC, 然后呈现不同的页面.</p>
+<div class="hlcode"><pre><span class="n">User</span><span class="o">-</span><span class="n">Agent</span><span class="o">:</span> <span class="n">Mozilla</span><span class="o">/</span><span class="mf">5.0</span> <span class="p">(</span><span class="n">Windows</span><span class="p">;</span> <span class="n">U</span><span class="p">;</span> <span class="n">Windows</span> <span class="n">NT</span> <span class="mf">6.1</span><span class="p">;</span> <span class="n">en</span><span class="o">-</span><span class="n">US</span><span class="p">;</span> <span class="n">rv</span><span class="o">:</span><span class="mf">1.9.1.5</span><span class="p">)</span> <span class="n">Gecko</span><span class="o">/</span><span class="mi">20091102</span> <span class="n">Firefox</span><span class="o">/</span><span class="mf">3.5.5</span> <span class="p">(.</span><span class="n">NET</span> <span class="n">CLR</span> <span class="mf">3.5.30729</span><span class="p">)</span>
+</pre></div>
+
+
+<h3 id="accept-language">Accept-Language</h3>
+<p>这个头信息表明了用户的语言环境.</p>
+<p>可以是多个语言环境, 用逗号隔开. 第一个语言为主要的偏好语言, <code>q</code>则表明了用户使用该语言的偏好(0, 1之间)</p>
+<h3 id="accept-encoding">Accept-Encoding</h3>
+<p>这个头信息表示浏览器能接受的压缩格式.</p>
+<p>大多数的现代浏览器都支持gzip压缩, 所以一般这个字段都会有gzip. 这样webserver就能返回一个压缩后的数据, 节省带宽和请求时间.</p>
+<div class="hlcode"><pre><span class="n">Accept</span><span class="o">-</span><span class="n">Encoding</span><span class="o">:</span> <span class="n">gzip</span><span class="p">,</span><span class="n">deflate</span>
+</pre></div>
+
+
+<h3 id="if-modified-since">If-Modified-Since</h3>
+<p>浏览器可以通过这个字段来判断已经被cache的文档是否被修改过, 如果没有被修改过, 那么服务器将会返回"<code>304 Not Modified</code>", 并且没有内容, 浏览器就会读入缓存的数据. 但是这个还是会有一次HTTP请求.</p>
+<div class="hlcode"><pre><span class="n">If</span><span class="o">-</span><span class="n">Modified</span><span class="o">-</span><span class="n">Since</span><span class="o">:</span> <span class="n">Sat</span><span class="p">,</span> <span class="mi">28</span> <span class="n">Nov</span> <span class="mi">2009</span> <span class="mo">06</span><span class="o">:</span><span class="mi">38</span><span class="o">:</span><span class="mi">19</span> <span class="n">GMT</span>
+</pre></div>
+
+
+<h3 id="cookie">Cookie</h3>
+<p>以键值对的形式被服务器种在浏览器上.</p>
+<h3 id="referer">Referer</h3>
+<p>表明这个文档的来源, 比如在wlwang41.github.io里面点击了一个a标签, 跳到了另一个页面, 那么新打开的页面中的header中的Referer字段就应该为wlwang41.github.io.</p>
+<p><strong>referer</strong>实际上是拼错了, 正确的应该是<strong>referrer</strong>.</p>
+<h3 id="authorization">Authorization</h3>
+<p>当一个页面需要认证的时候, 浏览器将会打开一个窗口让用户输入用户名密码, 然后浏览器将会再发一个HTTP请求, 这一次将会带上这个头部信息.</p>
+<div class="hlcode"><pre><span class="n">Authorization</span><span class="o">:</span> <span class="n">Basic</span> <span class="n">bXl1c2VyOm15cGFzcw</span><span class="o">==</span>
+</pre></div>
+
+
+<p>这个数据是被base64编码过的.</p>
+<h2 id="http-response">HTTP Response</h2>
+<h3 id="cache-control">Cache-Control</h3>
+<p>浏览器的cache策略. 如:</p>
+<div class="hlcode"><pre><span class="n">Cache</span><span class="o">-</span><span class="n">Control</span><span class="o">:</span> <span class="n">max</span><span class="o">-</span><span class="n">age</span><span class="o">=</span><span class="mi">3600</span><span class="p">,</span> <span class="n">public</span>
+</pre></div>
+
+
+<p>"<code>public</code>"指的是任何人都可以缓存这个数据, "<code>max-age</code>"表明具体缓存的过期时间.</p>
+<p>如果不希望有缓存则可以使用"<code>no-cache</code>"字段. 如:</p>
+<div class="hlcode"><pre><span class="n">Cache</span><span class="o">-</span><span class="n">Control</span><span class="o">:</span> <span class="n">no</span><span class="o">-</span><span class="n">cache</span>
+</pre></div>
+
+
+<h3 id="content-type">Content-Type</h3>
+<p>这个字段表明返回文档的"<code>mime-type</code>", 浏览器将会根据这个类型来决定如何展示这个文档.比如:</p>
+<div class="hlcode"><pre><span class="n">Content</span><span class="o">-</span><span class="n">Type</span><span class="o">:</span> <span class="n">text</span><span class="o">/</span><span class="n">html</span><span class="p">;</span> <span class="n">charset</span><span class="o">=</span><span class="n">UTF</span><span class="o">-</span><span class="mi">8</span>
+</pre></div>
+
+
+<p>其他的<code>mime-type</code>可以点击<a href="http://webdesign.about.com/od/multimedia/a/mime-types-by-content-type.htm">这里</a>.</p>
+<h3 id="content-disposition">Content-Disposition</h3>
+<p>这个字段就表明浏览器不应该解析数据还是应该弹出下载框. 比如(合适的数据类型也应该告诉浏览器):</p>
+<div class="hlcode"><pre><span class="n">Content</span><span class="o">-</span><span class="n">Type</span><span class="o">:</span> <span class="n">application</span><span class="o">/</span><span class="n">zip</span>
+<span class="n">Content</span><span class="o">-</span><span class="n">Disposition</span><span class="o">:</span> <span class="n">attachment</span><span class="p">;</span> <span class="n">filename</span><span class="o">=</span><span class="s">&quot;download.zip&quot;</span>
+</pre></div>
+
+
+<h3 id="content-length">Content-Length</h3>
+<p>文档的大小. 比如:</p>
+<div class="hlcode"><pre><span class="n">Content</span><span class="o">-</span><span class="n">Length</span><span class="o">:</span> <span class="mi">89123</span>
+</pre></div>
+
+
+<p>下载的时候很好用, 可以用来指定进度条的进度.</p>
+<h3 id="etag">Etag</h3>
+<p>Etag也是与缓存策略相关的. 比如:</p>
+<div class="hlcode"><pre><span class="nl">Etag:</span> <span class="s">&quot;pub1259380237;gz&quot;</span>
+</pre></div>
+
+
+<p>web server可以每次返回都会带上这个头信息. 它的值可以使基于最近修改时间, 文件大小或者文件的校验码的值. 浏览器将会保存这个值, 当下一次请求这个文件时, 它将被作为头的一部分发送过去:</p>
+<div class="hlcode"><pre><span class="n">If</span><span class="o">-</span><span class="n">None</span><span class="o">-</span><span class="n">Match</span><span class="o">:</span> <span class="s">&quot;pub1259380237;gz&quot;</span>
+</pre></div>
+
+
+<p>如果Etag的值匹配, 那么服务器将返回304并且没有具体的内容, 这样浏览器就能用缓存的值.</p>
+<h3 id="last-modified">Last-Modified</h3>
+<p>这个字段表明服务器最近的修改时间, 如:</p>
+<div class="hlcode"><pre><span class="n">Last</span><span class="o">-</span><span class="n">Modified</span><span class="o">:</span> <span class="n">Sat</span><span class="p">,</span> <span class="mi">28</span> <span class="n">Nov</span> <span class="mi">2009</span> <span class="mo">03</span><span class="o">:</span><span class="mi">50</span><span class="o">:</span><span class="mi">37</span> <span class="n">GMT</span>
+</pre></div>
+
+
+<p>浏览器通过发送<code>If-Modified-Since: Sat, 28 Nov 2009 06:38:19 GMT</code>来判断缓存是否过期.</p>
+<h3 id="location">Location</h3>
+<p>需要跳转的地址. 如:</p>
+<div class="hlcode"><pre><span class="n">HTTP</span><span class="o">/</span><span class="mf">1.</span><span class="n">x</span> <span class="mi">301</span> <span class="n">Moved</span> <span class="n">Permanently</span>
+<span class="p">...</span>
+<span class="nl">Location:</span> <span class="n">http</span><span class="o">:</span><span class="c1">//wlwang41.github.io/</span>
+<span class="p">...</span>
+</pre></div>
+
+
+<h3 id="content-encoding">Content-Encoding</h3>
+<p>表明返回的数据的压缩格式, 如:</p>
+<div class="hlcode"><pre><span class="n">Content</span><span class="o">-</span><span class="n">Encoding</span><span class="o">:</span> <span class="n">gzip</span>
+</pre></div>
+
+
+<hr />
+<p>参考文章: <a href="http://code.tutsplus.com/tutorials/http-headers-for-dummies--net-8039">HTTP Headers for Dummies</a></p>
+    </div>
+
+        </div>
+        <div id="footer">
+            <span>
+                Copyright © now-forever crow.
+                Powered by <a href="https://github.com/wlwang41/cb" target="_blank">Cb</a>.
+                UI by <a href="https://github.com/tankywoo/wiki.tankywoo.com">yasimple</a>
+            </span>
+        </div>
+    </body>
+</html>
