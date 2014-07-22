@@ -1,0 +1,79 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <link rel="Stylesheet" type="text/css" href="/static/css/style.css">
+        <link rel="Stylesheet" type="text/css" href="/static/css/tango.css">
+        <title>用python一行实现一棵树 - crow coffin</title>
+        <meta name="keywords" content="python web"/>
+        <meta name="description" content="Learning in the hard way."/>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+
+    <body>
+        <div id="header">
+            <ul>
+                <li>
+                    <a href="/" style="color: wheat;border-right: solid 1px gray;">crow coffin</a>
+                </li>
+                <li>
+                    <a href="https://github.com/wlwang41" target="_blank">my github</a>
+                </li>
+                <li>
+                    <a href="http://about.me/wlwang41" target="_blank">about.me</a>
+                </li>
+                <li>
+                    <a href="http://aboutcrow.herokuapp.com/" target="_blank">resume</a>
+                </li>
+                <li>
+                    <a href="mailto:wlwang41@gmail.com">email</a>
+                </li>
+            </ul>
+        </div>
+        <div id="container">
+            
+    <div id="content_header">
+        <div id="post-nav">
+            
+            <a href="/">Home</a> » <a href="/#Python">Python</a> » 用python一行实现一棵树
+            
+        </div>
+    </div>
+    <div class="clearfix"></div>
+    <div id="title">用python一行实现一棵树</div>
+    <div id="content">
+        <p>使用python自带的 <code>defaultdict</code>, 可以一行实现一棵树 <code>tree = lambda: defaultdict (tree)</code>:</p>
+<div class="hlcode"><pre><span class="k">In</span> <span class="err">[</span><span class="mi">1</span><span class="cp">]</span>: from collections import defaultdict
+
+In <span class="cp">[</span><span class="mi">2</span><span class="cp">]</span>: tree = lambda: defaultdict (tree)
+
+In <span class="cp">[</span><span class="mi">3</span><span class="cp">]</span>: t = tree()
+
+In <span class="cp">[</span><span class="mi">4</span><span class="cp">]</span>: t<span class="cp">[</span><span class="s1">&#39;name&#39;</span><span class="cp">][</span><span class="s1">&#39;crow&#39;</span><span class="cp">]</span> = &#39;__crow__&#39;
+
+In <span class="cp">[</span><span class="mi">5</span><span class="cp">]</span>: t<span class="cp">[</span><span class="s1">&#39;name&#39;</span><span class="cp">][</span><span class="s1">&#39;wlwang&#39;</span><span class="cp">]</span> = &#39;__wlwang__&#39;
+
+In <span class="cp">[</span><span class="mi">6</span><span class="cp">]</span>: t
+Out<span class="cp">[</span><span class="mi">6</span><span class="cp">]</span>: defaultdict(<span class="nt">&lt;function</span> <span class="err">&lt;</span><span class="na">lambda</span><span class="nt">&gt;</span> at 0x10bed7140&gt;, {&#39;name&#39;: defaultdict(<span class="nt">&lt;function</span> <span class="err">&lt;</span><span class="na">lambda</span><span class="nt">&gt;</span> at 0x10bed7140&gt;, {&#39;crow&#39;: &#39;__crow__&#39;, &#39;wlwang&#39;: &#39;__wlwang__&#39;})})
+
+In <span class="cp">[</span><span class="mi">7</span><span class="cp">]</span>: import json
+
+In <span class="cp">[</span><span class="mi">8</span><span class="cp">]</span>: print json.dumps(t)
+{&quot;name&quot;: {&quot;crow&quot;: &quot;__crow__&quot;, &quot;wlwang&quot;: &quot;__wlwang__&quot;}}
+</pre></div>
+
+
+<blockquote>
+<p>甚至可以不用赋值! 详情请戳<a href="https://gist.github.com/hrldcpr/2012250">这里</a></p>
+</blockquote>
+    </div>
+
+        </div>
+        <div id="footer">
+            <span>
+                Copyright © now-forever crow.
+                Powered by <a href="https://github.com/wlwang41/cb" target="_blank">Cb</a>.
+                UI by <a href="https://github.com/tankywoo/wiki.tankywoo.com">yasimple</a>
+            </span>
+        </div>
+    </body>
+</html>
