@@ -575,6 +575,12 @@ http.server_port=8080  # HTTP服务端口
     <span class="p">}</span>
 <span class="p">}</span>
 </pre></div>
+
+
+<p>重启nginx，上传一张图片，然后去nginx的cache目录查看是否有缓存文件，要清除缓存只需在url中group之前加上<code>purge</code>。</p>
+<blockquote>
+<p>但是，都要读文件，只是换一个路径这样的缓存意义何在?</p>
+</blockquote>
     </div>
 
         </div>
