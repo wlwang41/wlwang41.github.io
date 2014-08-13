@@ -48,16 +48,18 @@
 但是介绍它的文档都是分散的，没有人去维护一个官方的文档，给我的感觉很不正式，万一哪天作者不去维护了怎么办呢？
 由于我没能提出另一个可靠的方案，所以也就决定使用它了。希望不要成为和以前选用cassandra作为主数据库一样的黑历史。
 这篇文章主要整理一些碎片的文档，希望能够慢慢完善最终成为我们组内使用FastDFS的一个wiki。</p>
-<h2 id="fastdfs">FastDFS概述</h2>
+<h2 id="fastdfs">FastDFS安装</h2>
+<p>安装请参考<a href="http://www.zrwm.com/?cat=131">这里</a>。</p>
+<h2 id="fastdfs_1">FastDFS概述</h2>
 <p>通过<a href="http://search.aol.com/aol/search?q=fastdfs&amp;s_it=opensearch">Google</a>来搜FastDFS，
 会看到前四个结果分别是<a href="http://code.google.com/p/fastdfs/">google code</a>和<a href="http://sourceforge.net/projects/fastdfs/">sourceforge</a>上托管的源码。
 很奇怪为什么作者不在Github上托管一份，这2个更新和管理代码太不方便，更不谈googlecode被墙了。</p>
 <p>第五个结果是它的<a href="http://bbs.chinaunix.net/forum-240-1.html">论坛</a>，很多资料和使用经验应该都会出自这里。哎，写个官方使用文档是他妈有多难？</p>
 <p>后面2篇文章是<a href="http://tech.uc.cn/?p=221">uc博客</a>上面别人分享的，写得很好，讲清楚了FastDFS的原理，概述这一小节将会是对这2篇文章的整理。</p>
-<h3 id="fastdfs_1">什么是FastDFS</h3>
+<h3 id="fastdfs_2">什么是FastDFS</h3>
 <p>FastDFS是一个开源的轻量级分布式文件系统，它解决了大数据量存储和负载均衡等问题。
 特别适合以中小文件（建议范围： <strong>4KB</strong> 到 <strong>500MB</strong> ）为载体的在线服务，如相册网站、视频网站等等。</p>
-<h3 id="fastdfs_2">FastDFS架构</h3>
+<h3 id="fastdfs_3">FastDFS架构</h3>
 <p>FastDFS服务端有三个角色：跟踪服务器（tracker server）、存储服务器（storage server）和客户端（client）。</p>
 <ul>
 <li>
@@ -117,7 +119,7 @@ Storage server直接利用OS的文件系统调用管理文件。</p>
 <p>存储服务器组内所有存储服务器是对等关系，存储的数据一一对应且相同；所有的存储服务器均是同时在线服务，极大的提高的服务器的使用率，分担了数据访问压力。</p>
 </li>
 </ul>
-<h2 id="fastdfs_3">FastDFS使用技巧</h2>
+<h2 id="fastdfs_4">FastDFS使用技巧</h2>
 <h3 id="_5">下载时返回可读文件名</h3>
 <p>文件被上传到FastDFS后Storage服务端将返回的文件索引（FID），
 其中文件名是根据FastDFS自定义规则重新生成的，而不是原始文件名，例如： group2/M00/00/89/eQ6h3FKJf_PRl8p4AUz4wO8tqaA688.apk</p>
@@ -513,6 +515,65 @@ http.server_port=8080  # HTTP服务端口
 
 <span class="cp">#use &quot;#include&quot; directive to include HTTP other settiongs</span>
 <span class="cp">##include http.conf</span>
+</pre></div>
+
+
+<h3 id="_8">缓存</h3>
+<p>缓存的方案选取的是在tracker的机器上安装 <code>ngx_cache_purge</code> 模块来提供缓存。</p>
+<p>修改nginx配置如下:</p>
+<div class="hlcode"><pre><span class="n">worker_processes</span>  <span class="mi">4</span><span class="p">;</span>                  <span class="err">#根据</span><span class="n">CPU</span><span class="err">核心数而定</span>
+<span class="n">events</span> <span class="p">{</span>
+    <span class="n">worker_connections</span>  <span class="mi">65535</span><span class="p">;</span>        <span class="err">#最大链接数</span>
+    <span class="n">use</span> <span class="n">epoll</span><span class="p">;</span>                        <span class="err">#新版本的</span><span class="n">Linux</span><span class="err">可使用</span><span class="n">epoll</span><span class="err">加快处理性能</span>
+<span class="p">}</span>
+<span class="n">http</span> <span class="p">{</span>
+    <span class="err">#设置缓存参数</span>
+    <span class="n">server_names_hash_bucket_size</span> <span class="mi">128</span><span class="p">;</span>
+    <span class="n">client_header_buffer_size</span> <span class="mi">32</span><span class="n">k</span><span class="p">;</span>
+    <span class="n">large_client_header_buffers</span> <span class="mi">4</span> <span class="mi">32</span><span class="n">k</span><span class="p">;</span>
+    <span class="n">client_max_body_size</span> <span class="mi">300</span><span class="n">m</span><span class="p">;</span>
+    <span class="n">sendfile</span>        <span class="n">on</span><span class="p">;</span>
+    <span class="n">tcp_nopush</span>      <span class="n">on</span><span class="p">;</span>
+    <span class="n">proxy_redirect</span> <span class="n">off</span><span class="p">;</span>
+    <span class="n">proxy_set_header</span> <span class="n">Host</span> <span class="err">$</span><span class="n">http_host</span><span class="p">;</span>
+    <span class="n">proxy_set_header</span> <span class="n">X</span><span class="o">-</span><span class="n">Real</span><span class="o">-</span><span class="n">IP</span> <span class="err">$</span><span class="n">remote_addr</span><span class="p">;</span>
+    <span class="n">proxy_set_header</span> <span class="n">X</span><span class="o">-</span><span class="n">Forwarded</span><span class="o">-</span><span class="n">For</span> <span class="err">$</span><span class="n">proxy_add_x_forwarded_for</span><span class="p">;</span>
+    <span class="n">proxy_connect_timeout</span> <span class="mi">90</span><span class="p">;</span>
+    <span class="n">proxy_send_timeout</span> <span class="mi">90</span><span class="p">;</span>
+    <span class="n">proxy_read_timeout</span> <span class="mi">90</span><span class="p">;</span>
+    <span class="n">proxy_buffer_size</span> <span class="mi">16</span><span class="n">k</span><span class="p">;</span>
+    <span class="n">proxy_buffers</span> <span class="mi">4</span> <span class="mi">64</span><span class="n">k</span><span class="p">;</span>
+    <span class="n">proxy_busy_buffers_size</span> <span class="mi">128</span><span class="n">k</span><span class="p">;</span>
+    <span class="n">proxy_temp_file_write_size</span> <span class="mi">128</span><span class="n">k</span><span class="p">;</span>
+    <span class="err">#设置缓存存储路径、存储方式、分配内存大小、磁盘最大空间、缓存期限</span>
+    <span class="n">proxy_cache_path</span> <span class="o">/</span><span class="n">var</span><span class="o">/</span><span class="n">cache</span><span class="o">/</span><span class="n">nginx</span><span class="o">/</span><span class="n">proxy_cache</span> <span class="n">levels</span><span class="o">=</span><span class="mi">1</span><span class="o">:</span><span class="mi">2</span> <span class="n">keys_zone</span><span class="o">=</span><span class="n">http</span><span class="o">-</span><span class="n">cache</span><span class="o">:</span><span class="mi">500</span><span class="n">m</span> <span class="n">max_size</span><span class="o">=</span><span class="mi">10</span><span class="n">g</span> <span class="n">inactive</span><span class="o">=</span><span class="mi">30</span><span class="n">d</span><span class="p">;</span>
+    <span class="n">proxy_temp_path</span> <span class="o">/</span><span class="n">var</span><span class="o">/</span><span class="n">cache</span><span class="o">/</span><span class="n">nginx</span><span class="o">/</span><span class="n">proxy_cache</span><span class="o">/</span><span class="n">tmp</span><span class="p">;</span>
+
+    <span class="err">#设置</span><span class="n">group1</span><span class="err">的服务器</span>
+    <span class="n">upstream</span> <span class="n">fdfs_group1</span> <span class="p">{</span>
+        <span class="n">server</span> <span class="mf">172.16.1.203</span><span class="o">:</span><span class="mi">8080</span> <span class="n">weight</span><span class="o">=</span><span class="mi">1</span> <span class="n">max_fails</span><span class="o">=</span><span class="mi">2</span> <span class="n">fail_timeout</span><span class="o">=</span><span class="mi">30</span><span class="n">s</span><span class="p">;</span>
+        <span class="n">server</span> <span class="mf">172.16.1.204</span><span class="o">:</span><span class="mi">8080</span> <span class="n">weight</span><span class="o">=</span><span class="mi">1</span> <span class="n">max_fails</span><span class="o">=</span><span class="mi">2</span> <span class="n">fail_timeout</span><span class="o">=</span><span class="mi">30</span><span class="n">s</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="n">server</span> <span class="p">{</span>
+        <span class="err">#设置服务器端口</span>
+        <span class="n">listen</span>       <span class="mi">8080</span><span class="p">;</span>
+        <span class="err">#设置</span><span class="n">group1</span><span class="err">的负载均衡参数</span>
+        <span class="n">location</span> <span class="o">/</span><span class="n">group1</span><span class="o">/</span><span class="n">M00</span> <span class="p">{</span>
+            <span class="n">proxy_next_upstream</span> <span class="n">http_502</span> <span class="n">http_504</span> <span class="n">error</span> <span class="n">timeout</span> <span class="n">invalid_header</span><span class="p">;</span>
+            <span class="n">proxy_cache</span> <span class="n">http</span><span class="o">-</span><span class="n">cache</span><span class="p">;</span>
+            <span class="n">proxy_cache_valid</span>  <span class="mi">200</span> <span class="mi">304</span> <span class="mi">12</span><span class="n">h</span><span class="p">;</span>
+            <span class="n">proxy_cache_key</span> <span class="err">$</span><span class="n">uri</span><span class="err">$</span><span class="n">is_args</span><span class="err">$</span><span class="n">args</span><span class="p">;</span>
+            <span class="n">proxy_pass</span> <span class="n">http</span><span class="o">:</span><span class="c1">//fdfs_group1;</span>
+            <span class="n">expires</span> <span class="mi">30</span><span class="n">d</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="n">location</span> <span class="o">~</span> <span class="o">/</span><span class="n">purge</span><span class="p">(</span><span class="o">/</span><span class="p">.</span><span class="o">*</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">allow</span> <span class="mf">127.0.0.1</span><span class="p">;</span>
+        <span class="n">allow</span> <span class="mf">172.16.1.0</span><span class="o">/</span><span class="mi">24</span><span class="p">;</span>
+        <span class="n">deny</span> <span class="n">all</span><span class="p">;</span>
+        <span class="n">proxy_cache_purge</span> <span class="n">http</span><span class="o">-</span><span class="n">cache</span>  <span class="err">$</span><span class="mi">1</span><span class="err">$</span><span class="n">is_args</span><span class="err">$</span><span class="n">args</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
 </pre></div>
     </div>
 
