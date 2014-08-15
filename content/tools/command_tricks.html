@@ -200,7 +200,7 @@
 
 
 <p>上传文件:</p>
-<div class="hlcode"><pre><span class="n">curl</span> <span class="o">--</span><span class="n">request</span> <span class="n">PUT</span> <span class="err">&#39;</span><span class="n">http</span><span class="o">:</span><span class="c1">//www.somedomain.com/rest-api/user/12345/&#39; --data @data.txt</span>
+<div class="hlcode"><pre><span class="n">curl</span> <span class="o">--</span><span class="n">request</span> <span class="n">POST</span> <span class="err">&#39;</span><span class="n">http</span><span class="o">:</span><span class="c1">//127.0.0.1:8008/api/trace_file&#39; -F &#39;trace_file=@journal.txt;type=text/plain&#39;</span>
 </pre></div>
 
 
