@@ -1039,6 +1039,247 @@ http.server_port=8080  # HTTP服务端口
     <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">file</span> <span class="nx">create</span> <span class="nx">timestamp</span>
     <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">file</span> <span class="nx">CRC32</span> <span class="nx">signature</span>
 </pre></div>
+
+
+<h2 id="php-client">php client端接口调用</h2>
+<p><strong>获取客户端版本号</strong></p>
+<div class="hlcode"><pre> <span class="n">string</span> <span class="n">fastdfs_client_version</span><span class="p">()</span>
+</pre></div>
+
+
+<p><strong>获取最近一个错误号</strong></p>
+<div class="hlcode"><pre><span class="kt">long</span> <span class="n">fastdfs_get_last_error_no</span><span class="p">()</span>
+</pre></div>
+
+
+<p><strong>获取最近一次错误的信息</strong></p>
+<div class="hlcode"><pre><span class="n">string</span> <span class="n">fastdfs_get_last_error_info</span><span class="p">()</span>
+</pre></div>
+
+
+<p><strong>为http下载获取防盗连接</strong></p>
+<div class="hlcode"><pre><span class="n">string</span> <span class="n">fastdfs_http_gen_token</span><span class="p">(</span><span class="n">string</span> <span class="n">remote_filename</span><span class="p">,</span> <span class="kt">int</span> <span class="n">timestamp</span><span class="p">)</span>
+<span class="err">生成防盗连接</span>
+<span class="err">参数：</span>
+    <span class="err">@</span><span class="n">remote_filename</span><span class="o">:</span>  <span class="err">远程文件名（不包含</span><span class="n">group</span> <span class="n">name</span><span class="err">）</span>
+    <span class="err">@</span><span class="n">timestamp</span><span class="o">:</span> <span class="err">时间戳</span>
+<span class="err">返回：成功则返回</span><span class="n">token</span><span class="err">串，否则返回</span><span class="nb">false</span>
+</pre></div>
+
+
+<p><strong>获取文件信息</strong></p>
+<div class="hlcode"><pre><span class="n">array</span> <span class="n">fastdfs_get_file_info</span><span class="p">(</span><span class="n">string</span> <span class="n">group_name</span><span class="p">,</span> <span class="n">string</span> <span class="n">remote_filename</span><span class="p">)</span>
+<span class="err">获取文件的</span><span class="n">meta</span> <span class="n">info</span>
+<span class="err">参数：</span>
+    <span class="err">@</span><span class="n">group_name</span><span class="o">:</span> <span class="err">文件所在的组名</span>
+    <span class="err">@</span><span class="n">remote_filename</span><span class="o">:</span> <span class="err">文件在</span><span class="n">storage</span> <span class="n">server</span><span class="err">上的名字</span>
+<span class="err">返回：</span>
+    <span class="err">成功则返回文件信息数组，否则返回</span><span class="nb">false</span>
+    <span class="err">文件信息数组包括以下信息：</span>
+    <span class="nl">create_timestamp:</span> <span class="err">文件创建的时间</span>
+    <span class="nl">file_size:</span> <span class="err">文件大小</span>
+    <span class="nl">source_ip_addr:</span> <span class="err">文件上传的源</span><span class="n">storage</span> <span class="n">ip</span><span class="err">地址</span>
+
+<span class="n">array</span> <span class="n">fastdfs_get_file_info</span><span class="p">(</span><span class="n">string</span> <span class="n">file_id</span><span class="p">)</span>
+<span class="err">获取文件的</span><span class="n">meta</span> <span class="n">info</span>
+<span class="err">参数：</span>
+    <span class="err">@</span><span class="n">file_id</span><span class="o">:</span> <span class="err">组名</span><span class="o">+</span><span class="err">远程文件名</span>
+</pre></div>
+
+
+<p><strong>判断文件是否存在</strong></p>
+<div class="hlcode"><pre><span class="n">boolean</span> <span class="n">fastdfs_storage_file_exist</span><span class="p">(</span><span class="n">string</span> <span class="n">group_name</span><span class="p">,</span> <span class="n">string</span> <span class="n">remote_filename</span><span class="p">[,</span> <span class="n">array</span> <span class="n">tracker_server</span><span class="p">,</span> <span class="n">array</span> <span class="n">storage_server</span><span class="p">])</span>
+<span class="err">判断文件是否存在</span>
+<span class="err">参数：</span>
+    <span class="err">@</span><span class="n">group_name</span><span class="o">:</span> <span class="err">文件所在的组名</span>
+    <span class="err">@</span><span class="n">remote_filename</span><span class="o">:</span> <span class="err">远程文件名</span>
+    <span class="err">@</span><span class="n">array</span> <span class="n">tracker_server</span><span class="o">:</span> <span class="n">tracker_server</span><span class="err">数组，包含</span><span class="n">ip_addr</span><span class="p">,</span> <span class="n">port</span> <span class="n">and</span> <span class="n">sock</span>
+    <span class="err">@</span><span class="n">array</span> <span class="n">storage_server</span><span class="o">:</span> <span class="n">storage_server</span><span class="err">数组，包含</span><span class="n">ip_addr</span><span class="p">,</span> <span class="n">port</span> <span class="n">and</span> <span class="n">sock</span>
+<span class="err">返回：</span>
+    <span class="err">存在返回</span><span class="nb">true</span><span class="err">，否则返回</span><span class="nb">false</span>
+
+<span class="n">boolean</span> <span class="n">fastdfs_storage_file_exist1</span><span class="p">(</span><span class="n">string</span> <span class="n">file_id</span><span class="p">)</span>
+</pre></div>
+
+
+<p><strong>上传文件</strong></p>
+<div class="hlcode"><pre><span class="n">array</span> <span class="n">fastdfs_storage_upload_by_filename</span><span class="p">(</span><span class="n">string</span> <span class="n">local_filename</span><span class="p">[,</span> <span class="n">string</span> <span class="n">file_ext_name</span><span class="p">,</span> <span class="n">array</span> <span class="n">meta_list</span><span class="p">,</span> <span class="n">string</span> <span class="n">group_name</span><span class="p">,</span> <span class="n">array</span> <span class="n">tracker_server</span><span class="p">,</span> <span class="n">array</span> <span class="n">storage_server</span><span class="p">])</span>
+<span class="err">参数：</span>
+    <span class="err">@</span><span class="n">local_filename</span><span class="o">:</span> <span class="err">本地要上传的文件名</span>
+    <span class="err">@</span><span class="n">file_ext_name</span><span class="o">:</span> <span class="err">文件扩展名，不包含</span><span class="n">dot</span>
+    <span class="err">@</span><span class="n">meta_list</span><span class="o">:</span> <span class="err">文件的一些元信息例如</span> <span class="n">array</span><span class="p">(</span><span class="err">&#39;</span><span class="n">width</span><span class="err">&#39;</span><span class="o">=&gt;</span><span class="mi">1024</span><span class="p">,</span><span class="err">&#39;</span><span class="n">height</span><span class="err">&#39;</span><span class="o">=&gt;</span><span class="mi">768</span><span class="p">)</span>
+    <span class="err">@</span><span class="n">group_name</span><span class="o">:</span> <span class="err">指定文件存储到的组</span>
+    <span class="err">@</span><span class="n">array</span> <span class="n">tracker_server</span><span class="o">:</span> <span class="n">tracker_server</span><span class="err">数组，包含</span><span class="n">ip_addr</span><span class="p">,</span> <span class="n">port</span> <span class="n">and</span> <span class="n">sock</span>
+    <span class="err">@</span><span class="n">array</span> <span class="n">storage_server</span><span class="o">:</span> <span class="n">storage_server</span><span class="err">数组，包含</span><span class="n">ip_addr</span><span class="p">,</span> <span class="n">port</span> <span class="n">and</span> <span class="n">sock</span>
+<span class="err">返回：</span>
+    <span class="err">成功返回数组，否则返回</span><span class="nb">false</span>
+    <span class="err">数组包含以下字段：</span><span class="n">group_name</span><span class="p">,</span> <span class="n">filename</span>
+
+<span class="n">array</span> <span class="n">fastdfs_storage_upload_by_filename1</span><span class="p">(</span><span class="n">string</span> <span class="n">local_filename</span><span class="p">[,</span> <span class="n">string</span> <span class="n">file_ext_name</span><span class="p">,</span> <span class="n">array</span> <span class="n">meta_list</span><span class="p">,</span> <span class="n">string</span> <span class="n">group_name</span><span class="p">,</span> <span class="n">array</span> <span class="n">tracker_server</span><span class="p">,</span> <span class="n">array</span> <span class="n">storage_server</span><span class="p">])</span>
+<span class="err">返回：</span>
+    <span class="err">成功则返回</span><span class="n">file_id</span><span class="p">,</span> <span class="err">否则返回</span><span class="nb">false</span>
+
+<span class="n">array</span> <span class="n">fastdfs_storage_upload_by_filebuff</span><span class="p">(</span><span class="n">string</span> <span class="n">file_buff</span><span class="p">[,</span> <span class="n">string</span> <span class="n">file_ext_name</span><span class="p">,</span> <span class="n">array</span> <span class="n">meta_list</span><span class="p">,</span> <span class="n">string</span> <span class="n">group_name</span><span class="p">,</span> <span class="n">array</span> <span class="n">tracker_server</span><span class="p">,</span> <span class="n">array</span> <span class="n">storage_server</span><span class="p">])</span>
+<span class="err">参数：</span>
+    <span class="err">@</span><span class="n">file_buff</span><span class="o">:</span> <span class="err">文件内容</span>
+    <span class="err">@</span><span class="n">file_ext_name</span><span class="o">:</span> <span class="err">文件扩展名，不包含</span><span class="n">dot</span>
+    <span class="err">@</span><span class="n">meta_list</span><span class="o">:</span> <span class="err">文件的一些元信息例如</span> <span class="n">array</span><span class="p">(</span><span class="err">&#39;</span><span class="n">width</span><span class="err">&#39;</span><span class="o">=&gt;</span><span class="mi">1024</span><span class="p">,</span><span class="err">&#39;</span><span class="n">height</span><span class="err">&#39;</span><span class="o">=&gt;</span><span class="mi">768</span><span class="p">)</span>
+    <span class="err">@</span><span class="n">group_name</span><span class="o">:</span> <span class="err">指定文件存储到的组</span>
+    <span class="err">@</span><span class="n">array</span> <span class="n">tracker_server</span><span class="o">:</span> <span class="n">tracker_server</span><span class="err">数组，包含</span><span class="n">ip_addr</span><span class="p">,</span> <span class="n">port</span> <span class="n">and</span> <span class="n">sock</span>
+    <span class="err">@</span><span class="n">array</span> <span class="n">storage_server</span><span class="o">:</span> <span class="n">storage_server</span><span class="err">数组，包含</span><span class="n">ip_addr</span><span class="p">,</span> <span class="n">port</span> <span class="n">and</span> <span class="n">sock</span>
+<span class="err">返回：</span>
+    <span class="err">成功返回数组，否则返回</span><span class="nb">false</span>
+    <span class="err">数组包含以下字段：</span><span class="n">group_name</span><span class="p">,</span> <span class="n">filename</span>
+
+<span class="n">array</span> <span class="n">fastdfs_storage_upload_by_filebuff1</span><span class="p">(</span><span class="n">string</span> <span class="n">file_buff</span><span class="p">[,</span> <span class="n">string</span> <span class="n">file_ext_name</span><span class="p">,</span> <span class="n">array</span> <span class="n">meta_list</span><span class="p">,</span> <span class="n">string</span> <span class="n">group_name</span><span class="p">,</span> <span class="n">array</span> <span class="n">tracker_server</span><span class="p">,</span> <span class="n">array</span> <span class="n">storage_server</span><span class="p">])</span>
+
+<span class="n">array</span> <span class="n">fastdfs_storage_upload_by_callback</span><span class="p">()</span>
+</pre></div>
+
+
+<p><strong>append modify接口暂时不用</strong></p>
+<p><strong>删除文件</strong></p>
+<div class="hlcode"><pre><span class="n">boolean</span> <span class="n">fastdfs_storage_delete_file</span><span class="p">(</span><span class="n">string</span> <span class="n">group_name</span><span class="p">,</span> <span class="n">string</span> <span class="n">remote_filename</span><span class="p">[,</span> <span class="n">array</span> <span class="n">tracker_server</span><span class="p">,</span> <span class="n">array</span> <span class="n">storage_server</span><span class="p">])</span>
+<span class="err">从</span><span class="n">storage</span> <span class="n">server</span> <span class="err">删除文件</span>
+<span class="err">参数：</span>
+    <span class="err">@</span><span class="n">group_name</span><span class="o">:</span> <span class="err">文件的组名</span>
+    <span class="err">@</span><span class="n">remote_filename</span><span class="o">:</span> <span class="err">文件在</span><span class="n">storage</span> <span class="n">server</span><span class="err">上的名字</span>
+    <span class="err">@</span><span class="n">array</span> <span class="n">tracker_server</span><span class="o">:</span> <span class="n">tracker_server</span><span class="err">数组，包含</span><span class="n">ip_addr</span><span class="p">,</span> <span class="n">port</span> <span class="n">and</span> <span class="n">sock</span>
+    <span class="err">@</span><span class="n">array</span> <span class="n">storage_server</span><span class="o">:</span> <span class="n">storage_server</span><span class="err">数组，包含</span><span class="n">ip_addr</span><span class="p">,</span> <span class="n">port</span> <span class="n">and</span> <span class="n">sock</span>
+<span class="err">返回：</span>
+    <span class="err">成功则返回</span><span class="nb">true</span><span class="p">,</span> <span class="err">否则返回</span><span class="nb">false</span>
+
+ <span class="n">boolean</span> <span class="n">fastdfs_storage_delete_file1</span><span class="p">(</span><span class="n">string</span> <span class="n">file_id</span><span class="p">[,</span> <span class="n">array</span> <span class="n">tracker_server</span><span class="p">,</span> <span class="n">array</span> <span class="n">storage_server</span><span class="p">])</span>
+</pre></div>
+
+
+<p><strong>下载文件</strong></p>
+<div class="hlcode"><pre><span class="n">string</span> <span class="n">fastdfs_storage_download_file_to_buff</span><span class="p">(</span><span class="n">string</span> <span class="n">group_name</span><span class="p">,</span> <span class="n">string</span> <span class="n">remote_filename</span><span class="p">[,</span> <span class="kt">long</span> <span class="n">file_offset</span><span class="p">,</span> <span class="kt">long</span> <span class="n">download_bytes</span><span class="p">,</span> <span class="n">array</span> <span class="n">tracker_server</span><span class="p">,</span> <span class="n">array</span> <span class="n">storage_server</span><span class="p">])</span>
+<span class="err">从</span><span class="n">storage</span> <span class="n">server</span><span class="err">下载文件</span>
+<span class="err">参数：</span>
+    <span class="err">@</span><span class="n">group_name</span><span class="err">；文件的组名</span>
+    <span class="err">@</span><span class="n">remote_filename</span><span class="o">:</span> <span class="err">文件在</span><span class="n">storage</span> <span class="n">server</span><span class="err">上的名字</span>
+    <span class="err">@</span><span class="n">file_offset</span><span class="o">:</span><span class="mi">0</span><span class="p">(</span><span class="err">默认</span><span class="p">)</span>
+    <span class="err">@</span><span class="n">array</span> <span class="n">tracker_server</span><span class="o">:</span> <span class="n">tracker_server</span><span class="err">数组，包含</span><span class="n">ip_addr</span><span class="p">,</span> <span class="n">port</span> <span class="n">and</span> <span class="n">sock</span>
+    <span class="err">@</span><span class="n">array</span> <span class="n">storage_server</span><span class="o">:</span> <span class="n">storage_server</span><span class="err">数组，包含</span><span class="n">ip_addr</span><span class="p">,</span> <span class="n">port</span> <span class="n">and</span> <span class="n">sock</span>
+<span class="err">返回：</span>
+    <span class="err">成功则返回文件的内容，否则返回</span><span class="nb">false</span>
+
+<span class="n">string</span> <span class="n">fastdfs_storage_download_file_to_buff1</span><span class="p">(</span><span class="n">string</span> <span class="n">file_id</span><span class="p">[,</span> <span class="kt">long</span> <span class="n">file_offset</span><span class="p">,</span> <span class="kt">long</span> <span class="n">download_bytes</span><span class="p">,</span> <span class="n">array</span> <span class="n">tracker_server</span><span class="p">,</span> <span class="n">array</span> <span class="n">storage_server</span><span class="p">])</span>
+
+<span class="n">boolean</span> <span class="n">fastdfs_storage_download_file_to_file</span><span class="p">(</span><span class="n">string</span> <span class="n">group_name</span><span class="p">,</span> <span class="n">string</span> <span class="n">remote_filename</span><span class="p">,</span> <span class="n">string</span> <span class="n">local_filename</span><span class="p">[,</span> <span class="kt">long</span> <span class="n">file_offset</span><span class="p">,</span> <span class="kt">long</span> <span class="n">download_bytes</span><span class="p">,</span> <span class="n">array</span> <span class="n">tracker_server</span><span class="p">,</span> <span class="n">array</span> <span class="n">storage_server</span><span class="p">])</span>
+<span class="err">从</span><span class="n">storage</span><span class="err">现在文件到本地文件</span>
+<span class="err">参数：</span>
+    <span class="err">@</span><span class="n">local_filename</span><span class="o">:</span> <span class="err">要保存到本地的文件名</span>
+    <span class="err">其余参数同上</span>
+</pre></div>
+
+
+<p><strong>设置、获取文件meta_data</strong></p>
+<div class="hlcode"><pre><span class="n">boolean</span> <span class="n">fastdfs_storage_set_metadata</span><span class="p">(</span><span class="n">string</span> <span class="n">group_name</span><span class="p">,</span> <span class="n">string</span> <span class="n">remote_filename</span><span class="p">,</span> <span class="n">array</span> <span class="n">meta_list</span><span class="p">[,</span> <span class="n">string</span> <span class="n">op_type</span><span class="p">,</span> <span class="n">array</span> <span class="n">tracker_server</span><span class="p">,</span> <span class="n">array</span> <span class="n">storage</span> <span class="n">server</span><span class="p">]</span>
+<span class="err">设置文件</span><span class="n">metadata</span>
+<span class="err">参数：</span>
+    <span class="err">@</span><span class="n">meta_list</span><span class="o">:</span><span class="n">meta</span><span class="err">信息数组：</span><span class="n">array</span><span class="p">(</span><span class="err">&#39;</span><span class="n">width</span><span class="err">&#39;</span><span class="o">=&gt;</span><span class="mi">1024</span><span class="p">,</span><span class="err">&#39;</span><span class="n">height</span><span class="err">&#39;</span><span class="o">=&gt;</span><span class="mi">768</span><span class="p">)</span>
+    <span class="err">@</span><span class="n">op_type</span><span class="o">:</span> <span class="err">操作有两种，合并或者覆盖</span>
+        <span class="n">FDFS_STORAGE_SET_METADATA_FLAG_MERGE</span>
+        <span class="n">FDFS_STORAGE_SET_METADATA_FLAG_OVERWRITE</span>
+<span class="err">返回：</span>
+    <span class="err">成功返回</span><span class="nb">true</span><span class="p">,</span><span class="err">否则返回</span><span class="nb">false</span>
+
+<span class="n">array</span> <span class="n">fastdfs_storage_get_metadata</span><span class="p">(</span><span class="n">string</span> <span class="n">group_name</span><span class="p">,</span> <span class="n">string</span> <span class="n">remote_filename</span><span class="p">[,</span> <span class="n">array</span> <span class="n">tracker_server</span><span class="p">,</span> <span class="n">array</span> <span class="n">storage_server</span><span class="p">])</span>
+<span class="err">获取文件的</span><span class="n">metadata</span>
+<span class="err">返回：</span>
+    <span class="err">成功则返回</span><span class="n">meta_data</span><span class="err">数组，否则返回</span><span class="nb">false</span>
+</pre></div>
+
+
+<p><strong>连接/断开连接到server</strong></p>
+<div class="hlcode"><pre><span class="n">array</span> <span class="n">fastdfs_connect_server</span><span class="p">(</span><span class="n">string</span> <span class="n">ip_addr</span><span class="p">,</span> <span class="kt">int</span> <span class="n">port</span><span class="p">)</span>
+<span class="err">连接到</span><span class="n">server</span>
+<span class="err">参数：</span>
+    <span class="err">@</span><span class="n">ip_addr</span><span class="o">:</span>  <span class="n">server</span><span class="err">的</span><span class="n">ip</span><span class="err">地址</span>
+    <span class="err">@</span><span class="n">port</span><span class="o">:</span> <span class="n">server</span><span class="err">的端口</span>
+<span class="err">返回：</span>
+    <span class="err">连接成功返回</span><span class="nb">true</span><span class="p">;</span><span class="err">否则返回</span><span class="nb">false</span>
+
+<span class="n">array</span> <span class="n">fastdfs_disconnect_server</span><span class="p">(</span><span class="n">string</span> <span class="n">ip_addr</span><span class="p">,</span> <span class="kt">int</span> <span class="n">port</span><span class="p">)</span>
+<span class="err">断开到</span><span class="n">server</span><span class="err">的连接</span>
+<span class="err">参数：</span>
+    <span class="err">同上</span>
+</pre></div>
+
+
+<p><strong>Active 测试</strong></p>
+<div class="hlcode"><pre><span class="n">boolean</span> <span class="n">fastdfs_acitve_test</span><span class="p">(</span><span class="n">array</span> <span class="n">server_info</span><span class="p">)</span>
+<span class="err">给</span><span class="n">server</span><span class="err">发送</span><span class="n">active_test</span><span class="err">命令</span>
+<span class="err">参数：</span>
+    <span class="err">@</span><span class="n">server_info</span><span class="o">:</span> <span class="n">array</span><span class="o">:</span> <span class="n">ip_addr</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">sock</span>
+<span class="err">返回：</span>
+    <span class="n">active</span><span class="err">返回</span><span class="nb">true</span><span class="err">，否则返回</span><span class="nb">false</span>
+</pre></div>
+
+
+<p><strong>获取连接</strong></p>
+<div class="hlcode"><pre><span class="n">array</span> <span class="n">fastdfs_tracker_get_connection</span><span class="p">()</span>
+<span class="err">获取到</span><span class="n">tracker</span> <span class="n">server</span><span class="err">的连接</span>
+<span class="err">返回：</span>
+    <span class="err">成功则返回数组，否则返回</span><span class="nb">false</span>
+    <span class="err">数组包括：</span><span class="n">ip_addr</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">sock</span>
+
+<span class="n">array</span> <span class="n">fastdfs_tracker_make_all_connection</span><span class="p">()</span>
+<span class="err">连接到所有的</span><span class="n">tracker</span> <span class="n">server</span>
+<span class="err">返回：</span>
+    <span class="err">成功返回</span><span class="nb">true</span><span class="p">;</span><span class="err">否则返回</span><span class="nb">false</span>
+</pre></div>
+
+
+<p><strong>列出tracker的组</strong></p>
+<div class="hlcode"><pre><span class="n">array</span> <span class="n">fastdfs_tracker_list_groups</span><span class="p">([</span><span class="n">string</span> <span class="n">group_name</span><span class="p">,</span> <span class="n">array</span> <span class="n">tracker_server</span><span class="p">])</span>
+<span class="err">获取组信息</span>
+<span class="err">参数：</span>
+    <span class="err">@</span><span class="n">gourp_name</span><span class="o">:</span><span class="err">指定组名，默认列出所有组</span>
+<span class="err">返回：</span>
+    <span class="err">组信息数组，数组每一项是一个组</span>
+</pre></div>
+
+
+<p><strong>请求获取storage server to store（上传文件）</strong></p>
+<div class="hlcode"><pre><span class="n">array</span> <span class="n">fastdfs_tracker_query_storage_store</span><span class="p">([</span><span class="n">string</span> <span class="n">group_name</span><span class="p">,</span> <span class="n">array</span> <span class="n">tracker_server</span><span class="p">])</span>
+<span class="err">获取</span><span class="n">storage</span> <span class="n">server</span><span class="err">的信息用以上传文件</span>
+<span class="err">返回：</span>
+    <span class="err">成功返回一个</span><span class="n">storage</span> <span class="n">server</span><span class="err">信息，保存在数组，否则返回</span><span class="nb">false</span><span class="err">；</span>
+    <span class="err">数组包含：</span><span class="n">ip_addr</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">sock</span><span class="p">,</span> <span class="n">store_path_index</span>
+
+<span class="n">array</span> <span class="n">fastdfs_tracker_query_storage_store_list</span>
+<span class="err">同上，但返回的是</span><span class="n">storage</span> <span class="n">server</span><span class="err">列表</span>
+</pre></div>
+
+
+<p><strong>请求storage server to update（更新meta data）</strong></p>
+<div class="hlcode"><pre><span class="n">array</span> <span class="n">fastdfs_tracker_query_storage_update</span><span class="p">(</span><span class="n">string</span> <span class="n">group_name</span><span class="p">,</span> <span class="n">string</span> <span class="n">remote_filename</span><span class="p">[,</span> <span class="n">array</span> <span class="n">tracekr_server</span><span class="p">]</span>
+</pre></div>
+
+
+<p><strong>请求storage server to fetch（下载文件）</strong></p>
+<div class="hlcode"><pre><span class="n">array</span> <span class="n">fastdfs_tracker_query_storage_fetch</span><span class="p">(</span><span class="n">string</span> <span class="n">gourp_name</span><span class="p">,</span> <span class="n">string</span> <span class="n">remote_filename</span><span class="p">[,</span> <span class="n">array</span> <span class="n">tracker_server</span><span class="p">])</span>
+</pre></div>
+
+
+<p>**获取可下载某文件的storage server</p>
+<div class="hlcode"><pre><span class="n">array</span> <span class="n">fastdfs_tracker_query_storage_list</span><span class="p">(</span><span class="n">string</span> <span class="n">group_name</span><span class="p">,</span> <span class="n">string</span> <span class="n">remote_filename</span><span class="p">[,</span> <span class="n">array</span> <span class="n">tracker_server</span><span class="p">])</span>
+<span class="err">获取可以下载文件内容的</span><span class="n">storage</span> <span class="n">server</span> <span class="n">list</span>
+</pre></div>
+
+
+<p><strong>删除storage</strong></p>
+<div class="hlcode"><pre><span class="n">boolean</span> <span class="n">fastdfs_tracker_delete_storage</span><span class="p">(</span><span class="n">string</span> <span class="n">group</span><span class="p">,</span> <span class="n">string</span> <span class="n">storage_ip</span><span class="p">)</span>
+<span class="err">将</span><span class="n">storage</span> <span class="err">从集群中删除</span>
+<span class="err">参数：</span>
+    <span class="err">@</span><span class="n">group_name</span><span class="o">:</span> <span class="n">storage</span><span class="err">所在的组名</span>
+    <span class="err">@</span><span class="n">storage_ip</span><span class="o">:</span> <span class="n">storage</span> <span class="n">server</span> <span class="err">的</span><span class="n">ip</span>
+<span class="err">返回：</span>
+    <span class="err">成功返回</span><span class="nb">true</span><span class="p">,</span><span class="err">否则返回</span><span class="nb">false</span>
+</pre></div>
     </div>
 
         </div>
