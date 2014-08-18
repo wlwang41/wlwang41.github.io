@@ -581,6 +581,464 @@ http.server_port=8080  # HTTP服务端口
 <blockquote>
 <p>但是，都要读文件，只是换一个路径这样的缓存意义何在?</p>
 </blockquote>
+<h2 id="fastdfs-zycservice">Fastdfs-zyc所实现的service</h2>
+<ul>
+<li>
+<p>BaseService  基类，仅包含Session</p>
+</li>
+<li>
+<p>FileDataService</p>
+<ul>
+<li>根据组名获取文件列表</li>
+<li>根据ip和fileId去数据库查找DownloadFileRecord</li>
+<li>保存DownloadFileRecord</li>
+</ul>
+</li>
+<li>
+<p>JobService   重点，所有其他service的数据都是由这个服务从服务端读取数据保存在数据库上</p>
+<ul>
+<li>按分钟更新组数据</li>
+<li>按小时更新组数据</li>
+<li>按天更新组数据</li>
+<li>从日志中读取数据保存到数据库</li>
+</ul>
+</li>
+<li>
+<p>MonitorService</p>
+<ul>
+<li>列出组信息</li>
+<li>列出所有组</li>
+<li>根据组名列出storage</li>
+<li>…</li>
+</ul>
+</li>
+<li>
+<p>StructureService</p>
+<ul>
+<li>listStorageTopLine</li>
+<li>listStorageAboutFile</li>
+</ul>
+</li>
+<li>
+<p>UserService 监控系统的用户控制相关</p>
+</li>
+<li>
+<p>WarningService</p>
+<ul>
+<li>添加删除被通知用户</li>
+<li>添加删除预警warning</li>
+<li>更新warning数据</li>
+</ul>
+</li>
+</ul>
+<h2 id="fastdfs_5">FastDFS 同步机制</h2>
+<p><em>参考自作者博客<a href="http://blog.chinaunix.net/uid-20315669-id-1967081.html">FastDFS How to -- 同步机制</a></em></p>
+<p>在FastDFS的服务器端配置文件中，bind_addr这个参数用于需要绑定本机IP地址的场合。只有这个参数和主机特征相关，其余参数都是可以统一配置的。在不需要绑定本机的情况下，为了便于管理和维护，建议所有tracker server的配置文件相同，同组内的所有storage server的配置文件相同。</p>
+<p>tracker server的配置文件中没有出现storage server，而storage server的配置文件中会列举出所有的tracker server。这就决定了storage server和tracker server之间的连接由storage server主动发起，storage server为每个tracker server启动一个线程进行连接和通讯，这部分的通信协议请参阅《FastDFS HOWTO -- Protocol》中的“2. storage server to tracker server command”部分。</p>
+<p>tracker server会在内存中保存storage分组及各个组下的storage server，并将连接过自己的storage server及其分组保存到文件中，以便下次重启服务时能直接从本地磁盘中获得storage相关信息。storage server会在内存中记录本组的所有服务器，并将服务器信息记录到文件中。tracker server和storage server之间相互同步storage server列表：</p>
+<ol>
+<li>如果一个组内增加了新的storage server或者storage server的状态发生了改变，tracker server都会将storage server列表同步给该组内的所有storage server。以新增storage server为例，因为新加入的storage server主动连接tracker server，tracker server发现有新的storage server加入，就会将该组内所有的storage server返回给新加入的storage server，并重新将该组的storage server列表返回给该组内的其他storage server；</li>
+<li>如果新增加一台tracker server，storage server连接该tracker server，发现该tracker server返回的本组storage server列表比本机记录的要少，就会将该tracker server上没有的storage server同步给该tracker server。</li>
+</ol>
+<p>同一组内的storage server之间是对等的，文件上传、删除等操作可以在任意一台storage server上进行。文件同步只在同组内的storage server之间进行，采用push方式，即源服务器同步给目标服务器。以文件上传为例，假设一个组内有3台storage server A、B和C，文件F上传到服务器B，由B将文件F同步到其余的两台服务器A和C。我们不妨把文件F上传到服务器B的操作为源头操作，在服务器B上的F文件为源头数据；文件F被同步到服务器A和C的操作为备份操作，在A和C上的F文件为备份数据。同步规则总结如下：</p>
+<ol>
+<li>只在本组内的storage server之间进行同步；</li>
+<li>源头数据才需要同步，备份数据不需要再次同步，否则就构成环路了；</li>
+<li>上述第二条规则有个例外，就是新增加一台storage server时，由已有的一台storage server将已有的所有数据（包括源头数据和备份数据）同步给该新增服务器。</li>
+</ol>
+<p><strong>关于storage server的7个状态</strong></p>
+<p>storage server有7个状态</p>
+<ul>
+<li>FDFS_STORAGE_STATUS_INIT      :初始化，尚未得到同步已有数据的源服务器</li>
+<li>FDFS_STORAGE_STATUS_WAIT_SYNC :等待同步，已得到同步已有数据的源服务器</li>
+<li>FDFS_STORAGE_STATUS_SYNCING   :同步中</li>
+<li>FDFS_STORAGE_STATUS_DELETED   :已删除，该服务器从本组中摘除（注：本状态的功能尚未实现）</li>
+<li>FDFS_STORAGE_STATUS_OFFLINE   :离线</li>
+<li>FDFS_STORAGE_STATUS_ONLINE    :在线，尚不能提供服务</li>
+<li>FDFS_STORAGE_STATUS_ACTIVE    :在线，可以提供服务</li>
+</ul>
+<p>当storage server的状态为FDFS_STORAGE_STATUS_ONLINE时，当该storage server向tracker server发起一次heart beat时，tracker server将其状态更改为FDFS_STORAGE_STATUS_ACTIVE。</p>
+<p>组内新增加一台storage server A时，由系统自动完成已有数据同步，处理逻辑如下：</p>
+<ol>
+<li>storage server A连接tracker server，tracker server将storage server A的状态设置为FDFS_STORAGE_STATUS_INIT。storage server A询问追加同步的源服务器和追加同步截至时间点，如果该组内只有storage server A或该组内已成功上传的文件数为0，则没有数据需要同步，storage server A就可以提供在线服务，此时tracker将其状态设置为FDFS_STORAGE_STATUS_ONLINE，否则tracker server将其状态设置为FDFS_STORAGE_STATUS_WAIT_SYNC，进入第二步的处理；</li>
+<li>假设tracker server分配向storage server A同步已有数据的源storage server为B。同组的storage server和tracker server通讯得知新增了storage server A，将启动同步线程，并向tracker server询问向storage server A追加同步的源服务器和截至时间点。storage server B将把截至时间点之前的所有数据同步给storage server A；而其余的storage server从截至时间点之后进行正常同步，只把源头数据同步给storage server A。到了截至时间点之后，storage server B对storage server A的同步将由追加同步切换为正常同步，只同步源头数据；</li>
+<li>storage server B向storage server A同步完所有数据，暂时没有数据要同步时，storage server B请求tracker server将storage server A的状态设置为FDFS_STORAGE_STATUS_ONLINE；</li>
+<li>当storage server A向tracker server发起heart beat时，tracker server将其状态更改为FDFS_STORAGE_STATUS_ACTIVE。</li>
+</ol>
+<h2 id="fastdfs_6">FastDFS使用的通信协议</h2>
+<p><strong>参考自作者博客<a href="http://blog.chinaunix.net/uid-20315669-id-1967079.html">FastDFS HOWTO -- Protocol</a></strong></p>
+<p>FastDFS采用TCP/IP协议，package包含header和body, header和body都可能为空</p>
+<p>header格式：</p>
+<div class="hlcode"><pre><span class="err">@</span> <span class="n">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="n">bytes</span> <span class="n">package</span> <span class="n">length</span>
+<span class="err">@</span> <span class="mi">1</span> <span class="n">byte</span> <span class="n">command</span>
+<span class="err">@</span> <span class="mi">1</span> <span class="n">byte</span> <span class="n">status</span>
+<span class="nl">note:</span>
+<span class="n">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="p">(</span><span class="mi">8</span><span class="p">)</span> <span class="n">bytes</span> <span class="n">number</span> <span class="n">buff</span> <span class="n">is</span> <span class="n">Big</span><span class="o">-</span><span class="n">Endian</span> <span class="n">bytes</span>
+</pre></div>
+
+
+<p>body格式:</p>
+<p>按照发送方和接收方角色不同可以分为5大类：</p>
+<h3 id="1-common-command">1. Common Command 通用命令</h3>
+<p><strong>FDFS_PROTO_CMD_QUIT</strong></p>
+<div class="hlcode"><pre><span class="c"># function: notify server connection will be closed （通知服务器连接将会中断）</span>
+<span class="c"># request body: none (no body part)</span>
+<span class="c"># response: none (no header and no body)</span>
+</pre></div>
+
+
+<p><strong>FDFS_PROTO_CMD_ACTIVE_TEST</strong></p>
+<div class="hlcode"><pre><span class="c"># function: active test （测试是否active）</span>
+<span class="c"># request body: none</span>
+<span class="c"># response body: none</span>
+</pre></div>
+
+
+<h3 id="2-storage-server-tracker-server">2. storage server 发送给tracker server的命令</h3>
+<p>这些commond的response 是 TRACKER_PROTO_CMD_STORAGE_RESP</p>
+<p><strong>TRACKER_PROTO_CMD_STORAGE_JOIN</strong></p>
+<div class="hlcode"><pre><span class="err">#</span> <span class="kd">function</span><span class="o">:</span> <span class="nx">storage</span> <span class="nx">join</span> <span class="nx">to</span> <span class="nx">tracker</span> <span class="p">(</span><span class="err">将</span><span class="nx">storage</span><span class="err">加入到</span><span class="nx">tracker</span><span class="err">的</span><span class="nx">track</span><span class="err">列表</span><span class="p">)</span>
+<span class="err">#</span> <span class="nx">request</span> <span class="nx">body</span><span class="o">:</span>
+    <span class="err">@</span> <span class="nx">FDFS_GROUP_NAME_MAX_LEN</span> <span class="o">+</span> <span class="mi">1</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">group</span> <span class="nx">name</span>
+    <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">storage</span> <span class="nx">server</span> <span class="nx">port</span>
+    <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">storage</span> <span class="nx">http</span> <span class="nx">server</span> <span class="nx">port</span>
+    <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">path</span> <span class="nx">count</span>
+    <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">subdir</span> <span class="nx">count</span> <span class="nx">per</span> <span class="nx">path</span>
+    <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">upload</span> <span class="nx">priority</span>
+    <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">join</span> <span class="nx">time</span> <span class="p">(</span><span class="nx">join</span> <span class="nx">timestamp</span><span class="p">)</span>
+    <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">up</span> <span class="nx">time</span> <span class="p">(</span><span class="nx">start</span> <span class="nx">timestamp</span><span class="p">)</span>
+    <span class="err">@</span> <span class="nx">FDFS_VERSION_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">storage</span> <span class="nx">server</span> <span class="nx">version</span>
+    <span class="err">@</span> <span class="nx">FDFS_DOMAIN_NAME_MAX_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">domain</span> <span class="nx">name</span> <span class="nx">of</span> <span class="nx">the</span> <span class="nx">web</span> <span class="nx">server</span> <span class="nx">on</span> <span class="nx">the</span> <span class="nx">storage</span> <span class="nx">server</span>
+    <span class="err">@</span> <span class="mi">1</span> <span class="kr">byte</span><span class="o">:</span> <span class="nx">init</span> <span class="nx">flag</span> <span class="p">(</span> <span class="mi">1</span> <span class="k">for</span> <span class="nx">init</span> <span class="nx">done</span><span class="p">)</span>
+    <span class="err">@</span> <span class="mi">1</span> <span class="kr">byte</span><span class="o">:</span> <span class="nx">storage</span> <span class="nx">server</span> <span class="nx">status</span>
+    <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">tracker</span> <span class="nx">server</span> <span class="nx">count</span> <span class="nx">excluding</span> <span class="nx">current</span> <span class="nx">tracker</span>
+<span class="err">#</span> <span class="nx">response</span> <span class="nx">body</span><span class="o">:</span>
+    <span class="err">@</span> <span class="nx">FDFS_IPADDR_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">sync</span> <span class="nx">source</span> <span class="nx">storage</span> <span class="nx">server</span> <span class="nx">ip</span> <span class="nx">address</span>
+<span class="err">#</span> <span class="nx">memo</span><span class="o">:</span> <span class="k">return</span> <span class="nx">all</span> <span class="nx">storage</span> <span class="nx">servers</span> <span class="k">in</span> <span class="nx">the</span> <span class="nx">group</span> <span class="nx">only</span> <span class="nx">when</span> <span class="nx">storage</span> <span class="nx">servers</span> <span class="nx">changed</span> <span class="nx">or</span> <span class="k">return</span> <span class="nx">none</span><span class="err">（仅当</span><span class="nx">storage</span> <span class="nx">server</span><span class="err">生效才返回所有的</span><span class="nx">storage</span> <span class="nx">server</span><span class="p">,</span><span class="err">否则返回空）</span>
+</pre></div>
+
+
+<p><strong>TRACKER_PROTO_CMD_STORAGE_BEAT</strong></p>
+<div class="hlcode"><pre><span class="err">#</span> <span class="kd">function</span><span class="o">:</span> <span class="nx">heart</span> <span class="nx">beat</span> <span class="err">（心跳）</span>
+<span class="err">#</span> <span class="nx">request</span> <span class="nx">body</span><span class="o">:</span> <span class="nx">none</span> <span class="nx">or</span> <span class="nx">storage</span> <span class="nx">stat</span> <span class="nx">info</span> <span class="err">（返回空或者</span><span class="nx">storage</span><span class="err">状态信息）</span>
+   <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">total</span> <span class="nx">upload</span> <span class="nx">count</span>
+   <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">success</span> <span class="nx">upload</span> <span class="nx">count</span>
+   <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">total</span> <span class="nx">set</span> <span class="nx">metadata</span> <span class="nx">count</span>
+   <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">success</span> <span class="nx">set</span> <span class="nx">metadata</span> <span class="nx">count</span>
+   <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">total</span> <span class="k">delete</span> <span class="nx">count</span>
+   <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">success</span> <span class="k">delete</span> <span class="nx">count</span>
+   <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">total</span> <span class="nx">download</span> <span class="nx">count</span>
+   <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">success</span> <span class="nx">download</span> <span class="nx">count</span>
+   <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">total</span> <span class="nx">get</span> <span class="nx">metadata</span> <span class="nx">count</span>
+   <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">success</span> <span class="nx">get</span> <span class="nx">metadata</span> <span class="nx">count</span>
+   <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">total</span> <span class="nx">create</span> <span class="nx">link</span> <span class="nx">count</span>
+   <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">success</span> <span class="nx">create</span> <span class="nx">link</span> <span class="nx">count</span>
+   <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">total</span> <span class="k">delete</span> <span class="nx">link</span> <span class="nx">count</span>
+   <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">success</span> <span class="k">delete</span> <span class="nx">link</span> <span class="nx">count</span>
+   <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">last</span> <span class="nx">source</span> <span class="nx">update</span> <span class="nx">timestamp</span>
+   <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">last</span> <span class="nx">sync</span> <span class="nx">update</span> <span class="nx">timestamp</span>
+   <span class="err">@</span><span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span>  <span class="nx">last</span> <span class="nx">synced</span> <span class="nx">timestamp</span>
+   <span class="err">@</span><span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span>  <span class="nx">last</span> <span class="nx">heart</span> <span class="nx">beat</span> <span class="nx">timestamp</span>
+<span class="err">#</span> <span class="nx">response</span> <span class="nx">body</span><span class="o">:</span> <span class="nx">same</span> <span class="nx">to</span> <span class="nx">command</span> <span class="nx">TRACKER_PROTO_CMD_STORAGE_JOIN</span>
+<span class="err">#</span> <span class="nx">memo</span><span class="o">:</span> <span class="nx">storage</span> <span class="nx">server</span> <span class="nx">sync</span> <span class="nx">it</span><span class="err">&#39;</span><span class="nx">s</span> <span class="nx">stat</span> <span class="nx">info</span> <span class="nx">to</span> <span class="nx">tracker</span> <span class="nx">server</span> <span class="nx">only</span> <span class="nx">when</span> <span class="nx">storage</span> <span class="nx">stat</span> <span class="nx">info</span> <span class="nx">changed</span><span class="err">（仅当</span><span class="nx">storage</span> <span class="nx">server</span><span class="err">的状态信息改变时才将其同步到</span><span class="nx">tracker</span><span class="err">）</span>
+</pre></div>
+
+
+<p><strong>TRACKER_PROTO_CMD_STORAGE_REPORT</strong></p>
+<div class="hlcode"><pre><span class="err">#</span> <span class="kd">function</span><span class="o">:</span> <span class="nx">report</span> <span class="nx">disk</span> <span class="nx">usage</span><span class="p">(</span><span class="err">报告硬盘使用情况</span><span class="p">)</span>
+<span class="err">#</span> <span class="nx">request</span> <span class="nx">body</span><span class="o">:</span>
+    <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">total</span> <span class="nx">space</span> <span class="k">in</span> <span class="nx">MB</span><span class="err">（硬盘总体积）</span>
+    <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">free</span> <span class="nx">space</span> <span class="k">in</span> <span class="nx">MB</span> <span class="err">（空闲大小）</span>
+<span class="err">#</span> <span class="nx">response</span> <span class="nx">body</span><span class="o">:</span> <span class="nx">same</span> <span class="nx">to</span> <span class="nx">command</span> <span class="nx">TRACKER_PROTO_CMD_STORAGE_JOIN</span>
+</pre></div>
+
+
+<p><strong>TRACKER_PROTO_CMD_STORAGE_REPLICA_CHG</strong></p>
+<div class="hlcode"><pre><span class="err">#</span> <span class="kd">function</span><span class="o">:</span> <span class="nx">replica</span> <span class="k">new</span> <span class="nx">storage</span> <span class="nx">servers</span> <span class="nx">which</span> <span class="nx">maybe</span> <span class="nx">not</span> <span class="nx">exist</span> <span class="k">in</span> <span class="nx">the</span> <span class="nx">tracker</span> <span class="nx">server</span> <span class="err">（？？？）</span>
+<span class="err">#</span> <span class="nx">request</span> <span class="nx">body</span><span class="o">:</span> <span class="nx">n</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="nx">FDFS_IPADDR_SIZE</span><span class="p">)</span> <span class="nx">bytes</span><span class="p">,</span> <span class="nx">n</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">.</span> <span class="nx">One</span> <span class="nx">storage</span> <span class="nx">entry</span> <span class="nx">format</span><span class="o">:</span>
+    <span class="err">@</span> <span class="mi">1</span> <span class="kr">byte</span><span class="o">:</span> <span class="nx">storage</span> <span class="nx">server</span> <span class="nx">status</span>
+    <span class="err">@</span> <span class="nx">FDFS_IPADDR_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">storage</span> <span class="nx">server</span> <span class="nx">ip</span> <span class="nx">address</span>
+<span class="err">#</span> <span class="nx">response</span> <span class="nx">body</span><span class="o">:</span> <span class="nx">none</span>
+</pre></div>
+
+
+<p><strong>TRACKER_PROTO_CMD_STORAGE_SYNC_SRC_REQ</strong></p>
+<div class="hlcode"><pre><span class="err">#</span> <span class="kd">function</span><span class="o">:</span> <span class="nx">source</span> <span class="nx">storage</span> <span class="nx">require</span> <span class="nx">sync</span><span class="p">.</span> <span class="nx">when</span> <span class="nx">add</span> <span class="nx">a</span> <span class="k">new</span> <span class="nx">storage</span> <span class="nx">server</span><span class="p">,</span> <span class="nx">the</span> <span class="nx">existed</span> <span class="nx">storage</span> <span class="nx">servers</span> <span class="k">in</span> <span class="nx">the</span> <span class="nx">same</span> <span class="nx">group</span> <span class="nx">will</span> <span class="nx">ask</span> <span class="nx">the</span> <span class="nx">tracker</span> <span class="nx">server</span> <span class="nx">to</span> <span class="nx">tell</span> <span class="nx">the</span> <span class="nx">source</span> <span class="nx">storage</span> <span class="nx">server</span> <span class="nx">which</span> <span class="nx">will</span> <span class="nx">sync</span> <span class="nx">old</span> <span class="nx">data</span> <span class="nx">to</span> <span class="nx">it</span><span class="err">（当新添加一个</span><span class="nx">storage</span> <span class="nx">server</span><span class="err">时，同组的其他</span><span class="nx">storage</span> <span class="nx">server</span><span class="err">会向</span><span class="nx">tracker</span><span class="err">请求告诉新的</span><span class="nx">storage</span><span class="err">有数据要同步给他）</span>
+<span class="err">#</span> <span class="nx">request</span> <span class="nx">body</span><span class="o">:</span>
+    <span class="err">@</span> <span class="nx">FDFS_IPADDR_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">dest</span> <span class="nx">storage</span> <span class="nx">server</span> <span class="p">(</span><span class="k">new</span> <span class="nx">storage</span> <span class="nx">server</span><span class="p">)</span> <span class="nx">ip</span> <span class="nx">address</span> <span class="err">（新加入的</span><span class="nx">storage</span> <span class="nx">server</span><span class="err">的</span><span class="nx">ip</span><span class="err">地址）</span>
+<span class="err">#</span> <span class="nx">response</span> <span class="nx">body</span><span class="o">:</span> <span class="nx">none</span> <span class="nx">or</span>
+    <span class="err">@</span> <span class="nx">FDFS_IPADDR_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">source</span> <span class="nx">storage</span> <span class="nx">server</span> <span class="nx">ip</span> <span class="nx">address</span><span class="err">（源</span><span class="nx">storage</span> <span class="nx">server</span><span class="err">的</span><span class="nx">ip</span><span class="err">地址）</span>
+    <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">sync</span> <span class="nx">until</span> <span class="nx">timestamp</span>
+<span class="err">#</span> <span class="nx">memo</span><span class="o">:</span> <span class="k">if</span> <span class="nx">the</span> <span class="nx">dest</span> <span class="nx">storage</span> <span class="nx">server</span> <span class="nx">not</span> <span class="k">do</span> <span class="nx">need</span> <span class="nx">sync</span> <span class="nx">from</span> <span class="nx">one</span> <span class="nx">of</span> <span class="nx">storage</span> <span class="nx">servers</span> <span class="k">in</span> <span class="nx">the</span> <span class="nx">group</span><span class="p">,</span> <span class="nx">the</span> <span class="nx">response</span> <span class="nx">body</span> <span class="nx">is</span> <span class="nx">emtpy</span><span class="err">（若新</span><span class="nx">storage</span> <span class="nx">server</span><span class="err">不需要源</span><span class="nx">storage</span> <span class="nx">server</span><span class="err">的同步，返回空）</span>
+</pre></div>
+
+
+<p><strong>TRACKER_PROTO_CMD_STORAGE_SYNC_DEST_REQ</strong></p>
+<div class="hlcode"><pre><span class="err">#</span> <span class="kd">function</span><span class="o">:</span> <span class="nx">dest</span> <span class="nx">storage</span> <span class="nx">server</span> <span class="p">(</span><span class="k">new</span> <span class="nx">storage</span> <span class="nx">server</span><span class="p">)</span> <span class="nx">require</span> <span class="nx">sync</span><span class="err">（新加入的</span><span class="nx">storage</span> <span class="err">向</span><span class="nx">tracker</span><span class="err">请求同步）</span>
+<span class="err">#</span> <span class="nx">request</span> <span class="nx">body</span><span class="o">:</span> <span class="nx">none</span>
+<span class="err">#</span> <span class="nx">response</span> <span class="nx">body</span><span class="o">:</span> <span class="nx">none</span> <span class="nx">or</span>
+    <span class="err">@</span> <span class="nx">FDFS_IPADDR_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">source</span> <span class="nx">storage</span> <span class="nx">server</span> <span class="nx">ip</span> <span class="nx">address</span>
+    <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">sync</span> <span class="nx">until</span> <span class="nx">timestamp</span>
+<span class="err">#</span> <span class="nx">memo</span><span class="o">:</span> <span class="k">if</span> <span class="nx">the</span> <span class="nx">dest</span> <span class="nx">storage</span> <span class="nx">server</span> <span class="nx">not</span> <span class="k">do</span> <span class="nx">need</span> <span class="nx">sync</span> <span class="nx">from</span> <span class="nx">one</span> <span class="nx">of</span> <span class="nx">storage</span> <span class="nx">servers</span> <span class="k">in</span> <span class="nx">the</span> <span class="nx">group</span><span class="p">,</span> <span class="nx">the</span> <span class="nx">response</span> <span class="nx">body</span> <span class="nx">is</span> <span class="nx">emtpy</span><span class="err">（若新</span><span class="nx">storage</span> <span class="nx">server</span><span class="err">不需要源</span><span class="nx">storage</span> <span class="nx">server</span><span class="err">的同步，返回空）</span>
+</pre></div>
+
+
+<p><strong>TRACKER_PROTO_CMD_STORAGE_SYNC_NOTIFY</strong></p>
+<div class="hlcode"><pre><span class="err">#</span> <span class="kd">function</span><span class="o">:</span> <span class="k">new</span> <span class="nx">storage</span> <span class="nx">server</span> <span class="nx">sync</span> <span class="nx">notify</span><span class="p">(</span><span class="err">新</span><span class="nx">storage</span><span class="err">同步通告</span><span class="p">)</span>
+<span class="err">#</span> <span class="nx">request</span> <span class="nx">body</span><span class="o">:</span>
+    <span class="err">@</span> <span class="nx">FDFS_IPADDR_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">source</span> <span class="nx">storage</span> <span class="nx">server</span> <span class="nx">ip</span> <span class="nx">address</span>
+    <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">sync</span> <span class="nx">until</span> <span class="nx">timestamp</span>
+<span class="err">#</span> <span class="nx">response</span> <span class="nx">body</span><span class="o">:</span> <span class="nx">same</span> <span class="nx">to</span> <span class="nx">command</span> <span class="nx">TRACKER_PROTO_CMD_STORAGE_JOIN</span>
+</pre></div>
+
+
+<h3 id="3clienttracker-server">3.client发送给tracker server的命令</h3>
+<p>以下两个命令的response是TRACKER_PROTO_CMD_SERVER_RESP</p>
+<p><strong>TRACKER_PROTO_CMD_SERVER_LIST_GROUP</strong></p>
+<div class="hlcode"><pre><span class="err">#</span> <span class="kd">function</span><span class="o">:</span> <span class="nx">list</span> <span class="nx">all</span> <span class="nx">groups</span> <span class="err">（列出所有的</span><span class="nx">group</span><span class="err">）</span>
+<span class="err">#</span> <span class="nx">request</span> <span class="nx">body</span><span class="o">:</span> <span class="nx">none</span>
+<span class="err">#</span> <span class="nx">response</span> <span class="nx">body</span><span class="o">:</span> <span class="nx">n</span> <span class="nx">group</span> <span class="nx">entries</span><span class="p">,</span> <span class="nx">n</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">,</span> <span class="nx">the</span> <span class="nx">format</span> <span class="nx">of</span> <span class="nx">each</span> <span class="nx">entry</span><span class="o">:</span>
+ <span class="err">@</span> <span class="nx">FDFS_GROUP_NAME_MAX_LEN</span><span class="o">+</span><span class="mi">1</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">group</span> <span class="nx">name</span>
+ <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">free</span> <span class="nx">disk</span> <span class="nx">storage</span> <span class="k">in</span> <span class="nx">MB</span>
+ <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">storage</span> <span class="nx">server</span> <span class="nx">count</span>
+ <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">storage</span> <span class="nx">server</span> <span class="nx">port</span>
+ <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">storage</span> <span class="nx">server</span> <span class="nx">http</span> <span class="nx">port</span>
+ <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">active</span> <span class="nx">server</span> <span class="nx">count</span>
+ <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">current</span> <span class="nx">write</span> <span class="nx">server</span> <span class="nx">index</span>
+ <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">store</span> <span class="nx">path</span> <span class="nx">count</span> <span class="nx">on</span> <span class="nx">storage</span> <span class="nx">server</span>
+ <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">subdir</span> <span class="nx">count</span> <span class="nx">per</span> <span class="nx">path</span> <span class="nx">on</span> <span class="nx">storage</span> <span class="nx">server</span>
+</pre></div>
+
+
+<p><strong>TRACKER_PROTO_CMD_SERVER_LIST_STORAGE</strong></p>
+<div class="hlcode"><pre><span class="err">#</span> <span class="kd">function</span><span class="o">:</span> <span class="nx">list</span> <span class="nx">storage</span> <span class="nx">servers</span> <span class="nx">of</span> <span class="nx">a</span> <span class="nx">group</span><span class="err">（列出某个组的所有</span><span class="nx">storage</span> <span class="nx">server</span><span class="err">）</span>
+<span class="err">#</span> <span class="nx">request</span> <span class="nx">body</span><span class="o">:</span>
+    <span class="err">@</span> <span class="nx">FDFS_GROUP_NAME_MAX_LEN</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">the</span> <span class="nx">group</span> <span class="nx">name</span> <span class="nx">to</span> <span class="nx">query</span><span class="p">(</span><span class="err">要列的组名</span><span class="p">)</span>
+<span class="err">#</span> <span class="nx">response</span> <span class="nx">body</span><span class="o">:</span> <span class="nx">n</span> <span class="nx">storage</span> <span class="nx">entries</span><span class="p">,</span> <span class="nx">n</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">,</span> <span class="nx">the</span> <span class="nx">format</span> <span class="nx">of</span> <span class="nx">each</span> <span class="nx">entry</span><span class="o">:</span>
+   <span class="err">@</span> <span class="mi">1</span> <span class="kr">byte</span><span class="o">:</span> <span class="nx">status</span>
+   <span class="err">@</span> <span class="nx">FDFS_IPADDR_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">ip</span> <span class="nx">address</span>
+   <span class="err">@</span> <span class="nx">FDFS_DOMAIN_NAME_MAX_SIZE</span>  <span class="nx">bytes</span> <span class="o">:</span> <span class="nx">domain</span> <span class="nx">name</span> <span class="nx">of</span> <span class="nx">the</span> <span class="nx">web</span> <span class="nx">server</span>
+   <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">source</span> <span class="nx">storage</span> <span class="nx">server</span> <span class="nx">ip</span> <span class="nx">address</span>
+   <span class="err">@</span> <span class="nx">FDFS_VERSION_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">storage</span> <span class="nx">server</span> <span class="nx">version</span>
+   <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">join</span> <span class="nx">time</span> <span class="p">(</span><span class="nx">join</span> <span class="k">in</span> <span class="nx">timestamp</span><span class="p">)</span>
+   <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">up</span> <span class="nx">time</span> <span class="p">(</span><span class="nx">start</span> <span class="nx">timestamp</span><span class="p">)</span>
+   <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">total</span> <span class="nx">space</span> <span class="k">in</span> <span class="nx">MB</span>
+   <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">free</span> <span class="nx">space</span> <span class="k">in</span> <span class="nx">MB</span>
+   <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">upload</span> <span class="nx">priority</span>
+   <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">store</span> <span class="nx">path</span> <span class="nx">count</span>
+   <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">subdir</span> <span class="nx">count</span> <span class="nx">per</span> <span class="nx">path</span>
+   <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">current</span> <span class="nx">write</span> <span class="nx">path</span><span class="cp">[</span>
+   <span class="p">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nb">bytes</span><span class="p">:</span> <span class="nx">storage</span> <span class="nx">server</span> <span class="nb">port</span>
+   <span class="p">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nb">bytes</span><span class="p">:</span> <span class="nx">storage</span> <span class="nx">http</span> <span class="nb">port</span>
+   <span class="p">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nb">bytes</span><span class="p">:</span> <span class="nx">total</span> <span class="nx">upload</span> <span class="nb">count</span>
+   <span class="p">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nb">bytes</span><span class="p">:</span> <span class="nx">success</span> <span class="nx">upload</span> <span class="nb">count</span>
+   <span class="p">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nb">bytes</span><span class="p">:</span> <span class="nx">total</span> <span class="nb">set</span> <span class="nx">metadata</span> <span class="nb">count</span>
+   <span class="p">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nb">bytes</span><span class="p">:</span> <span class="nx">success</span> <span class="nb">set</span> <span class="nx">metadata</span> <span class="nb">count</span>
+   <span class="p">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nb">bytes</span><span class="p">:</span> <span class="nx">total</span> <span class="nb">delete</span> <span class="nb">count</span>
+   <span class="p">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nb">bytes</span><span class="p">:</span> <span class="nx">success</span> <span class="nb">delete</span> <span class="nb">count</span>
+   <span class="p">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nb">bytes</span><span class="p">:</span> <span class="nx">total</span> <span class="nx">download</span> <span class="nb">count</span>
+   <span class="p">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nb">bytes</span><span class="p">:</span> <span class="nx">success</span> <span class="nx">download</span> <span class="nb">count</span>
+   <span class="p">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nb">bytes</span><span class="p">:</span> <span class="nx">total</span> <span class="nb">get</span> <span class="nx">metadata</span> <span class="nb">count</span>
+   <span class="p">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nb">bytes</span><span class="p">:</span> <span class="nx">success</span> <span class="nb">get</span> <span class="nx">metadata</span> <span class="nb">count</span>
+   <span class="p">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nb">bytes</span><span class="p">:</span> <span class="nx">total</span> <span class="nb">create</span> <span class="k">link</span> <span class="nb">count</span>
+   <span class="p">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nb">bytes</span><span class="p">:</span> <span class="nx">success</span> <span class="nb">create</span> <span class="k">link</span> <span class="nb">count</span>
+   <span class="p">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nb">bytes</span><span class="p">:</span> <span class="nx">total</span> <span class="nb">delete</span> <span class="k">link</span> <span class="nb">count</span>
+   <span class="p">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nb">bytes</span><span class="p">:</span> <span class="nx">success</span> <span class="nb">delete</span> <span class="k">link</span> <span class="nb">count</span>
+   <span class="p">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nb">bytes</span><span class="p">:</span> <span class="nb">last</span> <span class="nb">source</span> <span class="nx">update</span> <span class="nx">timestamp</span>
+   <span class="p">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nb">bytes</span><span class="p">:</span> <span class="nb">last</span> <span class="nx">sync</span> <span class="nx">update</span> <span class="nx">timestamp</span>
+   <span class="p">@</span><span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nb">bytes</span><span class="p">:</span>  <span class="nb">last</span> <span class="nx">synced</span> <span class="nx">timestamp</span>
+   <span class="p">@</span><span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nb">bytes</span><span class="p">:</span>  <span class="nb">last</span> <span class="nx">heart</span> <span class="nx">beat</span> <span class="nx">timestamp</span>
+</pre></div>
+
+
+<p>以下命令response是 TRACKER_PROTO_CMD_SERVICE_RESP</p>
+<p><strong>TRACKER_PROTO_CMD_SERVICE_QUERY_STORE_WITHOUT_GROUP_ONE</strong></p>
+<div class="hlcode"><pre><span class="err">#</span> <span class="kd">function</span><span class="o">:</span> <span class="nx">query</span> <span class="nx">which</span> <span class="nx">storage</span> <span class="nx">server</span> <span class="nx">to</span> <span class="nx">store</span> <span class="nx">file</span><span class="p">(</span><span class="err">查询向哪一个</span><span class="nx">storage</span> <span class="nx">server</span><span class="err">保存文件</span><span class="p">)</span>
+<span class="err">#</span> <span class="nx">request</span> <span class="nx">body</span><span class="o">:</span> <span class="nx">none</span>
+<span class="err">#</span> <span class="nx">response</span> <span class="nx">body</span><span class="o">:</span>
+ <span class="err">@</span> <span class="nx">FDFS_GROUP_NAME_MAX_LEN</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">group</span> <span class="nx">name</span>
+ <span class="err">@</span> <span class="nx">FDFS_IPADDR_SIZE</span> <span class="o">-</span> <span class="mi">1</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">storage</span> <span class="nx">server</span> <span class="nx">ip</span> <span class="nx">address</span>
+ <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">storage</span> <span class="nx">server</span> <span class="nx">port</span>
+ <span class="err">@</span><span class="mi">1</span> <span class="kr">byte</span><span class="o">:</span> <span class="nx">store</span> <span class="nx">path</span> <span class="nx">index</span> <span class="nx">on</span> <span class="nx">the</span> <span class="nx">storage</span> <span class="nx">server</span>
+</pre></div>
+
+
+<p><strong>TRACKER_PROTO_CMD_SERVICE_QUERY_STORE_WITHOUT_GROUP_ALL</strong></p>
+<div class="hlcode"><pre><span class="err">#</span> <span class="kd">function</span><span class="o">:</span> <span class="nx">query</span> <span class="nx">which</span> <span class="nx">storage</span> <span class="nx">server</span> <span class="nx">to</span> <span class="nx">store</span> <span class="nx">file</span>
+<span class="err">#</span> <span class="nx">request</span> <span class="nx">body</span><span class="o">:</span> <span class="nx">none</span>
+<span class="err">#</span> <span class="nx">response</span> <span class="nx">body</span><span class="o">:</span>
+    <span class="err">@</span> <span class="nx">FDFS_GROUP_NAME_MAX_LEN</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">group</span> <span class="nx">name</span>
+    <span class="err">@</span> <span class="nx">FDFS_IPADDR_SIZE</span> <span class="o">-</span> <span class="mi">1</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">storage</span> <span class="nx">server</span> <span class="nx">ip</span> <span class="nx">address</span> <span class="p">(</span><span class="o">*</span> <span class="nx">multi</span><span class="p">)</span>
+    <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">storage</span> <span class="nx">server</span> <span class="nx">port</span> <span class="p">(</span><span class="o">*</span><span class="nx">multi</span><span class="p">)</span>
+    <span class="err">@</span><span class="mi">1</span> <span class="kr">byte</span><span class="o">:</span> <span class="nx">store</span> <span class="nx">path</span> <span class="nx">index</span> <span class="nx">on</span> <span class="nx">the</span> <span class="nx">storage</span> <span class="nx">server</span>
+</pre></div>
+
+
+<p><strong>TRACKER_PROTO_CMD_SERVICE_QUERY_STORE_WITH_GROUP_ONE</strong></p>
+<div class="hlcode"><pre><span class="err">#</span> <span class="kd">function</span><span class="o">:</span> <span class="nx">query</span> <span class="nx">which</span> <span class="nx">storage</span> <span class="nx">server</span> <span class="nx">to</span> <span class="nx">store</span> <span class="nx">file</span>
+<span class="err">#</span> <span class="nx">request</span> <span class="nx">body</span><span class="o">:</span>
+    <span class="err">@</span> <span class="nx">FDFS_GROUP_NAME_MAX_LEN</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">group</span> <span class="nx">name</span>
+<span class="err">#</span> <span class="nx">response</span> <span class="nx">body</span><span class="o">:</span>
+    <span class="err">@</span> <span class="nx">FDFS_GROUP_NAME_MAX_LEN</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">group</span> <span class="nx">name</span>
+    <span class="err">@</span> <span class="nx">FDFS_IPADDR_SIZE</span> <span class="o">-</span> <span class="mi">1</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">storage</span> <span class="nx">server</span> <span class="nx">ip</span> <span class="nx">address</span>
+    <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">storage</span> <span class="nx">server</span> <span class="nx">port</span>
+    <span class="err">@</span><span class="mi">1</span> <span class="kr">byte</span><span class="o">:</span> <span class="nx">store</span> <span class="nx">path</span> <span class="nx">index</span> <span class="nx">on</span> <span class="nx">the</span> <span class="nx">storage</span> <span class="nx">server</span>
+</pre></div>
+
+
+<p><strong>TRACKER_PROTO_CMD_SERVICE_QUERY_STORE_WITH_GROUP_ALL</strong></p>
+<div class="hlcode"><pre><span class="err">#</span> <span class="kd">function</span><span class="o">:</span> <span class="nx">query</span> <span class="nx">which</span> <span class="nx">storage</span> <span class="nx">server</span> <span class="nx">to</span> <span class="nx">store</span> <span class="nx">file</span>
+<span class="err">#</span> <span class="nx">request</span> <span class="nx">body</span><span class="o">:</span>
+    <span class="err">@</span> <span class="nx">FDFS_GROUP_NAME_MAX_LEN</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">group</span> <span class="nx">name</span>
+<span class="err">#</span> <span class="nx">response</span> <span class="nx">body</span><span class="o">:</span>
+    <span class="err">@</span> <span class="nx">FDFS_GROUP_NAME_MAX_LEN</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">group</span> <span class="nx">name</span>
+    <span class="err">@</span> <span class="nx">FDFS_IPADDR_SIZE</span> <span class="o">-</span> <span class="mi">1</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">storage</span> <span class="nx">server</span> <span class="nx">ip</span> <span class="nx">address</span>  <span class="p">(</span><span class="o">*</span> <span class="nx">multi</span><span class="p">)</span>
+    <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">storage</span> <span class="nx">server</span> <span class="nx">port</span>   <span class="p">(</span><span class="o">*</span> <span class="nx">multi</span><span class="p">)</span>
+    <span class="err">@</span><span class="mi">1</span> <span class="kr">byte</span><span class="o">:</span> <span class="nx">store</span> <span class="nx">path</span> <span class="nx">index</span> <span class="nx">on</span> <span class="nx">the</span> <span class="nx">storage</span> <span class="nx">server</span>
+</pre></div>
+
+
+<p><strong>TRACKER_PROTO_CMD_SERVICE_QUERY_FETCH</strong></p>
+<div class="hlcode"><pre><span class="err">#</span> <span class="kd">function</span><span class="o">:</span> <span class="nx">query</span> <span class="nx">which</span> <span class="nx">storage</span> <span class="nx">server</span> <span class="nx">to</span> <span class="nx">download</span> <span class="nx">the</span> <span class="nx">file</span><span class="err">（查询向哪个</span><span class="nx">storage</span> <span class="nx">server</span> <span class="err">请求下载文件）</span>
+<span class="err">#</span> <span class="nx">request</span> <span class="nx">body</span><span class="o">:</span>
+    <span class="err">@</span> <span class="nx">FDFS_GROUP_NAME_MAX_LEN</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">group</span> <span class="nx">name</span>
+    <span class="err">@</span> <span class="nx">filename</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">filename</span>
+<span class="err">#</span> <span class="nx">response</span> <span class="nx">body</span><span class="o">:</span>
+    <span class="err">@</span> <span class="nx">FDFS_GROUP_NAME_MAX_LEN</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">group</span> <span class="nx">name</span>
+    <span class="err">@</span> <span class="nx">FDFS_IPADDR_SIZE</span> <span class="o">-</span> <span class="mi">1</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">storage</span> <span class="nx">server</span> <span class="nx">ip</span> <span class="nx">address</span>
+    <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">storage</span> <span class="nx">server</span> <span class="nx">port</span>
+</pre></div>
+
+
+<p><strong>TRACKER_PROTO_CMD_SERVICE_QUERY_FETCH_ALL</strong></p>
+<div class="hlcode"><pre><span class="err">#</span> <span class="kd">function</span><span class="o">:</span> <span class="nx">query</span> <span class="nx">all</span> <span class="nx">storage</span> <span class="nx">servers</span> <span class="nx">to</span> <span class="nx">download</span> <span class="nx">the</span> <span class="nx">file</span>
+<span class="err">#</span> <span class="nx">request</span> <span class="nx">body</span><span class="o">:</span>
+    <span class="err">@</span> <span class="nx">FDFS_GROUP_NAME_MAX_LEN</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">group</span> <span class="nx">name</span>
+    <span class="err">@</span> <span class="nx">filename</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">filename</span>
+<span class="err">#</span> <span class="nx">response</span> <span class="nx">body</span><span class="o">:</span>
+    <span class="err">@</span> <span class="nx">FDFS_GROUP_NAME_MAX_LEN</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">group</span> <span class="nx">name</span>
+    <span class="err">@</span> <span class="nx">FDFS_IPADDR_SIZE</span> <span class="o">-</span> <span class="mi">1</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">storage</span> <span class="nx">server</span> <span class="nx">ip</span> <span class="nx">address</span>
+    <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">storage</span> <span class="nx">server</span> <span class="nx">port</span>
+    <span class="err">@</span> <span class="nx">n</span> <span class="o">*</span> <span class="p">(</span><span class="nx">FDFS_IPADDR_SIZE</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="nx">bytes</span><span class="o">:</span>  <span class="nx">storage</span> <span class="nx">server</span> <span class="nx">ip</span> <span class="nx">addresses</span><span class="p">,</span> <span class="nx">n</span> <span class="nx">can</span> <span class="nx">be</span> <span class="mi">0</span>
+</pre></div>
+
+
+<h3 id="4-storage-serverstorage-server">4. Storage server向Storage Server发送的命令</h3>
+<p>该类命令的response 是STORAGE_PROTO_CMD_RESP</p>
+<p><strong>STORAGE_PROTO_CMD_SYNC_CREATE_FILE</strong></p>
+<div class="hlcode"><pre><span class="err">#</span> <span class="kd">function</span><span class="o">:</span> <span class="nx">sync</span> <span class="k">new</span> <span class="nx">created</span> <span class="nx">file</span> <span class="err">（同步新创建的文件）</span>
+<span class="err">#</span> <span class="nx">request</span> <span class="nx">body</span><span class="o">:</span>
+    <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">filename</span> <span class="nx">bytes</span>
+    <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">file</span> <span class="nx">size</span><span class="o">/</span><span class="nx">bytes</span>
+    <span class="err">@</span> <span class="nx">FDFS_GROUP_NAME_MAX_LEN</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">group</span> <span class="nx">name</span>
+    <span class="err">@</span> <span class="nx">filename</span> <span class="nx">bytes</span> <span class="o">:</span> <span class="nx">filename</span>
+    <span class="err">@</span> <span class="nx">file</span> <span class="nx">size</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">file</span> <span class="nx">content</span>
+<span class="err">#</span> <span class="nx">response</span> <span class="nx">body</span><span class="o">:</span> <span class="nx">none</span>
+</pre></div>
+
+
+<p><strong>STORAGE_PROTO_CMD_SYNC_DELETE_FILE</strong></p>
+<div class="hlcode"><pre><span class="err">#</span> <span class="kd">function</span><span class="o">:</span> <span class="nx">sync</span> <span class="nx">deleted</span> <span class="nx">file</span><span class="err">（同步删除的文件）</span>
+<span class="err">#</span> <span class="nx">request</span> <span class="nx">body</span><span class="o">:</span>
+    <span class="err">@</span> <span class="nx">FDFS_GROUP_NAME_MAX_LEN</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">group</span> <span class="nx">name</span>
+    <span class="err">@</span> <span class="nx">filename</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">filename</span>
+<span class="err">#</span> <span class="nx">response</span> <span class="nx">body</span><span class="o">:</span> <span class="nx">none</span>
+</pre></div>
+
+
+<p><strong>STORAGE_PROTO_CMD_SYNC_UPDATE_FILE</strong></p>
+<div class="hlcode"><pre><span class="c"># function: sync updated file （同步更新的文件）</span>
+<span class="c"># request body: same to command STORAGE_PROTO_CMD_SYNC_CREATE_FILE</span>
+<span class="c"># respose body: none</span>
+</pre></div>
+
+
+<h3 id="clientstorage-server">client向storage server 发送的命令</h3>
+<p>该类命令的response是 STORAGE_PROTO_CMD_RESP</p>
+<p><strong>STORAGE_PROTO_CMD_UPLOAD_FILE</strong></p>
+<div class="hlcode"><pre><span class="err">#</span> <span class="kd">function</span><span class="o">:</span> <span class="nx">upload</span> <span class="nx">file</span> <span class="nx">to</span> <span class="nx">storage</span> <span class="nx">server</span><span class="p">(</span><span class="err">上传文件到</span><span class="nx">storage</span> <span class="nx">server</span><span class="p">)</span>
+<span class="err">#</span> <span class="nx">request</span> <span class="nx">body</span><span class="o">:</span>
+    <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">meta</span> <span class="nx">data</span> <span class="nx">bytes</span>
+    <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">file</span> <span class="nx">size</span>
+    <span class="err">@</span> <span class="nx">meta</span> <span class="nx">data</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">each</span> <span class="nx">meta</span> <span class="nx">data</span> <span class="nx">seperated</span> <span class="nx">by</span> <span class="err">\</span><span class="nx">x01</span><span class="p">,</span>
+                        <span class="nx">name</span> <span class="nx">and</span> <span class="nx">value</span> <span class="nx">seperated</span> <span class="nx">by</span> <span class="err">\</span><span class="nx">x02</span>
+    <span class="err">@</span> <span class="nx">file</span> <span class="nx">size</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">file</span> <span class="nx">content</span>
+<span class="err">#</span> <span class="nx">response</span> <span class="nx">body</span><span class="o">:</span>
+    <span class="err">@</span> <span class="nx">FDFS_GROUP_NAME_MAX_LEN</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">group</span> <span class="nx">name</span>
+    <span class="err">@</span> <span class="nx">filename</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">filename</span>
+</pre></div>
+
+
+<p><strong>STORAGE_PROTO_CMD_UPLOAD_SLAVE_FILE</strong></p>
+<div class="hlcode"><pre><span class="err">#</span> <span class="kd">function</span><span class="o">:</span> <span class="nx">upload</span> <span class="nx">slave</span> <span class="nx">file</span> <span class="nx">to</span> <span class="nx">storage</span> <span class="nx">server</span>
+<span class="err">#</span> <span class="nx">request</span> <span class="nx">body</span><span class="o">:</span>
+    <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">master</span> <span class="nx">filename</span> <span class="nx">length</span>
+    <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">file</span> <span class="nx">size</span>
+    <span class="err">@</span> <span class="nx">FDFS_FILE_PREFIX_MAX_LEN</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">filename</span> <span class="nx">prefix</span>
+    <span class="err">@</span> <span class="nx">FDFS_FILE_EXT_NAME_MAX_LEN</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">file</span> <span class="nx">ext</span> <span class="nx">name</span><span class="p">,</span> <span class="k">do</span> <span class="nx">not</span> <span class="nx">include</span> <span class="nx">dot</span> <span class="p">(.)</span>
+    <span class="err">@</span> <span class="nx">master</span> <span class="nx">filename</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">master</span> <span class="nx">filename</span>
+    <span class="err">@</span> <span class="nx">file</span> <span class="nx">size</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">file</span> <span class="nx">content</span>
+<span class="err">#</span> <span class="nx">response</span> <span class="nx">body</span><span class="o">:</span>
+    <span class="err">@</span> <span class="nx">FDFS_GROUP_NAME_MAX_LEN</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">group</span> <span class="nx">name</span>
+    <span class="err">@</span> <span class="nx">filename</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">filename</span>
+</pre></div>
+
+
+<p><strong>STORAGE_PROTO_CMD_DELETE_FILE</strong></p>
+<div class="hlcode"><pre><span class="err">#</span> <span class="kd">function</span><span class="o">:</span> <span class="k">delete</span> <span class="nx">file</span> <span class="nx">from</span> <span class="nx">storage</span> <span class="nx">server</span><span class="p">(</span><span class="err">从</span><span class="nx">storage</span> <span class="nx">server</span><span class="err">中删除文件</span><span class="p">)</span>
+<span class="err">#</span> <span class="nx">request</span> <span class="nx">body</span><span class="o">:</span>
+    <span class="err">@</span> <span class="nx">FDFS_GROUP_NAME_MAX_LEN</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">group</span> <span class="nx">name</span>
+    <span class="err">@</span> <span class="nx">filename</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">filename</span>
+<span class="err">#</span> <span class="nx">response</span> <span class="nx">body</span><span class="o">:</span> <span class="nx">none</span>
+</pre></div>
+
+
+<p><strong>STORAGE_PROTO_CMD_SET_METADATA</strong></p>
+<div class="hlcode"><pre><span class="err">#</span> <span class="kd">function</span><span class="o">:</span> <span class="k">delete</span> <span class="nx">file</span> <span class="nx">from</span> <span class="nx">storage</span> <span class="nx">server</span><span class="err">（从</span><span class="nx">storage</span> <span class="nx">server</span><span class="err">中删除文件）</span>
+<span class="err">#</span> <span class="nx">request</span> <span class="nx">body</span><span class="o">:</span>
+    <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">filename</span> <span class="nx">length</span>
+    <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">meta</span> <span class="nx">data</span> <span class="nx">size</span>
+    <span class="err">@</span> <span class="mi">1</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">operation</span> <span class="nx">flag</span><span class="p">,</span>
+        <span class="s1">&#39;O&#39;</span> <span class="k">for</span> <span class="nx">overwrite</span> <span class="nx">all</span> <span class="nx">old</span> <span class="nx">metadata</span><span class="err">（</span><span class="nx">O</span><span class="p">,</span> <span class="err">覆盖所有</span><span class="nx">metadata</span><span class="err">）</span>
+        <span class="s1">&#39;M&#39;</span> <span class="k">for</span> <span class="nx">merge</span><span class="p">,</span> <span class="nx">insert</span> <span class="nx">when</span> <span class="nx">the</span> <span class="nx">meta</span> <span class="nx">item</span> <span class="nx">not</span> <span class="nx">exist</span><span class="p">,</span> <span class="nx">otherwise</span> <span class="nx">update</span> <span class="nx">it</span><span class="err">（</span><span class="nx">M</span><span class="p">,</span> <span class="err">插入或更新</span><span class="nx">metadata</span><span class="err">）</span>
+    <span class="err">@</span> <span class="nx">FDFS_GROUP_NAME_MAX_LEN</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">group</span> <span class="nx">name</span>
+    <span class="err">@</span> <span class="nx">filename</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">filename</span>
+    <span class="err">@</span> <span class="nx">meta</span> <span class="nx">data</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">each</span> <span class="nx">meta</span> <span class="nx">data</span> <span class="nx">seperated</span> <span class="nx">by</span> <span class="err">\</span><span class="nx">x01</span><span class="p">,</span>
+                        <span class="nx">name</span> <span class="nx">and</span> <span class="nx">value</span> <span class="nx">seperated</span> <span class="nx">by</span> <span class="err">\</span><span class="nx">x02</span>
+<span class="err">#</span> <span class="nx">response</span> <span class="nx">body</span><span class="o">:</span> <span class="nx">none</span>
+</pre></div>
+
+
+<p><strong>STORAGE_PROTO_CMD_DOWNLOAD_FILE</strong></p>
+<div class="hlcode"><pre><span class="err">#</span> <span class="kd">function</span><span class="o">:</span> <span class="nx">download</span><span class="o">/</span><span class="nx">fetch</span> <span class="nx">file</span> <span class="nx">from</span> <span class="nx">storage</span> <span class="nx">server</span><span class="err">（从</span><span class="nx">storage</span> <span class="nx">server</span><span class="err">下载文件）</span>
+<span class="err">#</span> <span class="nx">request</span> <span class="nx">body</span><span class="o">:</span>
+    <span class="err">@</span> <span class="nx">FDFS_GROUP_NAME_MAX_LEN</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">group</span> <span class="nx">name</span>
+    <span class="err">@</span> <span class="nx">filename</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">filename</span>
+<span class="err">#</span> <span class="nx">response</span> <span class="nx">body</span><span class="o">:</span>
+    <span class="err">@</span> <span class="nx">file</span> <span class="nx">content</span>
+</pre></div>
+
+
+<p><strong>STORAGE_PROTO_CMD_GET_METADATA</strong></p>
+<div class="hlcode"><pre><span class="err">#</span> <span class="kd">function</span><span class="o">:</span> <span class="nx">get</span> <span class="nx">metat</span> <span class="nx">data</span> <span class="nx">from</span> <span class="nx">storage</span> <span class="nx">server</span><span class="err">（从</span><span class="nx">storage</span> <span class="nx">server</span><span class="err">获取</span><span class="nx">metadata</span><span class="err">）</span>
+<span class="err">#</span> <span class="nx">request</span> <span class="nx">body</span><span class="o">:</span>
+    <span class="err">@</span> <span class="nx">FDFS_GROUP_NAME_MAX_LEN</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">group</span> <span class="nx">name</span>
+    <span class="err">@</span> <span class="nx">filename</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">filename</span>
+<span class="err">#</span> <span class="nx">response</span> <span class="nx">body</span>
+    <span class="err">@</span> <span class="nx">meta</span> <span class="nx">data</span> <span class="nx">buff</span><span class="p">,</span> <span class="nx">each</span> <span class="nx">meta</span> <span class="nx">data</span> <span class="nx">seperated</span> <span class="nx">by</span> <span class="err">\</span><span class="nx">x01</span><span class="p">,</span> <span class="nx">name</span> <span class="nx">and</span> <span class="nx">value</span> <span class="nx">seperated</span> <span class="nx">by</span> <span class="err">\</span><span class="nx">x02</span>
+</pre></div>
+
+
+<p><strong>STORAGE_PROTO_CMD_QUERY_FILE_INFO</strong></p>
+<div class="hlcode"><pre><span class="err">#</span> <span class="kd">function</span><span class="o">:</span> <span class="nx">query</span> <span class="nx">file</span> <span class="nx">info</span> <span class="nx">from</span> <span class="nx">storage</span> <span class="nx">server</span>
+<span class="err">#</span> <span class="nx">request</span> <span class="nx">body</span><span class="o">:</span>
+    <span class="err">@</span> <span class="nx">FDFS_GROUP_NAME_MAX_LEN</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">group</span> <span class="nx">name</span>
+    <span class="err">@</span> <span class="nx">filename</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">filename</span>
+<span class="err">#</span> <span class="nx">response</span> <span class="nx">body</span><span class="o">:</span>
+    <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">file</span> <span class="nx">size</span>
+    <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">file</span> <span class="nx">create</span> <span class="nx">timestamp</span>
+    <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">file</span> <span class="nx">CRC32</span> <span class="nx">signature</span>
+</pre></div>
     </div>
 
         </div>
