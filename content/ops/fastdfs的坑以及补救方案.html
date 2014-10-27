@@ -1,0 +1,125 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <link rel="Stylesheet" type="text/css" href="/static/css/style.css">
+        <link rel="Stylesheet" type="text/css" href="/static/css/tango.css">
+        <title>FastDFS的坑以及补救方案 - crow coffin</title>
+        <meta name="keywords" content="python web"/>
+        <meta name="description" content="Learning in the hard way."/>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+
+    <body>
+        <div id="header">
+            <ul>
+                <li>
+                    <a href="/" style="color: wheat;border-right: solid 1px gray;">crow coffin</a>
+                </li>
+                <li>
+                    <a href="https://github.com/wlwang41" target="_blank">my github</a>
+                </li>
+                <li>
+                    <a href="http://about.me/wlwang41" target="_blank">about.me</a>
+                </li>
+                <li>
+                    <a href="http://aboutcrow.herokuapp.com/" target="_blank">resume</a>
+                </li>
+                <li>
+                    <a href="mailto:wlwang41@gmail.com">email</a>
+                </li>
+            </ul>
+        </div>
+        <div id="container">
+            
+    <div id="content_header">
+        <div id="post-nav">
+            
+            <a href="/">Home</a> » <a href="/#ops">ops</a> » FastDFS的坑以及补救方案
+            
+        </div>
+    </div>
+    <div class="clearfix"></div>
+    <div id="title">FastDFS的坑以及补救方案</div>
+    <div id="content">
+        <p>终于把FastDFS搭起来并在线上环境中稳定下来了，这其中发现了很多问题，除了完全没文档这个大坑之外，还有一些不小的坑。</p>
+<ol>
+<li>
+<p>如果需要自定义FastDFS的安装路径，需要手动修改源码中make.sh里面TARGET_PREFIX和TARGET_CONF_PATH这2个字段，而不是通过 <code>configure</code> 指定 <code>--prefix</code> 的方式。</p>
+<p>并且需要注意的是，目前稳定的版本是5.0.3，其他的版本都会有一些bug.</p>
+</li>
+<li>
+<p>编译FastDFS完成之后，需要 <code>cp /path/to/fdfs/lib/* /usr/local/lib/</code>, 然后 <code>ln -s libfastcommon.so /usr/local/lib/libfastcommon.so.1 &amp;&amp; ln -s libfastclient.so /usr/local/lib/libfastclient.so.1</code>.</p>
+</li>
+<li>
+<p>客户端安装php-client的时候，源码包种的 <code>php-client/configure</code> 文件中需要修改第3415行，改成 <code>ROOT=/path/to/your/fdfs</code>.</p>
+</li>
+<li>
+<p>线上运行一段时间后，系统就不能传图了，报的错误是connection reset by beer.</p>
+<p>这个问题实际上是TCP连接没有被释放掉，通过命令 <code>netstat -antp | grep fdfs | wc -l</code> 可以看到
+上传图片完成后tcp连接数是一直增加的，直到超过FastDFS能处理的最大值.</p>
+<p>要解决这个问题，首先要确保客户端，也就是安装了php模块的app服务器中 <code>/path/to/your/fdfs/conf/client.conf</code> 文件中 <code>use_connection_pool</code> 字段 <strong>只能</strong> 是 <code>false</code>，作者在php客户端使用连接池连接FastDFS的代码中有bug，所以客户端不能开启连接池。</p>
+<p>然后，在封装保存接口的时候，最好使用类的方法，并且要手动关掉tracker的连接，如下:</p>
+<div class="hlcode"><pre><span class="kr">public</span> <span class="kr">static</span> <span class="kd">function</span> <span class="nx">save</span><span class="p">(</span><span class="nx">$filename</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">$fdfs</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">FastDFS</span><span class="p">();</span>
+    <span class="nx">$file_info</span> <span class="o">=</span> <span class="nx">$fdfs</span><span class="o">-&gt;</span><span class="nx">storage_upload_by_filename1</span><span class="p">(</span><span class="nx">$filename</span><span class="p">);</span>
+    <span class="nx">$fdfs</span><span class="o">-&gt;</span><span class="nx">tracker_close_all_connections</span><span class="p">();</span>
+    <span class="nx">$fdfs</span><span class="o">-&gt;</span><span class="nx">close</span><span class="p">();</span>
+    <span class="k">return</span> <span class="nx">$file_info</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<p>并且如果修改之后要手动重启php-fpm: <code>service php-fpm restart</code> .
+最好在部署FastDFS的机器上也补上一个脚本加入到crontab中，判断连接数过大则重启app服务器的php-fpm:</p>
+<table class="hlcodetable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4
+5
+6
+7</pre></div></td><td class="code"><div class="hlcode"><pre><span class="c">#!/bin/bash</span>
+
+<span class="nv">conn_count</span><span class="o">=</span><span class="sb">`</span>netstat -antp | grep fdfs | wc -l<span class="sb">`</span>
+
+<span class="k">if</span> <span class="o">[</span> <span class="nv">$conn_count</span> -gt 500 <span class="o">]</span>; <span class="k">then</span>
+<span class="k">    </span>ssh root@your_app_server_ip <span class="s2">&quot;service php-fpm restart&quot;</span>
+<span class="k">fi</span>
+</pre></div>
+</td></tr></table>
+
+</li>
+<li>
+<p>会有内存溢出的可能</p>
+<p>如果调用 <code>vmstat</code> 命令发现cache字段过大，并且 <code>free</code> 发现内存使用过大，那么有可能是FastDFS导致的内存泄露问题。</p>
+<p>这个问题应该属于FastDFS的bug，现在只能写一个补救脚本加入到crontab中：</p>
+<table class="hlcodetable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4
+5
+6
+7</pre></div></td><td class="code"><div class="hlcode"><pre><span class="c">#!/bin/bash</span>
+
+<span class="nv">mem</span><span class="o">=</span><span class="sb">`</span>free -m | awk <span class="s1">&#39;NR==2{print $4}&#39;</span><span class="sb">`</span>
+
+<span class="k">if</span> <span class="o">[</span> <span class="nv">$mem</span> -lt 1024 <span class="o">]</span>; <span class="k">then</span>
+<span class="k">    </span><span class="nb">echo</span> <span class="s2">&quot;1&quot;</span> &gt; /proc/sys/vm/drop_caches
+<span class="k">fi</span>
+</pre></div>
+</td></tr></table>
+
+</li>
+</ol>
+<p>最后，将FastDFS部署到线上作为一个稳定的服务是不明智的行为，拿它做简单的内部日志存储还行，但是作为一个线上服务，现阶段它还明显不适合。</p>
+    </div>
+
+        </div>
+        <div id="footer">
+            <span>
+                Copyright © now-forever crow.
+                Powered by <a href="https://github.com/wlwang41/cb" target="_blank">Cb</a>.
+                UI by <a href="https://github.com/tankywoo/wiki.tankywoo.com">yasimple</a>
+            </span>
+        </div>
+    </body>
+</html>
