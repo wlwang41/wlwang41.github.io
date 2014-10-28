@@ -1,0 +1,191 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <link rel="Stylesheet" type="text/css" href="/static/css/style.css">
+        <link rel="Stylesheet" type="text/css" href="/static/css/tango.css">
+        <title>Python中的attributes - crow coffin</title>
+        <meta name="keywords" content="python web"/>
+        <meta name="description" content="Learning in the hard way."/>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+
+    <body>
+        <div id="header">
+            <ul>
+                <li>
+                    <a href="/" style="color: wheat;border-right: solid 1px gray;">crow coffin</a>
+                </li>
+                <li>
+                    <a href="https://github.com/wlwang41" target="_blank">my github</a>
+                </li>
+                <li>
+                    <a href="http://about.me/wlwang41" target="_blank">about.me</a>
+                </li>
+                <li>
+                    <a href="http://aboutcrow.herokuapp.com/" target="_blank">resume</a>
+                </li>
+                <li>
+                    <a href="mailto:wlwang41@gmail.com">email</a>
+                </li>
+            </ul>
+        </div>
+        <div id="container">
+            
+    <div id="content_header">
+        <div id="post-nav">
+            
+            <a href="/">Home</a> » <a href="/#Python">Python</a> » Python中的attributes
+            
+        </div>
+    </div>
+    <div class="clearfix"></div>
+    <div id="title">Python中的attributes</div>
+    <div id="content">
+        <p>前言：这篇文章主要是翻译整理了Pycoders's Weekly邮件推荐的一篇文章，原文地址请戳<a href="http://blog.lerner.co.il/python-attributes/">这里</a></p>
+<p>在python中，声明一个类是非常容易的，比如：</p>
+<div class="hlcode"><pre><span class="n">class</span> <span class="n">Foo</span><span class="p">(</span><span class="n">object</span><span class="p">)</span><span class="o">:</span>
+    <span class="n">def</span> <span class="n">__init__</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span><span class="o">:</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">y</span>
+</pre></div>
+
+
+<p>这样就声明了一个名叫Foo的类，有这个类创造一个对象也同样简单：</p>
+<div class="hlcode"><pre><span class="n">f</span> <span class="o">=</span> <span class="n">Foo</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="err">&#39;</span><span class="n">hello</span><span class="err">&#39;</span><span class="p">)</span>
+</pre></div>
+
+
+<p>从表面上看，我们创建了一个Foo的对象f，并且为f的2个实例变量赋了初始值。
+但是实际上在python中并没有所谓的实例变量(instance variables)和类变量(class variables)这一说，
+它们在python的oop里面，都只是对象的属性(attributes)而已。
+而在python的世界中，所有变量都是对象，所以实际上，属性是整个python的基础。
+所有对象都有属性，通过built-in的 <code>dir([object]) -&gt; list of strings</code> 函数可以看到对象的属性:</p>
+<ul>
+<li>对于模块对象(module object): 返回模块的属性</li>
+<li>对于类对象(class object): 返回它的属性并且递归的返回它所有父类的属性</li>
+<li>对于其他的对象: 返回它的属性，它类的属性，以及各个父类的属性</li>
+</ul>
+<p>所以对于python中的变量都可以通过 <code>dir</code> 函数来查看它的属性：</p>
+<div class="hlcode"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">:</span> <span class="n">s</span> <span class="o">=</span> <span class="s">&quot;hello&quot;</span>
+
+<span class="n">In</span> <span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">:</span> <span class="n">len</span><span class="p">(</span><span class="n">dir</span><span class="p">(</span><span class="n">s</span><span class="p">))</span>
+<span class="n">Out</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">:</span> <span class="mi">71</span>
+
+<span class="n">In</span> <span class="p">[</span><span class="mi">5</span><span class="p">]</span><span class="o">:</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">123</span>
+
+<span class="n">In</span> <span class="p">[</span><span class="mi">6</span><span class="p">]</span><span class="o">:</span> <span class="n">len</span><span class="p">(</span><span class="n">dir</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+<span class="n">Out</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span><span class="o">:</span> <span class="mi">64</span>
+
+<span class="n">In</span> <span class="p">[</span><span class="mi">7</span><span class="p">]</span><span class="o">:</span> <span class="n">t</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+
+<span class="n">In</span> <span class="p">[</span><span class="mi">8</span><span class="p">]</span><span class="o">:</span> <span class="n">len</span><span class="p">(</span><span class="n">dir</span><span class="p">(</span><span class="n">t</span><span class="p">))</span>
+<span class="n">Out</span><span class="p">[</span><span class="mi">8</span><span class="p">]</span><span class="o">:</span> <span class="mi">32</span>
+
+<span class="n">In</span> <span class="p">[</span><span class="mi">9</span><span class="p">]</span><span class="o">:</span> <span class="n">def</span> <span class="n">f</span><span class="p">()</span><span class="o">:</span>
+   <span class="p">...</span><span class="o">:</span>     <span class="n">pass</span>
+   <span class="p">...</span><span class="o">:</span>
+
+<span class="n">In</span> <span class="p">[</span><span class="mi">10</span><span class="p">]</span><span class="o">:</span> <span class="n">len</span><span class="p">(</span><span class="n">dir</span><span class="p">(</span><span class="n">f</span><span class="p">))</span>
+<span class="n">Out</span><span class="p">[</span><span class="mi">10</span><span class="p">]</span><span class="o">:</span> <span class="mi">31</span>
+</pre></div>
+
+
+<p>可以看到，方法都有属性，因为方法也是对象嘛，这个js程序员应该不会陌生，js里面也是所有变量都是对象。
+我们设置可以对方法进行赋值：</p>
+<div class="hlcode"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">11</span><span class="p">]</span><span class="o">:</span> <span class="n">f</span><span class="p">.</span><span class="n">a</span> <span class="o">=</span> <span class="mi">1</span>
+
+<span class="n">In</span> <span class="p">[</span><span class="mi">12</span><span class="p">]</span><span class="o">:</span> <span class="n">f</span><span class="p">.</span><span class="n">a</span>
+<span class="n">Out</span><span class="p">[</span><span class="mi">12</span><span class="p">]</span><span class="o">:</span> <span class="mi">1</span>
+</pre></div>
+
+
+<p>说到对属性的赋值，python提供了2个函数来为对象的属性赋值以及取属性的值。他们是 <code>getattr(object, name[, default]) -&gt; value</code> 以及 <code>setattr(object, name, value)</code>.</p>
+<p>在我刚写python的时候，有一个问题当时困扰了我一会，当时我需要根据字符串的方法名来调用这个方法。这个问题可以进一步抽象为，怎么通过一个 <code>dir</code> 方法得到那些字符串为对象的"同名"属性来赋值或者取值?</p>
+<p>这里就可以用 <code>getattr</code> 和 <code>setattr</code> 来实现，如：</p>
+<div class="hlcode"><pre><span class="nx">In</span> <span class="cp">[</span><span class="mi">19</span><span class="cp">]</span><span class="o">:</span> <span class="nx">getattr</span><span class="p">(</span><span class="nx">s</span><span class="p">,</span> <span class="s2">&quot;split&quot;</span><span class="p">)</span>
+<span class="nx">Out</span><span class="cp">[</span><span class="mi">19</span><span class="cp">]</span><span class="o">:</span> <span class="o">&lt;</span><span class="kd">function</span> <span class="nx">split</span><span class="o">&gt;</span>
+</pre></div>
+
+
+<p>这里等同于:</p>
+<div class="hlcode"><pre><span class="nx">In</span> <span class="cp">[</span><span class="mi">20</span><span class="cp">]</span><span class="o">:</span> <span class="nx">s</span><span class="p">.</span><span class="nx">split</span>
+<span class="nx">Out</span><span class="cp">[</span><span class="mi">20</span><span class="cp">]</span><span class="o">:</span> <span class="o">&lt;</span><span class="kd">function</span> <span class="nx">split</span><span class="o">&gt;</span>
+</pre></div>
+
+
+<p>实际上，这种"."(dot notation)方式取对象的属性只是 <code>getattr</code> 函数的一个语法糖而已。
+同理，<code>f.x = 10</code> 也只是 <code>setattr(f, "x", 10)</code> 的语法糖。
+并且在python中，可以为对象的属性赋任何类型的值，就算赋一个复杂的对象也没有关系。
+当然，如果对对象中一个没有声明过的属性赋值，会先创建这个属性。如:</p>
+<div class="hlcode"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">21</span><span class="p">]</span><span class="o">:</span> <span class="n">f</span><span class="p">.</span><span class="n">new_attr</span> <span class="o">=</span> <span class="s">&quot;hello&quot;</span>
+
+<span class="n">In</span> <span class="p">[</span><span class="mi">22</span><span class="p">]</span><span class="o">:</span> <span class="n">f</span><span class="p">.</span><span class="n">school</span> <span class="o">=</span> <span class="s">&quot;blue_shit&quot;</span>
+</pre></div>
+
+
+<p>虽然我们可以随时为对象增加属性，但是一个好的编程规范就是把属性的初始化操作都封装到 <code>__init__</code> 方法中，而不是到处随时初始化一个属性。</p>
+<p>对于一个对象来说，我们可以随时对它初始化一个属性，对于类来说也是一样，如：</p>
+<div class="hlcode"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">24</span><span class="p">]</span><span class="o">:</span> <span class="n">class</span> <span class="n">F</span><span class="p">(</span><span class="n">object</span><span class="p">)</span><span class="o">:</span>
+<span class="p">....</span><span class="o">:</span>     <span class="n">pass</span>
+<span class="p">....</span><span class="o">:</span>
+
+<span class="n">In</span> <span class="p">[</span><span class="mi">25</span><span class="p">]</span><span class="o">:</span> <span class="n">F</span><span class="p">.</span><span class="n">age</span> <span class="o">=</span> <span class="mi">21</span>
+
+<span class="n">In</span> <span class="p">[</span><span class="mi">26</span><span class="p">]</span><span class="o">:</span> <span class="n">F</span><span class="p">.</span><span class="n">age</span>
+<span class="n">Out</span><span class="p">[</span><span class="mi">26</span><span class="p">]</span><span class="o">:</span> <span class="mi">21</span>
+</pre></div>
+
+
+<p>类也是对象，所以类也会有属性。同样，到处对类初始化属性是一个非常不好的习惯，对象可以把这些操作封装到 <code>__init__</code> 方法里面，对类来说，可以把这些操作封装到类的声明里面。对于在类的主体中初始化的属性，会被立即执行，但是通过 <code>def</code> 关键字声明的方法，则不会被执行，只有被调用到才会执行。如下的代码中，print函数就会被执行，name会被初始化，但是func方法主体则不会被执行。</p>
+<div class="hlcode"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">29</span><span class="p">]</span><span class="o">:</span> <span class="n">class</span> <span class="n">F</span><span class="p">(</span><span class="n">object</span><span class="p">)</span><span class="o">:</span>
+<span class="p">....</span><span class="o">:</span>     <span class="n">name</span> <span class="o">=</span> <span class="s">&quot;crow&quot;</span>
+<span class="p">....</span><span class="o">:</span>     <span class="n">print</span> <span class="s">&quot;in class&quot;</span>
+<span class="p">....</span><span class="o">:</span>     <span class="n">def</span> <span class="n">func</span><span class="p">()</span><span class="o">:</span>
+<span class="p">....</span><span class="o">:</span>         <span class="n">print</span> <span class="s">&quot;in func&quot;</span>
+<span class="p">....</span><span class="o">:</span>
+<span class="n">in</span> <span class="n">class</span>
+
+<span class="n">In</span> <span class="p">[</span><span class="mi">30</span><span class="p">]</span><span class="o">:</span> <span class="n">F</span><span class="p">.</span><span class="n">name</span>
+<span class="n">Out</span><span class="p">[</span><span class="mi">30</span><span class="p">]</span><span class="o">:</span> <span class="err">&#39;</span><span class="n">crow</span><span class="err">&#39;</span>
+</pre></div>
+
+
+<p>所以对于类来说，在类声明中初始化的变量，将会成为类对象的属性。</p>
+<p>如果我们通过 <code>def</code> 关键字定义了一个函数，实际上我们是在全局定义了一个变量，但是如果我们同样在类中去定义一个函数(方法)，实际上我们只是为这个类对象添加了一个属性。
+换句话说，实例的方法实际上是在类中，而不是在实例中的。当我们调用Foo的实例f的方法say时 <code>f.say()</code> , 实际上是调用了Foo的say方法，并且把f作为第一个参数传到say中。
+所以说， <code>f.say()</code> 和 <code>Foo.say(f)</code> 没有本质上的区别。更多关于python方法和函数的区别会在以后的文章中写到。</p>
+<p>那python是怎么把 <code>f.say()</code> 转到 <code>Foo.say(f)</code> 上的呢？</p>
+<p>这个就和python中变量和属性的"寻址"有关了。</p>
+<p>在python中，变量的查找遵循LEGB原则：Local，Enclosing，Global以及Builtin。而属性的查找则稍有不同，首先它会找属性声明的那个对象，然后是创造出对象的类，然后是随着类的继承链往上找，直到object对象。</p>
+<p>Thus, in our case, we invoke “f.blah()”. Python looks on the instance f, and doesn’t find an attribute named “blah”. Thus, it looks on f’s class, Foo. It finds the attribute there, and performs some Python method rewriting magic, thus invoking “Foo.blah(f)”.</p>
+<p>因此，在上面讨论到的例子中，我们调用 <code>f.say()</code> python会先查找对象f，没有找到一个名叫say的属性，因此就会去找f的类，Foo，然后找到了这个属性，python使用了方法的重写魔法，最后就调用到了 <code>Foo.say(f)</code> .</p>
+<p>所以说，python实际上没有实例变量和类变量这一说，只有对象和属性。</p>
+<p>但是我们应该避免一种情况，那就是类属性和实例属性重名的问题，例如：</p>
+<div class="hlcode"><pre><span class="n">class</span> <span class="n">Person</span><span class="p">(</span><span class="n">object</span><span class="p">)</span><span class="o">:</span>
+    <span class="n">population</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">def</span> <span class="n">__init__</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">first</span><span class="p">,</span> <span class="n">last</span><span class="p">)</span><span class="o">:</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">first</span> <span class="o">=</span> <span class="n">first</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">last</span> <span class="o">=</span> <span class="n">last</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">population</span> <span class="o">+=</span> <span class="mi">1</span>
+
+<span class="n">p1</span> <span class="o">=</span> <span class="n">Person</span><span class="p">(</span><span class="err">&#39;</span><span class="n">Reuven</span><span class="err">&#39;</span><span class="p">,</span> <span class="err">&#39;</span><span class="n">Lerner</span><span class="err">&#39;</span><span class="p">)</span>
+<span class="n">p2</span> <span class="o">=</span> <span class="n">Person</span><span class="p">(</span><span class="err">&#39;</span><span class="n">foo</span><span class="err">&#39;</span><span class="p">,</span> <span class="err">&#39;</span><span class="n">bar</span><span class="err">&#39;</span><span class="p">)</span>
+</pre></div>
+
+
+<p>当得到p1和p2之后， <code>Person.population</code> 还是0， <code>p1.population</code> 和 <code>p2.population</code> 都是1.</p>
+<p>这个是由 <code>self.population += 1</code> 导致的。</p>
+<p><code>self.population += 1</code> 等效于 <code>self.population = self.population + 1</code> ，首先右边表达式将会先计算，然后给左边表达式赋值。 python查看实例对象，self，发现没有population这个属性，然后就会去查它的Person类，结果发现了这个属性，取它的值0，加一然后重新付给了实例的population属性。所无论有多少个Person对象被创建出来，它们的population属性都会是1，类的population都是0.</p>
+<p>最后，这篇文章只是很简单的介绍，更详细的关于python oop，函数以及方法等等都会以后慢慢给出。</p>
+    </div>
+
+        </div>
+        <div id="footer">
+            <span>
+                Copyright © now-forever crow.
+                Powered by <a href="https://github.com/wlwang41/cb" target="_blank">Cb</a>.
+                UI by <a href="https://github.com/tankywoo/wiki.tankywoo.com">yasimple</a>
+            </span>
+        </div>
+    </body>
+</html>
