@@ -3,7 +3,7 @@
     <head>
         <link rel="Stylesheet" type="text/css" href="/static/css/style.css">
         <link rel="Stylesheet" type="text/css" href="/static/css/tango.css">
-        <title>crow coffin</title>
+        <title>git/github黑魔法 - crow coffin</title>
         <meta name="keywords" content="python web"/>
         <meta name="description" content="Learning in the hard way."/>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -31,136 +31,663 @@
         </div>
         <div id="container">
             
-  <div id="wiki_title">crow coffin</div>
+    <div id="content_header">
+        <div id="post-nav">
+            
+            <a href="/">Home</a> » <a href="/#tools">tools</a> » git/github黑魔法
+            
+        </div>
+    </div>
+    <div class="clearfix"></div>
+    <div id="title">git/github黑魔法</div>
+    <div id="content">
+        <p>今天看了一篇关于git和github的文章，真是让我脑洞大开，原来还能这么玩。</p>
+<p>下面我就直接搬运了。</p>
+<hr />
+<p>本秘籍收录了一些Git和Github非常酷同时又少有人知的功能。
+灵感来自于<a href="https://github.com/holman">Zach Holman</a>在2012年Aloha Ruby Conference和2013年WDCNZ上所做的演讲：<a href="http://www.confreaks.com/videos/1229-aloharuby2012-git-and-github-secrets">Git and GitHub Secrets</a>(<a href="https://speakerdeck.com/holman/git-and-github-secrets">slides</a>)
+和<a href="https://vimeo.com/72955426">More Git and GitHub Secrets</a>(<a href="https://speakerdeck.com/holman/more-git-and-github-secrets">slides</a>)。</p>
+<h2 id="github">GitHub</h2>
+<h3 id="_1">忽略空白字符变化</h3>
+<p>在任意diff页面的URL后加上<code>?w=1</code>，可以去掉那些只是空白字符的变化，使你能更专注于代码的变化。</p>
+<p><img alt="Diff without whitespace" src="https://camo.githubusercontent.com/797184940defadec00393e6559b835358a863eeb/68747470733a2f2f6769746875622d696d616765732e73332e616d617a6f6e6177732e636f6d2f626c6f672f323031312f736563726574732f776869746573706163652e706e67" /></p>
+<p><a href="https://github.com/blog/967-github-secrets"><em>详见 GitHub secrets.</em></a></p>
+<h3 id="tab">调整Tab字符所代表的空格数</h3>
+<p>在diff或者file页面的URL后面加上<code>?ts=4</code>，这样当显示tab字符的长度时就会是4个空格的长度，不再是默认的8个空格。<code>ts</code>后面的数字还可以根据你个人的偏好进行修改。不过，这个小诀窍在Gists页面和raw file页面不起作用。</p>
+<p>下面是我们在Go语言的source file页面URL后加<code>?ts=4</code><a href="https://github.com/pengwynn/flint/blob/master/flint/flint.go">前</a>的例子：</p>
+<p><img alt="Before, tab space example" src="http://i.imgur.com/GIT1Fr0.png" /></p>
+<p>然后是我们添加<code>?ts=4</code><a href="https://github.com/pengwynn/flint/blob/master/flint/flint.go?ts=4 =720x">后</a>的例子：</p>
+<p><img alt="After, tab space example" src="http://i.imgur.com/70FL4H9.png" /></p>
+<h3 id="commit">查看某个用户的Commit历史</h3>
+<p>查看某个用户的所有提交历史，只需在commits页面URL后加上<code>?author=username</code>。</p>
+<div class="hlcode"><pre>https://github.com/rails/rails/commits/master?author=dhh
+</pre></div>
 
-  
-  <div class="category_item">
-    
-    
-      
-    <div class="category">
-      <h2 id="python">python</h2>
+
+<p><img alt="DHH commit history" src="http://i.imgur.com/mDWwuaY.png" /></p>
+<p><a href="https://help.github.com/articles/differences-between-commit-views"><em>深入了解提交视图之间的区别</em></a></p>
+<h3 id="_2">克隆某个仓库</h3>
+<p>当我们克隆某一资源时，可以不要那个<code>.git</code>后缀。</p>
+<div class="hlcode"><pre><span class="nv">$ </span>git clone https://github.com/tiimgreen/github-cheat-sheet
+</pre></div>
+
+
+<p><a href="http://git-scm.com/docs/git-clone"><em>更多对 Git <code>clone</code> 命令的介绍.</em></a></p>
+<h3 id="_3">分支</h3>
+<h4 id="_4">将某个分支与其他所有分支进行对比</h4>
+<p>当你点击某个仓库的分支（Branches）选项卡时</p>
+<div class="hlcode"><pre>https://github.com/{user}/{repo}/branches
+</pre></div>
+
+
+<p>你会看到一个包含所有未合并的分支的列表。</p>
+<p>你可以在这里查看比较（Compare）页面或点击删除某个分支。</p>
+<p><img alt="Compare branches not merged into master in jquery/jquery repo - https://github.com/jquery/jquery/branches" src="http://i.imgur.com/gKWPe8a.png" /></p>
+<p>有的时候我们需要将多个分支与一个非主分支（master）进行对比，此时可以通过在URL后加入要比较的分支名来实现：</p>
+<div class="hlcode"><pre>https://github.com/{user}/{repo}/branches/{branch}
+</pre></div>
+
+
+<p><img alt="Compare branches not merged into 1.x-master in jquery/jquery repo - https://github.com/jquery/jquery/branches/1.x-master" src="http://i.imgur.com/jpc6Urb.png" /></p>
+<p>可以在URL后加上<code>?merged=1</code>来查看已经合并了的分支。</p>
+<p><img alt="Compare branches merged in to 1.x-master in jquery/jquery repo - https://github.com/jquery/jquery/branches/1.x-master?merged=1" src="http://i.imgur.com/KmYyCVh.png" /></p>
+<p>你可以使用这个界面来替代命令行直接删除分支。</p>
+<h4 id="_5">比较分支</h4>
+<p>如果我们想要比较两个分支，可以像下面一样修改URL：</p>
+<div class="hlcode"><pre>https://github.com/user/repo/compare/{range}
+</pre></div>
+
+
+<p>其中<code>{range} = master...4-1-stable</code></p>
+<p>例如：</p>
+<div class="hlcode"><pre>https://github.com/rails/rails/compare/master...4-1-stable
+</pre></div>
+
+
+<p><img alt="Rails branch compare example" src="http://i.imgur.com/0Z52X5Y.png" /></p>
+<p><code>{range}</code>还可以使用下面的形式:</p>
+<div class="hlcode"><pre>https://github.com/rails/rails/compare/master@{1.day.ago}...master
+https://github.com/rails/rails/compare/master@{2014-10-04}...master
+</pre></div>
+
+
+<p><em>日期格式 <code>YYYY-DD-MM</code></em></p>
+<p><img alt="Another compare example" src="http://i.imgur.com/5dtzESz.png" /></p>
+<p>...这样你就能查看master分支上一段时间或者指定日期内的改动。</p>
+<p><a href="https://help.github.com/articles/comparing-commits-across-time"><em>了解更多关于比较跨时间段的提交记录.</em></a></p>
+<h4 id="_6">比较不同派生库的分支</h4>
+<p>想要对派生仓库（Forked Repository）之间的分支进行比较，可以像下面这样修改URL实现：</p>
+<div class="hlcode"><pre>https://github.com/user/repo/compare/{foreign-user}:{branch}...{own-branch}
+</pre></div>
+
+
+<p>例如：</p>
+<div class="hlcode"><pre>https://github.com/rails/rails/compare/byroot:master...master
+</pre></div>
+
+
+<p><img alt="Forked branch compare" src="http://i.imgur.com/Q1W6qcB.png" /></p>
+<h3 id="gists">Gists</h3>
+<p><a href="https://gist.github.com/">Gists</a> 给我们提供了一种不需要创建一个完整的仓库，使小段代码也可以工作的简单方式。</p>
+<p><img alt="Gist" src="http://i.imgur.com/VkKI1LC.png?1" /></p>
+<p>Gist的URL后加上<code>.pibb</code>，可以得到更适合嵌入到其他网站的HTML版本。</p>
+<p>Gists还可以像任何标准仓库一样被克隆。</p>
+<div class="hlcode"><pre><span class="nv">$ </span>git clone https://gist.github.com/tiimgreen/10545817
+</pre></div>
+
+
+<p><img alt="Gists" src="http://i.imgur.com/BcFzabp.png" /></p>
+<p>这意味着你可以像 Github 仓库一样修改和更新 Gists :</p>
+<div class="hlcode"><pre><span class="nv">$ </span>git commit
+<span class="nv">$ </span>Username <span class="k">for</span> <span class="s1">&#39;https://gist.github.com&#39;</span>:
+<span class="nv">$ </span>Password <span class="k">for</span> <span class="s1">&#39;https://tiimgreen@gist.github.com&#39;</span>:
+</pre></div>
+
+
+<p><a href="https://help.github.com/articles/creating-gists"><em>进一步了解如何创建 gists.</em></a></p>
+<h3 id="gitio">Git.io</h3>
+<p><a href="http://git.io">Git.io</a>是Github的短网址服务。</p>
+<p><img alt="Git.io" src="http://i.imgur.com/6JUfbcG.png?1" /></p>
+<p>你可以通过Curl命令以普通HTTP协议使用它：</p>
+<div class="hlcode"><pre><span class="nv">$ </span>curl -i http://git.io -F <span class="s2">&quot;url=https://github.com/...&quot;</span>
+HTTP/1.1 <span class="m">201</span> Created
+Location: http://git.io/abc123
+
+<span class="nv">$ </span>curl -i http://git.io/abc123
+HTTP/1.1 <span class="m">302</span> Found
+Location: https://github.com/...
+</pre></div>
+
+
+<p><a href="https://github.com/blog/985-git-io-github-url-shortener"><em>进一步了解 Git.io.</em></a></p>
+<h3 id="_7">键盘快捷键</h3>
+<p>在仓库主页上提供了快捷键方便快速导航。</p>
+<ul>
+<li>按 <code>t</code> 键会打开一个文件浏览器。</li>
+<li>按 <code>w</code> 键会打开分支选择菜单。</li>
+<li>按 <code>s</code> 键会激活顶端的命令栏  (Command Bar)。</li>
+<li>按 <code>l</code> 键编辑Issue列表页的标签。</li>
+<li><strong>查看文件内容时</strong>（如：<code>https://github.com/tiimgreen/github-cheat-sheet/blob/master/README.md</code>），按 <code>y</code> 键将会冻结这个页面，这样就算代码被修改了也不会影响你当前看到的。</li>
+</ul>
+<p>按<code>?</code>查看当前页面支持的快捷键列表：</p>
+<p><img alt="Keyboard shortcuts" src="http://i.imgur.com/y5ZfNEm.png" /></p>
+<p><a href="https://help.github.com/articles/using-the-command-bar"><em>进一步了解如何使用 Command Bar.</em></a></p>
+<h3 id="_8">整行高亮</h3>
+<p>在代码文件地址后加上<code>#L52</code>或者单击行号52都会将第52行代码高亮显示。</p>
+<p>多行高亮也可以，比如用<code>#L53-L60</code>选择范围，或者按住 <code>shift</code>键，然后再点击选择的两行。</p>
+<div class="hlcode"><pre>https://github.com/rails/rails/blob/master/activemodel/lib/active_model.rb#L53-L60
+</pre></div>
+
+
+<p><img alt="整行高亮" src="http://i.imgur.com/8AhjrCz.png" /></p>
+<h3 id="commitissue">用commit信息关闭Issue</h3>
+<p>如果某个提交修复了一个Issue，当提交到master分支时，提交信息里可以使用<code>fix/fixes/fixed</code>, <code>close/closes/closed</code> 或者 <code>resolve/resolves/resolved</code>等关键词，后面再跟上Issue号，这样就会关闭这个Issue。</p>
+<div class="hlcode"><pre><span class="nv">$ </span>git commit -m <span class="s2">&quot;Fix screwup, fixes #12&quot;</span>
+</pre></div>
+
+
+<p>这将会关闭Issue #12，并且在Issue讨论列表里关联引用这次提交。</p>
+<p><img alt="Closing Repo" src="http://i.imgur.com/Uh1gZdx.png" /></p>
+<p><a href="https://help.github.com/articles/closing-issues-via-commit-messages"><em>进一步了解通过提交信息关闭Issue.</em></a></p>
+<h3 id="issue">链接其他仓库的Issue</h3>
+<p>如果你想引用到同一个仓库中的一个Issue，只需使用井号 <code>#</code> 加上Issue号，这样就会自动创建到此Issue的链接。</p>
+<p>要链接到其他仓库的Issue，就使用<code>user_name/repo_name#ISSUE_NUMBER</code>的方式，例如<code>tiimgreen/toc#12</code>。</p>
+<p><img alt="Cross-Link Issues" src="https://camo.githubusercontent.com/447e39ab8d96b553cadc8d31799100190df230a8/68747470733a2f2f6769746875622d696d616765732e73332e616d617a6f6e6177732e636f6d2f626c6f672f323031312f736563726574732f7265666572656e6365732e706e67" /></p>
+<h3 id="cipull-request">设置CI对每条Pull Request都进行构建</h3>
+<p>如果配置正确，<a href="https://travis-ci.org/">Travis CI</a>会为每个你收到的Pull Request执行构建，就像每次提交也会触发构建一样。想了解更多关于Travis CI的信息，请看 <a href="http://docs.travis-ci.com/user/getting-started/">Travis CI入门</a>。</p>
+<p><a href="https://github.com/octokit/octokit.rb/pull/452"><img alt="Travis CI status" src="https://cloud.githubusercontent.com/assets/1687642/2700187/3a88838c-c410-11e3-9a46-e65e2a0458cd.png" /></a></p>
+<p><a href="https://github.com/blog/1227-commit-status-api"><em>进一步了解 Commit status API.</em></a></p>
+<h3 id="markdown">Markdown文件高亮语法</h3>
+<p>例如，可以像下面这样在你的Markdown文件里为Ruby代码添加语法高亮：</p>
+<div class="hlcode"><pre>```ruby
+require &#39;tabbit&#39;
+table = Tabbit.new(&#39;Name&#39;, &#39;Email&#39;)
+table.add_row(&#39;Tim Green&#39;, &#39;tiimgreen@gmail.com&#39;)
+puts table.to_s
+```
+</pre></div>
+
+
+<p>效果像下面这样：</p>
+<div class="hlcode"><pre><span class="nb">require</span> <span class="s1">&#39;tabbit&#39;</span>
+<span class="n">table</span> <span class="o">=</span> <span class="no">Tabbit</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s1">&#39;Name&#39;</span><span class="p">,</span> <span class="s1">&#39;Email&#39;</span><span class="p">)</span>
+<span class="n">table</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="s1">&#39;Tim Green&#39;</span><span class="p">,</span> <span class="s1">&#39;tiimgreen@gmail.com&#39;</span><span class="p">)</span>
+<span class="nb">puts</span> <span class="n">table</span><span class="o">.</span><span class="n">to_s</span>
+</pre></div>
+
+
+<p>Github使用 <a href="https://github.com/github/linguist">Linguist</a> 做语言识别和语法高亮。你可以仔细阅读 <a href="https://github.com/github/linguist/blob/master/lib/linguist/languages.yml">languages YAML file</a>，了解有哪些可用的关键字。</p>
+<p><a href="https://help.github.com/articles/github-flavored-markdown"><em>进一步了解 GitHub Flavored Markdown.</em></a></p>
+<h3 id="_9">表情符</h3>
+<p>可以在Pull Requests, Issues, 提交消息, Markdown文件里加入表情符。使用方法<code>:name_of_emoji:</code></p>
+<div class="hlcode"><pre>:smile:
+</pre></div>
+
+
+<p>将输出一个笑脸：</p>
+<p>:smile:</p>
+<p>Github支持的完整表情符号列表详见<a href="http://www.emoji-cheat-sheet.com/">emoji-cheat-sheet.com</a> 或 <a href="https://github.com/scotch-io/All-Github-Emoji-Icons">scotch-io/All-Github-Emoji-Icons</a>。</p>
+<p>Github上使用最多的5个表情符号是：</p>
+<ol>
+<li>:shipit: - <code>:shipit:</code></li>
+<li>:sparkles: - <code>:sparkles:</code></li>
+<li>:-1: - <code>:-1:</code></li>
+<li>:+1: - <code>:+1:</code></li>
+<li>:clap: - <code>:clap:</code></li>
+</ol>
+<h3 id="_10">静态与动态图片</h3>
+<p>注释和README等文件里也可以使用图片和GIF动画：</p>
+<div class="hlcode"><pre><span class="o">!</span><span class="p">[</span><span class="n">Alt</span> <span class="n">Text</span><span class="p">](</span><span class="nl">http</span><span class="p">:</span><span class="c1">//www.sheawong.com/wp-content/uploads/2013/08/keephatin.gif)</span>
+</pre></div>
+
+
+<p>仓库中的原始图片可以被直接调用：</p>
+<div class="hlcode"><pre><span class="o">!</span><span class="p">[</span><span class="n">Alt</span> <span class="n">Text</span><span class="p">](</span><span class="nl">https</span><span class="p">:</span><span class="c1">//github.com/(user)/(repo)/raw/master/path/to/image.gif)</span>
+</pre></div>
+
+
+<p><img alt="Peter don't care" src="http://www.sheawong.com/wp-content/uploads/2013/08/keephatin.gif" /></p>
+<p>所有图片都缓存在Github，不用担心你的站点不能访问时就看不到图片了。</p>
+<h4 id="github-wiki">在GitHub Wiki中嵌入图片</h4>
+<p>有多种方法可以在Wiki页面里嵌入图片。既可以像上一条里那样使用标准的Markdown语法，也可以像下面这样指定图片的高度或宽度：</p>
+<div class="hlcode"><pre>[[ http://www.sheawong.com/wp-content/uploads/2013/08/keephatin.gif | height = 100px ]]
+</pre></div>
+
+
+<p>结果：</p>
+<p><img alt="Just a screenshot" src="http://i.imgur.com/J5bMf7S.png" /></p>
+<h3 id="_11">快速引用</h3>
+<p>在主题评论中引用之前某个人所说的，只需选中文本，然后按 <code>r</code>键，想要的就会以引用的形式复制到你的输入框里。</p>
+<p><img alt="Quick Quote" src="https://f.cloud.github.com/assets/296432/124483/b0fa6204-6ef0-11e2-83c3-256c37fa7abc.gif" /></p>
+<p><a href="https://github.com/blog/1399-quick-quotes"><em>进一步了解快速引用.</em></a></p>
+<h3 id="_12">快速添加许可证</h3>
+<p>创建一个仓库时，Github会为你提供一个预置的软件许可列表：</p>
+<p><img alt="License" src="http://i.imgur.com/Chqj4Fg.png" /></p>
+<p>对于已有的仓库，可以通过web界面创建文件来添加软件许可。输入<code>LICENSE</code>作为文件名后，同样可以从预置的列表中选择一个作为模板。</p>
+<p><img alt="License" src="http://i.imgur.com/fTjQict.png" /></p>
+<p>这个技巧也适用于 <code>.gitignore</code> 文件。</p>
+<p><a href="https://help.github.com/articles/open-source-licensing"><em>进一步了解 open source licensing.</em></a></p>
+<h3 id="_13">任务列表</h3>
+<p>Issues和Pull requests里可以添加复选框，语法如下（注意空白符）：</p>
+<div class="hlcode"><pre>- [ ] Be awesome
+- [ ] Prepare dinner
+  - [ ] Research recipe
+  - [ ] Buy ingredients
+  - [ ] Cook recipe
+- [ ] Sleep
+</pre></div>
+
+
+<p><img alt="Task List" src="http://i.imgur.com/jJBXhsY.png" /></p>
+<p>当项目被选中时，它对应的Markdown源码也被更新了：</p>
+<div class="hlcode"><pre>- [x] Be awesome
+- [ ] Prepare dinner
+  - [x] Research recipe
+  - [x] Buy ingredients
+  - [ ] Cook recipe
+- [ ] Sleep
+</pre></div>
+
+
+<p><a href="https://help.github.com/articles/writing-on-github#task-lists"><em>进一步了解任务列表.</em></a></p>
+<h4 id="markdown_1">Markdown文件中的任务列表</h4>
+<p>在完全适配Markdown语法的文件中可以使用以下语法加入一个<strong>只读</strong>的任务列表</p>
+<div class="hlcode"><pre>- [ ] Mercury
+- [x] Venus
+- [x] Earth
+  - [x] Moon
+- [x] Mars
+  - [ ] Deimos
+  - [ ] Phobos
+</pre></div>
+
+
+<p><a href="https://github.com/blog/1825-task-lists-in-all-markdown-documents"><em>进一步了解Markdown文件中的任务列表</em></a></p>
+<h3 id="_14">相对链接</h3>
+<p>Markdown文件里链接到内部内容时推荐使用相对链接。</p>
+<div class="hlcode"><pre>[Link to a header](#awesome-section)
+[Link to a file](docs/readme)
+</pre></div>
+
+
+<p>绝对链接会在URL改变时（例如重命名仓库、用户名改变，建立分支项目）被更新。使用相对链接能够保证你的文档不受此影响。</p>
+<p><a href="https://help.github.com/articles/relative-links-in-readmes"><em>进一步了解相对链接.</em></a></p>
+<h3 id="github-pages">GitHub Pages的元数据与插件支持</h3>
+<p>在Jekyll页面和文章里，仓库信息可在 <code>site.github</code> 命名空间下找到，也可以显示出来，例如，使用 <code>{{ site.github.project_title }}</code>显示项目标题。</p>
+<p>Jemoji和jekyll-mentions插件为你的Jekyll文章和页面增加了<a href="#emojis">emoji</a>和<a href="https://github.com/blog/821">@mentions</a>功能。</p>
+<p><a href="https://github.com/blog/1797-repository-metadata-and-plugin-support-for-github-pages"><em>了解更多 GitHub Pages的元数据和插件支持.</em></a></p>
+<h3 id="yaml">查看YAML格式的元数据</h3>
+<p>许多博客站点，比如基于<a href="http://jekyllrb.com/">Jekyll</a>的<a href="http://pages.github.com/">GitHub Pages</a>，都依赖于一些文章头部的YAML格式的元数据。Github会将其渲染成一个水平表格，方便阅读。</p>
+<p><img alt="YAML metadata" src="https://camo.githubusercontent.com/47245aa16728e242f74a9a324ce0d24c0b916075/68747470733a2f2f662e636c6f75642e6769746875622e636f6d2f6173736574732f36343035302f313232383236372f65303439643063362d323761302d313165332d396464382d6131636432323539393334342e706e67" /></p>
+<p><a href="https://github.com/blog/1647-viewing-yaml-metadata-in-your-documents"><em>进一步了解 在文档里查看YAML元数据.</em></a></p>
+<h3 id="_15">渲染表格数据</h3>
+<p>GitHub支持将 <code>.csv</code> (逗号分隔)和<code>.tsv</code> (制表符分隔)格式的文件渲染成表格数据。</p>
+<p><img alt="Tabular data" src="https://camo.githubusercontent.com/1b6dd0157ffb45d9939abf14233a0cb13b3b4dfe/68747470733a2f2f662e636c6f75642e6769746875622e636f6d2f6173736574732f3238323735392f3937363436322f33323038336463652d303638642d313165332d393262322d3566323863313061353035392e706e67" /></p>
+<p><a href="https://github.com/blog/1601-see-your-csvs"><em>进一步了解渲染表格数据.</em></a></p>
+<h3 id="pull-request">撤销Pull Request</h3>
+<p>可以通过Pull Request中的Revert按钮来撤销一个已合并的Pull Request中的commit。按下按钮后会自动生成一个进行逆向操作的Pull Request。</p>
+<p><img alt="Revert button" src="https://camo.githubusercontent.com/0d3350caf2bb1cba53123ffeafc00ca702b1b164/68747470733a2f2f6769746875622d696d616765732e73332e616d617a6f6e6177732e636f6d2f68656c702f70756c6c5f72657175657374732f7265766572742d70756c6c2d726571756573742d6c696e6b2e706e67" /></p>
+<p><a href="https://github.com/blog/1857-introducing-the-revert-button">*进一步了解“撤销”按钮</a></p>
+<h3 id="diffs">Diffs</h3>
+<h4 id="diffs_1">可渲染文档的Diffs</h4>
+<p>提交和Pull Requests里包含有Github支持的可渲染文档（比如Markdown）会提供<em>source</em> 和 <em>rendered</em> 两个视图功能。</p>
+<p><img alt="Source / Rendered view" src="https://github-images.s3.amazonaws.com/help/repository/rendered_prose_diff.png" /></p>
+<p>点击 "rendered" 按钮，看看改动在渲染后的显示效果。当你添加、删除或修改文本时，渲染纯文本视图非常方便。</p>
+<p><img alt="Rendered Prose Diffs" src="https://f.cloud.github.com/assets/17715/2003056/3997edb4-862b-11e3-90be-5e9586edecd7.png" /></p>
+<p><a href="https://github.com/blog/1784-rendered-prose-diffs"><em>进一步了解渲染纯文本视图Diffs.</em></a></p>
+<h4 id="_16">可变化地图</h4>
+<p>当你在GitHub上查看一个包含地理数据的提交或pull request时，Github 将以可视化的方式对比版本之间的差异。</p>
+<p><a href="https://github.com/benbalter/congressional-districts/commit/2233c76ca5bb059582d796f053775d8859198ec5"><img alt="Diffable Maps" src="https://f.cloud.github.com/assets/282759/2090660/63f2e45a-8e97-11e3-9d8b-d4c8078b004e.gif" /></a></p>
+<p><a href="https://github.com/blog/1772-diffable-more-customizable-maps"><em>进一步了解可比较地图.</em></a></p>
+<h4 id="diff">在diff中折叠与扩展代码</h4>
+<p>你可以通过点击diff边栏里的 <em>unfold</em> 按钮来多显示几行上下文。你可以一直点击 <em>unfold</em> 按钮直到显示了文件的全部内容。这个功能在所有GitHub产生的diff界面都可以使用。</p>
+<p><img alt="Expanding Context in Diffs" src="https://f.cloud.github.com/assets/22635/1610539/863c1f64-5584-11e3-82bf-151b406a272f.gif" /></p>
+<p><a href="https://github.com/blog/1705-expanding-context-in-diffs"><em>进一步了解扩展Diff上下文.</em></a></p>
+<h4 id="pull-requestdiffpatch">查看Pull Request的diff和patch</h4>
+<p>在Pull Request的URL后面加上 <code>.diff</code> 或 <code>.patch</code> 的扩展名就可以得到它的diff或patch文件，例如：</p>
+<div class="hlcode"><pre>https://github.com/tiimgreen/github-cheat-sheet/pull/15
+https://github.com/tiimgreen/github-cheat-sheet/pull/15.diff
+https://github.com/tiimgreen/github-cheat-sheet/pull/15.patch
+</pre></div>
+
+
+<p><code>.diff</code> 扩展会使用普通文本格式显示如下内容：</p>
+<div class="hlcode"><pre><span class="gh">diff --git a/README.md b/README.md</span>
+<span class="gh">index 88fcf69..8614873 100644</span>
+<span class="gd">--- a/README.md</span>
+<span class="gi">+++ b/README.md</span>
+<span class="gu">@@ -28,6 +28,7 @@ All the hidden and not hidden features of Git and GitHub. This cheat sheet was i</span>
+ - [Merged Branches](#merged-branches)
+ - [Quick Licensing](#quick-licensing)
+ - [TODO Lists](#todo-lists)
+<span class="gi">+- [Relative Links](#relative-links)</span>
+ - [.gitconfig Recommendations](#gitconfig-recommendations)
+     - [Aliases](#aliases)
+     - [Auto-correct](#auto-correct)
+<span class="gu">@@ -381,6 +382,19 @@ When they are clicked, they will be updated in the pure Markdown:</span>
+ - [ ] Sleep
+
+(...)
+</pre></div>
+
+
+<h4 id="_17">渲染图像发生的变动</h4>
+<p>GitHub可以显示包括PNG、JPG、GIF、PSD在内的多种图片格式并提供了几种方式来比较这些格式的图片文件版本间的不同。</p>
+<p><a href="https://github.com/blog/1845-psd-viewing-diffing"><img alt="Diffable PSD" src="https://cloud.githubusercontent.com/assets/2546/3165594/55f2798a-eb56-11e3-92e7-b79ad791a697.gif" /></a></p>
+<p><a href="https://help.github.com/articles/rendering-and-diffing-images"><em>查看更多关于渲染图像变动的内容</em></a></p>
+<h3 id="hub">Hub</h3>
+<p><a href="https://github.com/github/hub">Hub</a>是一个对Git进行了封装的命令行工具，可以帮助你更方便的使用Github。</p>
+<p>这使得你可以像下面这样进行克隆：</p>
+<div class="hlcode"><pre><span class="nv">$ </span>hub clone tiimgreen/toc
+</pre></div>
+
+
+<p><a href="https://github.com/github/hub#commands"><em>查看更多Hub提供的超酷命令.</em></a></p>
+<h3 id="_18">贡献者指南</h3>
+<p>在你的仓库的根目录添加一个名为 <code>CONTRIBUTING</code> 的文件后，贡献者在新建Issue或Pull Request时会看到这个文件的链接。</p>
+<p><img alt="Contributing Guidelines" src="https://camo.githubusercontent.com/71995d6b0e620a9ef1ded00a04498241c69dd1bf/68747470733a2f2f6769746875622d696d616765732e73332e616d617a6f6e6177732e636f6d2f736b697463682f6973737565732d32303132303931332d3136323533392e6a7067" /></p>
+<p><a href="https://github.com/blog/1184-contributing-guidelines"><em>进一步了解贡献者指南.</em></a></p>
+<h3 id="github_1">GitHub资源</h3>
+<table>
+<thead>
+<tr>
+<th>Title</th>
+<th>Link</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GitHub Explore</td>
+<td><a href="https://github.com/explore">https://github.com/explore</a></td>
+</tr>
+<tr>
+<td>GitHub Blog</td>
+<td><a href="https://github.com/blog">https://github.com/blog</a></td>
+</tr>
+<tr>
+<td>GitHub Help</td>
+<td><a href="https://help.github.com/">https://help.github.com/</a></td>
+</tr>
+<tr>
+<td>GitHub Training</td>
+<td><a href="http://training.github.com/">http://training.github.com/</a></td>
+</tr>
+<tr>
+<td>GitHub Developer</td>
+<td><a href="https://developer.github.com/">https://developer.github.com/</a></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="git">Git</h2>
+<h3 id="_19">前一个分支</h3>
+<p>快速检出上一个分支：</p>
+<div class="hlcode"><pre><span class="nv">$ </span>git checkout -
+<span class="c"># Switched to branch &#39;master&#39;</span>
+
+<span class="nv">$ </span>git checkout -
+<span class="c"># Switched to branch &#39;next&#39;</span>
+
+<span class="nv">$ </span>git checkout -
+<span class="c"># Switched to branch &#39;master&#39;</span>
+</pre></div>
+
+
+<p><a href="http://git-scm.com/book/en/Git-Branching-Basic-Branching-and-Merging"><em>进一步了解 Git 分支.</em></a></p>
+<h3 id="stripspace">Stripspace命令</h3>
+<p>Git Stripspace命令可以:</p>
+<ul>
+<li>去掉行尾空白符</li>
+<li>多个空行压缩成一行</li>
+<li>必要时在文件末尾增加一个空行</li>
+</ul>
+<p>使用此命令时必须传入一个文件，像这样：</p>
+<div class="hlcode"><pre><span class="nv">$ </span>git stripspace &lt; README.md
+</pre></div>
+
+
+<p><a href="http://git-scm.com/docs/git-stripspace"><em>进一步了解 Git <code>stripspace</code> 命令.</em></a></p>
+<h3 id="pull-requests">检出Pull Requests</h3>
+<p>Pull Request是一种GitHub上可以通过以下多种方式在本地被检索的特别分支：</p>
+<p>检索某个分支并临时储存在本地的<code>FETCH_HEAD</code>中以便快速查看更改(diff)以及合并(merge)：</p>
+<div class="hlcode"><pre><span class="nv">$ </span>git fetch origin refs/pull/<span class="o">[</span>PR-Number<span class="o">]</span>/head
+</pre></div>
+
+
+<p>通过refspec获取所有的Pull Request为本地分支：</p>
+<div class="hlcode"><pre><span class="nv">$ </span>git fetch origin <span class="s1">&#39;+refs/pull/*/head:refs/remotes/origin/pr/*&#39;</span>
+</pre></div>
+
+
+<p>或在仓库的<code>.git/config</code>中加入下列设置来自动获取远程仓库中的Pull Request</p>
+<div class="hlcode"><pre><span class="k">[remote &quot;origin&quot;]</span>
+    <span class="na">fetch</span> <span class="o">=</span> <span class="s">+refs/heads/*:refs/remotes/origin/*</span>
+<span class="s">    url = git@github.com:tiimgreen/github-cheat-sheet.git</span>
+</pre></div>
+
+
+<div class="hlcode"><pre><span class="k">[remote &quot;origin&quot;]</span>
+    <span class="na">fetch</span> <span class="o">=</span> <span class="s">+refs/heads/*:refs/remotes/origin/*</span>
+<span class="s">    url = git@github.com:tiimgreen/github-cheat-sheet.git</span>
+<span class="s">    fetch = +refs/pull/*/head:refs/remotes/origin/pr/*</span>
+</pre></div>
+
+
+<p>对基于派生库的Pull Request，可以通过先<code>checkout</code>代表此Pull Request的远端分支再由此分支建立一个本地分支：</p>
+<div class="hlcode"><pre><span class="nv">$ </span>git checkout pr/42 pr-42
+</pre></div>
+
+
+<p>操作多个仓库的时候，可以在Git中设置获取Pull Request的全局选项。</p>
+<div class="hlcode"><pre> git config --global --add remote.origin.fetch &quot;+refs/pull/*/head:refs/remotes/origin/pr/*&quot;
+</pre></div>
+
+
+<p>此时可以在任意仓库中使用以下命令：</p>
+<div class="hlcode"><pre> git fetch origin
+</pre></div>
+
+
+<div class="hlcode"><pre>git checkout pr/42
+</pre></div>
+
+
+<p><a href="https://help.github.com/articles/checking-out-pull-requests-locally"><em>进一步了解如何检出pull request到本地.</em></a></p>
+<h3 id="trollface">提交空改动 :trollface:</h3>
+<p>可以使用<code>--allow-empty</code>选项强制创建一个没有任何改动的提交：</p>
+<div class="hlcode"><pre><span class="nv">$ </span>git commit -m <span class="s2">&quot;Big-ass commit&quot;</span> --allow-empty
+</pre></div>
+
+
+<p>这样做在如下几种情况下是有意义的：</p>
+<ul>
+<li>标记新的工作或一个新功能的开始。</li>
+<li>记录对项目的跟代码无关的改动。</li>
+<li>跟使用你仓库的其他人交流。</li>
+<li>作为仓库的第一次提交，因为第一次提交后不能被rebase： <code>git commit -m "init repo" --allow-empty</code>.</li>
+</ul>
+<h3 id="git-status">更直观的Git Status</h3>
+<p>在命令行输入如下命令:</p>
+<div class="hlcode"><pre><span class="nv">$ </span>git status
+</pre></div>
+
+
+<p>可以看到:</p>
+<p><img alt="git status" src="http://i.imgur.com/o3PEHAA.png" /></p>
+<p>加上<code>-sb</code>选项:</p>
+<div class="hlcode"><pre><span class="nv">$ </span>git status -sb
+</pre></div>
+
+
+<p>这会得到:</p>
+<p><img alt="git status -sb" src="http://i.imgur.com/xNI1bT0.png" /></p>
+<p><a href="http://git-scm.com/docs/git-status"><em>进一步了解 Git <code>status</code> 命令.</em></a></p>
+<h3 id="git-log">更直观的Git Log</h3>
+<p>输入如下命令:</p>
+<div class="hlcode"><pre><span class="nv">$ </span>git log --all --graph --pretty<span class="o">=</span>format:<span class="s1">&#39;%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)&lt;%an&gt;%Creset&#39;</span> --abbrev-commit --date<span class="o">=</span>relative
+</pre></div>
+
+
+<p>可以看到:</p>
+<p><img alt="git log --all --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)&lt;%an&gt;%Creset' --abbrev-commit --date=relative" src="http://i.imgur.com/R2z8l7c.png" /></p>
+<p>这要归功于<a href="http://stackoverflow.com/users/88355/palesz">Palesz</a>在stackoverflow的回答。</p>
+<p><em>这个命令可以被用作别名，详细做法见<a href="https://github.com/tiimgreen/github-cheat-sheet#aliases">这里</a>。</em></p>
+<p><a href="http://git-scm.com/docs/git-log"><em>进一步了解 Git <code>log</code> 命令.</em></a></p>
+<h3 id="git_1">Git查询</h3>
+<p>Git查询运行你在之前的所有提交信息里进行搜索，找到其中和搜索条件相匹配的最近的一条。</p>
+<div class="hlcode"><pre><span class="nv">$ </span>git show :/query
+</pre></div>
+
+
+<p>这里 <code>query</code> （区别大小写）是你想要搜索的词语， 这条命令会找到包含这个词语的最后那个提交并显示变动详情。</p>
+<div class="hlcode"><pre><span class="nv">$ </span>git show :/typo
+</pre></div>
+
+
+<p><img alt="git show :/query" src="http://i.imgur.com/icaGiNt.png" /></p>
+<ul>
+<li>按 <code>q</code> 键退出命令。*</li>
+</ul>
+<h3 id="_20">合并分支</h3>
+<p>输入命令:</p>
+<div class="hlcode"><pre><span class="nv">$ </span>git branch --merged
+</pre></div>
+
+
+<p>这会显示所有已经合并到你当前分支的分支列表。 </p>
+<p>相反地：</p>
+<div class="hlcode"><pre><span class="nv">$ </span>git branch --no-merged
+</pre></div>
+
+
+<p>会显示所有还没有合并到你当前分支的分支列表。</p>
+<p><a href="http://git-scm.com/docs/git-branch"><em>进一步了解 Git <code>branch</code> 命令.</em></a></p>
+<h3 id="_21">使用网页查看本地仓库</h3>
+<p>使用Git的 <code>instaweb</code> 可以立即在 <code>gitweb</code>中浏览你的工作仓库。这个命令是个简单的脚本，配置了<code>gitweb</code>和用来浏览本地仓库的Web服务器。<em>（译者注：默认需要lighttpd支持）</em></p>
+<div class="hlcode"><pre><span class="nv">$ </span>git instaweb
+</pre></div>
+
+
+<p>执行后打开：</p>
+<p><img alt="Git instaweb" src="http://i.imgur.com/Dxekmqc.png" /></p>
+<p><a href="http://git-scm.com/docs/git-instaweb"><em>进一步了解 Git <code>instaweb</code> 命令.</em></a></p>
+<h3 id="git_2">Git配置</h3>
+<p>所有Git配置都保存在你的<code>.gitconfig</code> 文件中。</p>
+<h4 id="git_3">Git命令自定义别名</h4>
+<p>别名用来帮助你定义自己的git命令。比如你可以定义 <code>git a</code> 来运行 <code>git add --all</code>。</p>
+<p>要添加一个别名， 一种方法是打开 <code>~/.gitconfig</code> 文件并添加如下内容：</p>
+<div class="hlcode"><pre><span class="k">[alias]</span>
+  <span class="na">co</span> <span class="o">=</span> <span class="s">checkout</span>
+<span class="s">  cm = commit</span>
+<span class="s">  p = push</span>
+<span class="s">  # Show verbose output about tags, branches or remotes</span>
+<span class="s">  tags = tag -l</span>
+<span class="s">  branches = branch -a</span>
+<span class="s">  remotes = remote -v</span>
+</pre></div>
+
+
+<p>...或者在命令行里键入：</p>
+<div class="hlcode"><pre><span class="nv">$ </span>git config --global alias.new_alias git_function
+</pre></div>
+
+
+<p>例如：</p>
+<div class="hlcode"><pre><span class="nv">$ </span>git config --global alias.cm commit
+</pre></div>
+
+
+<p>指向多个命令的别名可以用引号来定义：</p>
+<div class="hlcode"><pre><span class="nv">$ </span>git config --global alias.ac <span class="s1">&#39;add -A . &amp;&amp; commit&#39;</span>
+</pre></div>
+
+
+<p>下面列出了一些有用的别名：</p>
+<table>
+<thead>
+<tr>
+<th>别名 Alias</th>
+<th>命令 Command</th>
+<th>如何设置 What to Type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>git cm</code></td>
+<td><code>git commit</code></td>
+<td><code>git config --global alias.cm commit</code></td>
+</tr>
+<tr>
+<td><code>git co</code></td>
+<td><code>git checkout</code></td>
+<td><code>git config --global alias.co checkout</code></td>
+</tr>
+<tr>
+<td><code>git ac</code></td>
+<td><code>git add . -A</code> <code>git commit</code></td>
+<td><code>git config --global alias.ac '!git add -A &amp;&amp; git commit'</code></td>
+</tr>
+<tr>
+<td><code>git st</code></td>
+<td><code>git status -sb</code></td>
+<td><code>git config --global alias.st 'status -sb'</code></td>
+</tr>
+<tr>
+<td><code>git tags</code></td>
+<td><code>git tag -l</code></td>
+<td><code>git config --global alias.tags 'tag -l'</code></td>
+</tr>
+<tr>
+<td><code>git branches</code></td>
+<td><code>git branch -a</code></td>
+<td><code>git config --global alias.branches 'branch -a'</code></td>
+</tr>
+<tr>
+<td><code>git remotes</code></td>
+<td><code>git remote -v</code></td>
+<td><code>git config --global alias.remotes 'remote -v'</code></td>
+</tr>
+<tr>
+<td><code>git lg</code></td>
+<td><code>git log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)&lt;%an&gt;%Creset' --abbrev-commit --</code></td>
+<td><code>git config --global alias.lg "log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)&lt;%an&gt;%Creset' --abbrev-commit --"</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="_22">自动更正</h4>
+<p>如果键入 <code>git comit</code> 你会看到如下输出：</p>
+<div class="hlcode"><pre><span class="nv">$ </span>git comit -m <span class="s2">&quot;Message&quot;</span>
+<span class="c"># git: &#39;comit&#39; is not a git command. See &#39;git --help&#39;.</span>
+
+<span class="c"># Did you mean this?</span>
+<span class="c">#   commit</span>
+</pre></div>
+
+
+<p>为了在键入 <code>comit</code> 调用 <code>commit</code>命令，只需启用自动纠错功能：</p>
+<div class="hlcode"><pre><span class="nv">$ </span>git config --global help.autocorrect 1
+</pre></div>
+
+
+<p>现在你就会看到：</p>
+<div class="hlcode"><pre><span class="nv">$ </span>git comit -m <span class="s2">&quot;Message&quot;</span>
+<span class="c"># WARNING: You called a Git command named &#39;comit&#39;, which does not exist.</span>
+<span class="c"># Continuing under the assumption that you meant &#39;commit&#39;</span>
+<span class="c"># in 0.1 seconds automatically...</span>
+</pre></div>
+
+
+<h4 id="_23">带颜色输出</h4>
+<p>要在你的Git命令输出里加上颜色的话，可以用如下命令：</p>
+<div class="hlcode"><pre><span class="nv">$ </span>git config --global color.ui 1
+</pre></div>
+
+
+<p><a href="http://git-scm.com/docs/git-config"><em>进一步了解 Git <code>config</code> 命令.</em></a></p>
+<blockquote>
+<p><a href="https://github.com/tiimgreen/github-cheat-sheet/blob/master/README.zh-cn.md">原文地址</a></p>
+</blockquote>
     </div>
-    <div class="category_list">
-      <ul>
-          
-        <li class="pagelist"><a href="./content/python/用python一行实现一棵树.html">用python一行实现一棵树</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/python/python中的attributes.html">Python中的attributes</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/python/没有外网权限的机器装python模块.html">没有外网权限的机器装python模块</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/python/python的坑.html">python的坑</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/python/rst语法汇总.html">rst语法汇总</a></li>
-          
-      </ul>
-    </div>
-      
-    <div class="clearfix"></div>
-    
-    
-      
-    <div class="category">
-      <h2 id="tools">tools</h2>
-    </div>
-    <div class="category_list">
-      <ul>
-          
-        <li class="pagelist"><a href="./content/tools/git-slash-github黑魔法.html">git/github黑魔法</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/tools/各种语言的比较.html">各种语言的比较</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/tools/飞翔在命令行中.html">飞翔在命令行中</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/tools/随意的git-commit.html">随意的git commit</a></li>
-          
-      </ul>
-    </div>
-      
-    <div class="clearfix"></div>
-    
-    
-      
-    <div class="category">
-      <h2 id="notes">notes</h2>
-    </div>
-    <div class="category_list">
-      <ul>
-          
-        <li class="pagelist"><a href="./content/notes/hello.html">Hello World</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/notes/why_has_cb.html">why has cb</a></li>
-          
-      </ul>
-    </div>
-      
-    <div class="clearfix"></div>
-    
-    
-      
-    <div class="category">
-      <h2 id="http">http</h2>
-    </div>
-    <div class="category_list">
-      <ul>
-          
-        <li class="pagelist"><a href="./content/http/mime种类.html">MIME种类</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/http/http_header_for_dummies.html">http header for dummies</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/http/post发送数据方式.html">POST发送数据方式</a></li>
-          
-      </ul>
-    </div>
-      
-    <div class="clearfix"></div>
-    
-    
-      
-    <div class="category">
-      <h2 id="ops">ops</h2>
-    </div>
-    <div class="category_list">
-      <ul>
-          
-        <li class="pagelist"><a href="./content/ops/drbd配置.html">DRBD配置</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/ops/mac下gcc的坑.html">mac下gcc的坑</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/ops/前端页面性能优化.html">前端页面性能优化</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/ops/fastdfs调研.html">fastdfs调研</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/ops/让进程在后台运行.html">让进程在后台运行</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/ops/fastdfs的坑以及补救方案.html">FastDFS的坑以及补救方案</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/ops/ssh隧道代理.html">SSH隧道代理</a></li>
-          
-      </ul>
-    </div>
-      
-    <div class="clearfix"></div>
-    
-  </div>
-  
 
         </div>
         <div id="footer">
