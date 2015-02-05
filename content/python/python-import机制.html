@@ -3,7 +3,7 @@
     <head>
         <link rel="Stylesheet" type="text/css" href="/static/css/style.css">
         <link rel="Stylesheet" type="text/css" href="/static/css/tango.css">
-        <title>crow coffin</title>
+        <title>python import机制 - crow coffin</title>
         <meta name="keywords" content="python web"/>
         <meta name="description" content="Learning in the hard way."/>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -31,139 +31,67 @@
         </div>
         <div id="container">
             
-  <div id="wiki_title">crow coffin</div>
+    <div id="content_header">
+        <div id="post-nav">
+            
+            <a href="/">Home</a> » <a href="/#python">python</a> » python import机制
+            
+        </div>
+    </div>
+    <div class="clearfix"></div>
+    <div id="title">python import机制</div>
+    <div id="content">
+        <p>今天王颖同学问了我一个问题，大概就是说mongo的数据库连接应该写在哪里，
+然后我告诉他应该写在models层的 <strong> <strong>init</strong>.py </strong> 文件中，这样整个项目启动的时候会初始化得到一个mongo的连接，
+整个项目就能通过这个连接来完成数据库操作。</p>
+<p>实际上，我们正式通过python的import机制，实现了一个数据库连接的单例模式。</p>
+<p>王颖同学虽然是c++大神，但是毕竟不太懂python，所以我觉得要想真正的理解这个设计，就必须搞清楚python的import机制。
+于是我问了王颖同学这样一个问题:</p>
+<p>假设在同一个目录下有这样3个文件，分别是a.py, b.py, c.py，代码如下:</p>
+<div class="hlcode"><pre><span class="c"># a.py</span>
+<span class="kn">import</span> <span class="nn">b</span>
+<span class="k">print</span> <span class="n">b</span><span class="o">.</span><span class="n">attr</span>
 
-  
-  <div class="category_item">
-    
-    
-      
-    <div class="category">
-      <h2 id="python">python</h2>
+<span class="c"># b.py</span>
+<span class="kn">import</span> <span class="nn">a</span>
+<span class="n">attr</span> <span class="o">=</span> <span class="s">&quot;Hello world!&quot;</span>
+
+<span class="c"># c.py</span>
+<span class="kn">import</span> <span class="nn">a</span>
+</pre></div>
+
+
+<p>此时 <code>python c.py</code> 会得到什么呢?</p>
+<p>王颖同学认为此时应该会爆出循环引用的错误，实则不然，正确的结果是会输出 <code>Hello world!</code> 。</p>
+<p>当import一个模块的时候，python会去看sys.modules里面有没有这个模块，如果有，
+则跳过import语句，执行后面的内容，如果没有则会降模块放入sys.modules字典中，
+并载入模块中内容，如:</p>
+<div class="hlcode"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">1</span><span class="p">]:</span> <span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="n">In</span> <span class="p">[</span><span class="mi">2</span><span class="p">]:</span> <span class="s">&#39;requests&#39;</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">modules</span>
+<span class="n">Out</span><span class="p">[</span><span class="mi">2</span><span class="p">]:</span> <span class="bp">False</span>
+
+<span class="n">In</span> <span class="p">[</span><span class="mi">3</span><span class="p">]:</span> <span class="kn">import</span> <span class="nn">requests</span>
+
+<span class="n">In</span> <span class="p">[</span><span class="mi">4</span><span class="p">]:</span> <span class="s">&#39;requests&#39;</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">modules</span>
+<span class="n">Out</span><span class="p">[</span><span class="mi">4</span><span class="p">]:</span> <span class="bp">True</span>
+</pre></div>
+
+
+<p>更多的信息则放在模块的 <code>__dict__</code> 属性中。</p>
+<p>当执行c.py的时候，执行import a这条语句：</p>
+<ol>
+<li>判断a是否在sys.modules里面，发现不在，则创建一个新的module对象a放到sys.modules中
+然后执行a.py其他语句，填充module a的 <code>__dict__</code> 属性。</li>
+<li>a.py中第一句就是import b，所以又开始载入b模块，同理，会在sys.modules中创建module对象b。</li>
+<li>然后执行b.py中其他语句，b.py中第一句就是import a，由于a模块已经在sys.modules中有了，
+所以会跳过这条import，执行b.py中下一条语句，也就是 <code>attr = "Hello world!"</code> 并且放到了b模块对象
+的 <code>__dict__</code> 属性中。</li>
+<li>接着会执行a.py中剩余语句，也就打印出了 <code>b.attr</code> ，也就是 "Hello world!"。</li>
+</ol>
+<p>由于python不会重复import一个模块，所以也就保证了数据库连接初始化只会执行一次。
+写在 <strong> <strong>init</strong>.py </strong> 中是保证会最先被执行到，因为 <strong> <strong>init</strong>.py </strong> 是表示这个文件夹是一个python的package，它会首先被执行到。</p>
     </div>
-    <div class="category_list">
-      <ul>
-          
-        <li class="pagelist"><a href="./content/python/python-import机制.html">python import机制</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/python/用python一行实现一棵树.html">用python一行实现一棵树</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/python/python中的attributes.html">Python中的attributes</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/python/没有外网权限的机器装python模块.html">没有外网权限的机器装python模块</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/python/rst语法汇总.html">rst语法汇总</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/python/python的坑.html">python的坑</a></li>
-          
-      </ul>
-    </div>
-      
-    <div class="clearfix"></div>
-    
-    
-      
-    <div class="category">
-      <h2 id="tools">tools</h2>
-    </div>
-    <div class="category_list">
-      <ul>
-          
-        <li class="pagelist"><a href="./content/tools/git-slash-github黑魔法.html">git/github黑魔法</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/tools/各种语言的比较.html">各种语言的比较</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/tools/飞翔在命令行中.html">飞翔在命令行中</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/tools/随意的git-commit.html">随意的git commit</a></li>
-          
-      </ul>
-    </div>
-      
-    <div class="clearfix"></div>
-    
-    
-      
-    <div class="category">
-      <h2 id="notes">notes</h2>
-    </div>
-    <div class="category_list">
-      <ul>
-          
-        <li class="pagelist"><a href="./content/notes/hello.html">Hello World</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/notes/why_has_cb.html">why has cb</a></li>
-          
-      </ul>
-    </div>
-      
-    <div class="clearfix"></div>
-    
-    
-      
-    <div class="category">
-      <h2 id="http">http</h2>
-    </div>
-    <div class="category_list">
-      <ul>
-          
-        <li class="pagelist"><a href="./content/http/mime种类.html">MIME种类</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/http/http_header_for_dummies.html">http header for dummies</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/http/post发送数据方式.html">POST发送数据方式</a></li>
-          
-      </ul>
-    </div>
-      
-    <div class="clearfix"></div>
-    
-    
-      
-    <div class="category">
-      <h2 id="ops">ops</h2>
-    </div>
-    <div class="category_list">
-      <ul>
-          
-        <li class="pagelist"><a href="./content/ops/drbd配置.html">DRBD配置</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/ops/mac下gcc的坑.html">mac下gcc的坑</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/ops/前端页面性能优化.html">前端页面性能优化</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/ops/fastdfs调研.html">fastdfs调研</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/ops/让进程在后台运行.html">让进程在后台运行</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/ops/fastdfs的坑以及补救方案.html">FastDFS的坑以及补救方案</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/ops/ssh隧道代理.html">SSH隧道代理</a></li>
-          
-      </ul>
-    </div>
-      
-    <div class="clearfix"></div>
-    
-  </div>
-  
 
         </div>
         <div id="footer">

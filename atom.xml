@@ -12,6 +12,65 @@
 
   
   <entry>
+    <title>python import机制</title>
+    <link type="text/html" rel="alternate" href="/content/python/python-import机制.html"/>
+    <id>/content/python/python-import机制.html</id>
+    <published>2015-02-05 22:50</published>
+    <updated>2015-02-05 22:50</updated>
+    <content type="html">
+      &lt;p&gt;今天王颖同学问了我一个问题，大概就是说mongo的数据库连接应该写在哪里，
+然后我告诉他应该写在models层的 &lt;strong&gt; &lt;strong&gt;init&lt;/strong&gt;.py &lt;/strong&gt; 文件中，这样整个项目启动的时候会初始化得到一个mongo的连接，
+整个项目就能通过这个连接来完成数据库操作。&lt;/p&gt;
+&lt;p&gt;实际上，我们正式通过python的import机制，实现了一个数据库连接的单例模式。&lt;/p&gt;
+&lt;p&gt;王颖同学虽然是c++大神，但是毕竟不太懂python，所以我觉得要想真正的理解这个设计，就必须搞清楚python的import机制。
+于是我问了王颖同学这样一个问题:&lt;/p&gt;
+&lt;p&gt;假设在同一个目录下有这样3个文件，分别是a.py, b.py, c.py，代码如下:&lt;/p&gt;
+&lt;div class=&#34;hlcode&#34;&gt;&lt;pre&gt;&lt;span class=&#34;c&#34;&gt;# a.py&lt;/span&gt;
+&lt;span class=&#34;kn&#34;&gt;import&lt;/span&gt; &lt;span class=&#34;nn&#34;&gt;b&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;print&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;b&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;attr&lt;/span&gt;
+
+&lt;span class=&#34;c&#34;&gt;# b.py&lt;/span&gt;
+&lt;span class=&#34;kn&#34;&gt;import&lt;/span&gt; &lt;span class=&#34;nn&#34;&gt;a&lt;/span&gt;
+&lt;span class=&#34;n&#34;&gt;attr&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;quot;Hello world!&amp;quot;&lt;/span&gt;
+
+&lt;span class=&#34;c&#34;&gt;# c.py&lt;/span&gt;
+&lt;span class=&#34;kn&#34;&gt;import&lt;/span&gt; &lt;span class=&#34;nn&#34;&gt;a&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;此时 &lt;code&gt;python c.py&lt;/code&gt; 会得到什么呢?&lt;/p&gt;
+&lt;p&gt;王颖同学认为此时应该会爆出循环引用的错误，实则不然，正确的结果是会输出 &lt;code&gt;Hello world!&lt;/code&gt; 。&lt;/p&gt;
+&lt;p&gt;当import一个模块的时候，python会去看sys.modules里面有没有这个模块，如果有，
+则跳过import语句，执行后面的内容，如果没有则会降模块放入sys.modules字典中，
+并载入模块中内容，如:&lt;/p&gt;
+&lt;div class=&#34;hlcode&#34;&gt;&lt;pre&gt;&lt;span class=&#34;n&#34;&gt;In&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]:&lt;/span&gt; &lt;span class=&#34;kn&#34;&gt;import&lt;/span&gt; &lt;span class=&#34;nn&#34;&gt;sys&lt;/span&gt;
+
+&lt;span class=&#34;n&#34;&gt;In&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;2&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]:&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#39;requests&amp;#39;&lt;/span&gt; &lt;span class=&#34;ow&#34;&gt;in&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;sys&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;modules&lt;/span&gt;
+&lt;span class=&#34;n&#34;&gt;Out&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;2&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]:&lt;/span&gt; &lt;span class=&#34;bp&#34;&gt;False&lt;/span&gt;
+
+&lt;span class=&#34;n&#34;&gt;In&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;3&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]:&lt;/span&gt; &lt;span class=&#34;kn&#34;&gt;import&lt;/span&gt; &lt;span class=&#34;nn&#34;&gt;requests&lt;/span&gt;
+
+&lt;span class=&#34;n&#34;&gt;In&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;4&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]:&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#39;requests&amp;#39;&lt;/span&gt; &lt;span class=&#34;ow&#34;&gt;in&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;sys&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;modules&lt;/span&gt;
+&lt;span class=&#34;n&#34;&gt;Out&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;4&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]:&lt;/span&gt; &lt;span class=&#34;bp&#34;&gt;True&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;更多的信息则放在模块的 &lt;code&gt;__dict__&lt;/code&gt; 属性中。&lt;/p&gt;
+&lt;p&gt;当执行c.py的时候，执行import a这条语句：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;判断a是否在sys.modules里面，发现不在，则创建一个新的module对象a放到sys.modules中
+然后执行a.py其他语句，填充module a的 &lt;code&gt;__dict__&lt;/code&gt; 属性。&lt;/li&gt;
+&lt;li&gt;a.py中第一句就是import b，所以又开始载入b模块，同理，会在sys.modules中创建module对象b。&lt;/li&gt;
+&lt;li&gt;然后执行b.py中其他语句，b.py中第一句就是import a，由于a模块已经在sys.modules中有了，
+所以会跳过这条import，执行b.py中下一条语句，也就是 &lt;code&gt;attr = &#34;Hello world!&#34;&lt;/code&gt; 并且放到了b模块对象
+的 &lt;code&gt;__dict__&lt;/code&gt; 属性中。&lt;/li&gt;
+&lt;li&gt;接着会执行a.py中剩余语句，也就打印出了 &lt;code&gt;b.attr&lt;/code&gt; ，也就是 &#34;Hello world!&#34;。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;由于python不会重复import一个模块，所以也就保证了数据库连接初始化只会执行一次。
+写在 &lt;strong&gt; &lt;strong&gt;init&lt;/strong&gt;.py &lt;/strong&gt; 中是保证会最先被执行到，因为 &lt;strong&gt; &lt;strong&gt;init&lt;/strong&gt;.py &lt;/strong&gt; 是表示这个文件夹是一个python的package，它会首先被执行到。&lt;/p&gt;
+    </content>
+  </entry>
+  <entry>
     <title>用python一行实现一棵树</title>
     <link type="text/html" rel="alternate" href="/content/python/用python一行实现一棵树.html"/>
     <id>/content/python/用python一行实现一棵树.html</id>
@@ -217,6 +276,23 @@ Out[30]: &amp;#39;crow&amp;#39;
 &lt;p&gt;当然搭建一个pypi镜像才是最方便的。&lt;/p&gt;
 &lt;p&gt;近期会开始做一些统一部署方案的工作，以后的python项目可能就会用virtualenv或者docker做隔离，并且搭建一个内部的pypi镜像，
 然后规范requirements.txt，那么装环境就只需要 &lt;code&gt;pip install -r requirements.txt&lt;/code&gt; 就能完成一个项目的环境环境配置了。&lt;/p&gt;
+    </content>
+  </entry>
+  <entry>
+    <title>rst语法汇总</title>
+    <link type="text/html" rel="alternate" href="/content/python/rst语法汇总.html"/>
+    <id>/content/python/rst语法汇总.html</id>
+    <published>2014-08-05 21:12</published>
+    <updated>2014-08-05 21:12</updated>
+    <content type="html">
+      &lt;p&gt;前段时间一直忙着快站这边插件商城的事情，刚好最近稍微闲了一点，所以我想把之前书签里面的一些文章整理一下发到这里。&lt;/p&gt;
+&lt;p&gt;今天就把rst相关的资源都放在这里作为干货。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://docutils.sourceforge.net/docs/user/rst/quickref.html&#34;&gt;quickref&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://docutils.sourceforge.net/docs/ref/rst/directives.html&#34;&gt;more detail&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;最后推荐一个在线的&lt;a href=&#34;http://rst.ninjs.org/&#34;&gt;rst编辑器&lt;/a&gt;。这玩意是一个开源的&lt;code&gt;flask&lt;/code&gt;项目，github上的star数也有几百。
+有时间看看这个项目，然后自己也写一个编辑器吧。&lt;/p&gt;
     </content>
   </entry>
   <entry>
@@ -634,23 +710,6 @@ In [2]: for count, i in enumerate(a):
 &lt;blockquote&gt;
 &lt;p&gt;最终希望看更多python高级编程技(大)巧(坑)的请戳&lt;a href=&#34;http://dongweiming.github.io/Expert-Python/#1&#34;&gt;这里&lt;/a&gt;&lt;/p&gt;
 &lt;/blockquote&gt;
-    </content>
-  </entry>
-  <entry>
-    <title>rst语法汇总</title>
-    <link type="text/html" rel="alternate" href="/content/python/rst语法汇总.html"/>
-    <id>/content/python/rst语法汇总.html</id>
-    <published>2014-08-05 21:12</published>
-    <updated>2014-08-05 21:12</updated>
-    <content type="html">
-      &lt;p&gt;前段时间一直忙着快站这边插件商城的事情，刚好最近稍微闲了一点，所以我想把之前书签里面的一些文章整理一下发到这里。&lt;/p&gt;
-&lt;p&gt;今天就把rst相关的资源都放在这里作为干货。&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;http://docutils.sourceforge.net/docs/user/rst/quickref.html&#34;&gt;quickref&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;http://docutils.sourceforge.net/docs/ref/rst/directives.html&#34;&gt;more detail&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;最后推荐一个在线的&lt;a href=&#34;http://rst.ninjs.org/&#34;&gt;rst编辑器&lt;/a&gt;。这玩意是一个开源的&lt;code&gt;flask&lt;/code&gt;项目，github上的star数也有几百。
-有时间看看这个项目，然后自己也写一个编辑器吧。&lt;/p&gt;
     </content>
   </entry>
   
