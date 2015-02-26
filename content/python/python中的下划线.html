@@ -3,7 +3,7 @@
     <head>
         <link rel="Stylesheet" type="text/css" href="/static/css/style.css">
         <link rel="Stylesheet" type="text/css" href="/static/css/tango.css">
-        <title>crow coffin</title>
+        <title>python中的下划线 - crow coffin</title>
         <meta name="keywords" content="python web"/>
         <meta name="description" content="Learning in the hard way."/>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -31,145 +31,101 @@
         </div>
         <div id="container">
             
-  <div id="wiki_title">crow coffin</div>
+    <div id="content_header">
+        <div id="post-nav">
+            
+            <a href="/">Home</a> » <a href="/#python">python</a> » python中的下划线
+            
+        </div>
+    </div>
+    <div class="clearfix"></div>
+    <div id="title">python中的下划线</div>
+    <div id="content">
+        <p>python项目中会有大量的以下划线开头的属性，这些下划线开头的属性，开上去很奇怪，出现频率也很多，所以下面我总结了常见下划线的意义。</p>
+<h2 id="_">单下划线开头(_)</h2>
+<ol>
+<li>
+<p><code>_</code> 在代码中单独出现，这种情况 <code>_</code> 表示一个零时变量。
+这样别人看代码的时候，就知道这是一个没有意义的零时变量，比起叫tmp或者temp更加简洁。</p>
+<div class="hlcode"><pre>for _ in range(10):
+    do_something_ten_times()
+</pre></div>
 
-  
-  <div class="category_item">
-    
-    
-      
-    <div class="category">
-      <h2 id="python">python</h2>
+
+</li>
+<li>
+<p>以 _ 开头的变量，如 <code>_foo</code> ，这样则表示或者约定该变量为私有变量。比如直接 <code>from &lt;module&gt; import *</code> 就不会import单下划线开头的属性（除非手动在 <code>__all__</code> 属性中声明）。</p>
+</li>
+<li>
+<p><code>_</code> 在解释器中出现，则表示上一个执行的结果，如：</p>
+<div class="hlcode"><pre>In [1]: 1 + 1
+Out[1]: 2
+
+In [2]: _
+Out[2]: 2
+</pre></div>
+
+
+</li>
+</ol>
+<h2 id="__">双下划线开头(__)</h2>
+<ol>
+<li>双下划线开头以及结尾( <code>__init__</code> )，这些一般都是python自带的一些magic method。之所以被双下划线包起来，是为了区别用户自己定义方法。</li>
+<li>
+<p>最少2个下划线开头，最多一个下划线结尾，python会对这些方法名加入类名后重组，如</p>
+<div class="hlcode"><pre>In [1]: class A(object):
+...:     a = 1
+...:     __b = 2
+...:     def __f(self):
+...:         pass
+...:
+
+In [2]: a = A()
+
+In [3]: dir(a)
+Out[3]:
+[&#39;_A__b&#39;,
+ &#39;_A__f&#39;,
+ &#39;__class__&#39;,
+ &#39;__delattr__&#39;,
+ &#39;__dict__&#39;,
+ &#39;__doc__&#39;,
+ &#39;__format__&#39;,
+ &#39;__getattribute__&#39;,
+ &#39;__hash__&#39;,
+ &#39;__init__&#39;,
+ &#39;__module__&#39;,
+ &#39;__new__&#39;,
+ &#39;__reduce__&#39;,
+ &#39;__reduce_ex__&#39;,
+ &#39;__repr__&#39;,
+ &#39;__setattr__&#39;,
+ &#39;__sizeof__&#39;,
+ &#39;__str__&#39;,
+ &#39;__subclasshook__&#39;,
+ &#39;__weakref__&#39;,
+ &#39;a&#39;]
+
+In [4]: getattr(a, &#39;a&#39;)
+Out[4]: 1
+
+In [5]: getattr(a, &#39;__b&#39;)
+---------------------------------------------------------------------------
+AttributeError                            Traceback (most recent call last)
+&lt;ipython-input-5-ae11a9e10a99&gt; in &lt;module&gt;()
+----&gt; 1 getattr(a, &#39;__b&#39;)
+
+AttributeError: &#39;A&#39; object has no attribute &#39;__b&#39;
+
+In [6]: getattr(a, &#39;_A__b&#39;)
+Out[6]: 2
+</pre></div>
+
+
+<p>a中的仅以双下划线开头的属性都被替换成了 <strong>_CLASSNAME__XX</strong> 的形式。这样就像java里面的final关键字一样，让这些属性不会被子类所重写。</p>
+</li>
+</ol>
     </div>
-    <div class="category_list">
-      <ul>
-          
-        <li class="pagelist"><a href="./content/python/python-import机制.html">python import机制</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/python/用python一行实现一棵树.html">用python一行实现一棵树</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/python/python中的attributes.html">Python中的attributes</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/python/python-web背景知识.html">python web背景知识</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/python/python中的下划线.html">python中的下划线</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/python/rst语法汇总.html">rst语法汇总</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/python/python的坑.html">python的坑</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/python/没有外网权限的机器装python模块.html">没有外网权限的机器装python模块</a></li>
-          
-      </ul>
-    </div>
-      
-    <div class="clearfix"></div>
-    
-    
-      
-    <div class="category">
-      <h2 id="tools">tools</h2>
-    </div>
-    <div class="category_list">
-      <ul>
-          
-        <li class="pagelist"><a href="./content/tools/git-slash-github黑魔法.html">git/github黑魔法</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/tools/各种语言的比较.html">各种语言的比较</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/tools/飞翔在命令行中.html">飞翔在命令行中</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/tools/随意的git-commit.html">随意的git commit</a></li>
-          
-      </ul>
-    </div>
-      
-    <div class="clearfix"></div>
-    
-    
-      
-    <div class="category">
-      <h2 id="notes">notes</h2>
-    </div>
-    <div class="category_list">
-      <ul>
-          
-        <li class="pagelist"><a href="./content/notes/hello.html">Hello World</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/notes/why_has_cb.html">why has cb</a></li>
-          
-      </ul>
-    </div>
-      
-    <div class="clearfix"></div>
-    
-    
-      
-    <div class="category">
-      <h2 id="http">http</h2>
-    </div>
-    <div class="category_list">
-      <ul>
-          
-        <li class="pagelist"><a href="./content/http/mime种类.html">MIME种类</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/http/http_header_for_dummies.html">http header for dummies</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/http/post发送数据方式.html">POST发送数据方式</a></li>
-          
-      </ul>
-    </div>
-      
-    <div class="clearfix"></div>
-    
-    
-      
-    <div class="category">
-      <h2 id="ops">ops</h2>
-    </div>
-    <div class="category_list">
-      <ul>
-          
-        <li class="pagelist"><a href="./content/ops/drbd配置.html">DRBD配置</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/ops/mac下gcc的坑.html">mac下gcc的坑</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/ops/前端页面性能优化.html">前端页面性能优化</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/ops/fastdfs调研.html">fastdfs调研</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/ops/让进程在后台运行.html">让进程在后台运行</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/ops/fastdfs的坑以及补救方案.html">FastDFS的坑以及补救方案</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/ops/ssh隧道代理.html">SSH隧道代理</a></li>
-          
-      </ul>
-    </div>
-      
-    <div class="clearfix"></div>
-    
-  </div>
-  
 
         </div>
         <div id="footer">

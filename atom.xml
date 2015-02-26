@@ -300,33 +300,96 @@ cgi/wsgi/fastcgi都是web server和应用程序之间通信的协议，桥梁。
     </content>
   </entry>
   <entry>
-    <title>没有外网权限的机器装python模块</title>
-    <link type="text/html" rel="alternate" href="/content/python/没有外网权限的机器装python模块.html"/>
-    <id>/content/python/没有外网权限的机器装python模块.html</id>
-    <published>2014-11-26 15:18</published>
-    <updated>2014-11-26 15:18</updated>
+    <title>python中的下划线</title>
+    <link type="text/html" rel="alternate" href="/content/python/python中的下划线.html"/>
+    <id>/content/python/python中的下划线.html</id>
+    <published>2015-02-26 18:36</published>
+    <updated>2015-02-26 18:36</updated>
     <content type="html">
-      &lt;p&gt;由于公司服务器大多数是没有外网权限的，也没有自己的pip源，所以要在服务器上装python的第三方模块相对来说比较复杂.&lt;/p&gt;
-&lt;p&gt;实际上，pip有一个功能就是直接把一个项目的所有依赖下载下来，并且不安装：&lt;/p&gt;
-&lt;div class=&#34;hlcode&#34;&gt;&lt;pre&gt;pip install --download /YOUR/DOWNLOAD/PATH celery
+      &lt;p&gt;python项目中会有大量的以下划线开头的属性，这些下划线开头的属性，开上去很奇怪，出现频率也很多，所以下面我总结了常见下划线的意义。&lt;/p&gt;
+&lt;h2 id=&#34;_&#34;&gt;单下划线开头(_)&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;_&lt;/code&gt; 在代码中单独出现，这种情况 &lt;code&gt;_&lt;/code&gt; 表示一个零时变量。
+这样别人看代码的时候，就知道这是一个没有意义的零时变量，比起叫tmp或者temp更加简洁。&lt;/p&gt;
+&lt;div class=&#34;hlcode&#34;&gt;&lt;pre&gt;for _ in range(10):
+    do_something_ten_times()
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;上面这个命令就能把celery以及它的依赖包全部现在到本地指定路径中。&lt;/p&gt;
-&lt;p&gt;把这些包都传到服务器上，然后在服务器上运行：&lt;/p&gt;
-&lt;div class=&#34;hlcode&#34;&gt;&lt;pre&gt;pip install --no-index -f /YOUR/PACKAGES/PATH celery
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;以 _ 开头的变量，如 &lt;code&gt;_foo&lt;/code&gt; ，这样则表示或者约定该变量为私有变量。比如直接 &lt;code&gt;from &amp;lt;module&amp;gt; import *&lt;/code&gt; 就不会import单下划线开头的属性（除非手动在 &lt;code&gt;__all__&lt;/code&gt; 属性中声明）。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;_&lt;/code&gt; 在解释器中出现，则表示上一个执行的结果，如：&lt;/p&gt;
+&lt;div class=&#34;hlcode&#34;&gt;&lt;pre&gt;In [1]: 1 + 1
+Out[1]: 2
+
+In [2]: _
+Out[2]: 2
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;这样就完成了一次python包的安装。&lt;/p&gt;
-&lt;p&gt;当然，这种方式非常麻烦，如果要装多台服务器的多个python包将做很多无用功。&lt;/p&gt;
-&lt;p&gt;因此我利用fabric写了一个简单的脚本，只需要在config.py里面写入本地下载包的路径，和服务器的host
-然后运行 &lt;code&gt;fab install_pys:celery,tornado,requests&lt;/code&gt; 就能完成安装.&lt;/p&gt;
-&lt;p&gt;也可以手动一步一步安装，具体命令通过 &lt;code&gt;fab -l&lt;/code&gt; 就能看到。&lt;/p&gt;
-&lt;p&gt;项目地址请戳&lt;a href=&#34;https://github.com/wlwang41/install_pys&#34;&gt;这里&lt;/a&gt;。&lt;/p&gt;
-&lt;p&gt;当然搭建一个pypi镜像才是最方便的。&lt;/p&gt;
-&lt;p&gt;近期会开始做一些统一部署方案的工作，以后的python项目可能就会用virtualenv或者docker做隔离，并且搭建一个内部的pypi镜像，
-然后规范requirements.txt，那么装环境就只需要 &lt;code&gt;pip install -r requirements.txt&lt;/code&gt; 就能完成一个项目的环境环境配置了。&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&#34;__&#34;&gt;双下划线开头(__)&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;双下划线开头以及结尾( &lt;code&gt;__init__&lt;/code&gt; )，这些一般都是python自带的一些magic method。之所以被双下划线包起来，是为了区别用户自己定义方法。&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;最少2个下划线开头，最多一个下划线结尾，python会对这些方法名加入类名后重组，如&lt;/p&gt;
+&lt;div class=&#34;hlcode&#34;&gt;&lt;pre&gt;In [1]: class A(object):
+...:     a = 1
+...:     __b = 2
+...:     def __f(self):
+...:         pass
+...:
+
+In [2]: a = A()
+
+In [3]: dir(a)
+Out[3]:
+[&amp;#39;_A__b&amp;#39;,
+ &amp;#39;_A__f&amp;#39;,
+ &amp;#39;__class__&amp;#39;,
+ &amp;#39;__delattr__&amp;#39;,
+ &amp;#39;__dict__&amp;#39;,
+ &amp;#39;__doc__&amp;#39;,
+ &amp;#39;__format__&amp;#39;,
+ &amp;#39;__getattribute__&amp;#39;,
+ &amp;#39;__hash__&amp;#39;,
+ &amp;#39;__init__&amp;#39;,
+ &amp;#39;__module__&amp;#39;,
+ &amp;#39;__new__&amp;#39;,
+ &amp;#39;__reduce__&amp;#39;,
+ &amp;#39;__reduce_ex__&amp;#39;,
+ &amp;#39;__repr__&amp;#39;,
+ &amp;#39;__setattr__&amp;#39;,
+ &amp;#39;__sizeof__&amp;#39;,
+ &amp;#39;__str__&amp;#39;,
+ &amp;#39;__subclasshook__&amp;#39;,
+ &amp;#39;__weakref__&amp;#39;,
+ &amp;#39;a&amp;#39;]
+
+In [4]: getattr(a, &amp;#39;a&amp;#39;)
+Out[4]: 1
+
+In [5]: getattr(a, &amp;#39;__b&amp;#39;)
+---------------------------------------------------------------------------
+AttributeError                            Traceback (most recent call last)
+&amp;lt;ipython-input-5-ae11a9e10a99&amp;gt; in &amp;lt;module&amp;gt;()
+----&amp;gt; 1 getattr(a, &amp;#39;__b&amp;#39;)
+
+AttributeError: &amp;#39;A&amp;#39; object has no attribute &amp;#39;__b&amp;#39;
+
+In [6]: getattr(a, &amp;#39;_A__b&amp;#39;)
+Out[6]: 2
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;a中的仅以双下划线开头的属性都被替换成了 &lt;strong&gt;_CLASSNAME__XX&lt;/strong&gt; 的形式。这样就像java里面的final关键字一样，让这些属性不会被子类所重写。&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
     </content>
   </entry>
   <entry>
@@ -761,6 +824,36 @@ In [2]: for count, i in enumerate(a):
 &lt;blockquote&gt;
 &lt;p&gt;最终希望看更多python高级编程技(大)巧(坑)的请戳&lt;a href=&#34;http://dongweiming.github.io/Expert-Python/#1&#34;&gt;这里&lt;/a&gt;&lt;/p&gt;
 &lt;/blockquote&gt;
+    </content>
+  </entry>
+  <entry>
+    <title>没有外网权限的机器装python模块</title>
+    <link type="text/html" rel="alternate" href="/content/python/没有外网权限的机器装python模块.html"/>
+    <id>/content/python/没有外网权限的机器装python模块.html</id>
+    <published>2014-11-26 15:18</published>
+    <updated>2014-11-26 15:18</updated>
+    <content type="html">
+      &lt;p&gt;由于公司服务器大多数是没有外网权限的，也没有自己的pip源，所以要在服务器上装python的第三方模块相对来说比较复杂.&lt;/p&gt;
+&lt;p&gt;实际上，pip有一个功能就是直接把一个项目的所有依赖下载下来，并且不安装：&lt;/p&gt;
+&lt;div class=&#34;hlcode&#34;&gt;&lt;pre&gt;pip install --download /YOUR/DOWNLOAD/PATH celery
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;上面这个命令就能把celery以及它的依赖包全部现在到本地指定路径中。&lt;/p&gt;
+&lt;p&gt;把这些包都传到服务器上，然后在服务器上运行：&lt;/p&gt;
+&lt;div class=&#34;hlcode&#34;&gt;&lt;pre&gt;pip install --no-index -f /YOUR/PACKAGES/PATH celery
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;这样就完成了一次python包的安装。&lt;/p&gt;
+&lt;p&gt;当然，这种方式非常麻烦，如果要装多台服务器的多个python包将做很多无用功。&lt;/p&gt;
+&lt;p&gt;因此我利用fabric写了一个简单的脚本，只需要在config.py里面写入本地下载包的路径，和服务器的host
+然后运行 &lt;code&gt;fab install_pys:celery,tornado,requests&lt;/code&gt; 就能完成安装.&lt;/p&gt;
+&lt;p&gt;也可以手动一步一步安装，具体命令通过 &lt;code&gt;fab -l&lt;/code&gt; 就能看到。&lt;/p&gt;
+&lt;p&gt;项目地址请戳&lt;a href=&#34;https://github.com/wlwang41/install_pys&#34;&gt;这里&lt;/a&gt;。&lt;/p&gt;
+&lt;p&gt;当然搭建一个pypi镜像才是最方便的。&lt;/p&gt;
+&lt;p&gt;近期会开始做一些统一部署方案的工作，以后的python项目可能就会用virtualenv或者docker做隔离，并且搭建一个内部的pypi镜像，
+然后规范requirements.txt，那么装环境就只需要 &lt;code&gt;pip install -r requirements.txt&lt;/code&gt; 就能完成一个项目的环境环境配置了。&lt;/p&gt;
     </content>
   </entry>
   
