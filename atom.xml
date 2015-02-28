@@ -410,6 +410,36 @@ Out[6]: 2
     </content>
   </entry>
   <entry>
+    <title>没有外网权限的机器装python模块</title>
+    <link type="text/html" rel="alternate" href="/content/python/没有外网权限的机器装python模块.html"/>
+    <id>/content/python/没有外网权限的机器装python模块.html</id>
+    <published>2014-11-26 15:18</published>
+    <updated>2014-11-26 15:18</updated>
+    <content type="html">
+      &lt;p&gt;由于公司服务器大多数是没有外网权限的，也没有自己的pip源，所以要在服务器上装python的第三方模块相对来说比较复杂.&lt;/p&gt;
+&lt;p&gt;实际上，pip有一个功能就是直接把一个项目的所有依赖下载下来，并且不安装：&lt;/p&gt;
+&lt;div class=&#34;hlcode&#34;&gt;&lt;pre&gt;pip install --download /YOUR/DOWNLOAD/PATH celery
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;上面这个命令就能把celery以及它的依赖包全部现在到本地指定路径中。&lt;/p&gt;
+&lt;p&gt;把这些包都传到服务器上，然后在服务器上运行：&lt;/p&gt;
+&lt;div class=&#34;hlcode&#34;&gt;&lt;pre&gt;pip install --no-index -f /YOUR/PACKAGES/PATH celery
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;这样就完成了一次python包的安装。&lt;/p&gt;
+&lt;p&gt;当然，这种方式非常麻烦，如果要装多台服务器的多个python包将做很多无用功。&lt;/p&gt;
+&lt;p&gt;因此我利用fabric写了一个简单的脚本，只需要在config.py里面写入本地下载包的路径，和服务器的host
+然后运行 &lt;code&gt;fab install_pys:celery,tornado,requests&lt;/code&gt; 就能完成安装.&lt;/p&gt;
+&lt;p&gt;也可以手动一步一步安装，具体命令通过 &lt;code&gt;fab -l&lt;/code&gt; 就能看到。&lt;/p&gt;
+&lt;p&gt;项目地址请戳&lt;a href=&#34;https://github.com/wlwang41/install_pys&#34;&gt;这里&lt;/a&gt;。&lt;/p&gt;
+&lt;p&gt;当然搭建一个pypi镜像才是最方便的。&lt;/p&gt;
+&lt;p&gt;近期会开始做一些统一部署方案的工作，以后的python项目可能就会用virtualenv或者docker做隔离，并且搭建一个内部的pypi镜像，
+然后规范requirements.txt，那么装环境就只需要 &lt;code&gt;pip install -r requirements.txt&lt;/code&gt; 就能完成一个项目的环境环境配置了。&lt;/p&gt;
+    </content>
+  </entry>
+  <entry>
     <title>python的坑</title>
     <link type="text/html" rel="alternate" href="/content/python/python的坑.html"/>
     <id>/content/python/python的坑.html</id>
@@ -827,33 +857,268 @@ In [2]: for count, i in enumerate(a):
     </content>
   </entry>
   <entry>
-    <title>没有外网权限的机器装python模块</title>
-    <link type="text/html" rel="alternate" href="/content/python/没有外网权限的机器装python模块.html"/>
-    <id>/content/python/没有外网权限的机器装python模块.html</id>
-    <published>2014-11-26 15:18</published>
-    <updated>2014-11-26 15:18</updated>
+    <title>python的装饰器</title>
+    <link type="text/html" rel="alternate" href="/content/python/python的装饰器.html"/>
+    <id>/content/python/python的装饰器.html</id>
+    <published>2015-02-28 17:06</published>
+    <updated>2015-02-28 17:06</updated>
     <content type="html">
-      &lt;p&gt;由于公司服务器大多数是没有外网权限的，也没有自己的pip源，所以要在服务器上装python的第三方模块相对来说比较复杂.&lt;/p&gt;
-&lt;p&gt;实际上，pip有一个功能就是直接把一个项目的所有依赖下载下来，并且不安装：&lt;/p&gt;
-&lt;div class=&#34;hlcode&#34;&gt;&lt;pre&gt;pip install --download /YOUR/DOWNLOAD/PATH celery
+      &lt;h2 id=&#34;_1&#34;&gt;基础概念&lt;/h2&gt;
+&lt;p&gt;Python的装饰器是在实际开发中非常好用的东西，有点类似于c里面的宏，或者java的AOP，要理解它也很容易。&lt;/p&gt;
+&lt;p&gt;首先，python中所有东西都是对象，包括函数，函数是first-class对象，所以函数可以作为函数形参，可以作为返回值，也可以直接赋值给另一个变量并且支持闭包函数。如：&lt;/p&gt;
+&lt;div class=&#34;hlcode&#34;&gt;&lt;pre&gt;&lt;span class=&#34;nx&#34;&gt;In&lt;/span&gt; &lt;span class=&#34;cp&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;]&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;def&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;f_a&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;:&lt;/span&gt;
+  &lt;span class=&#34;p&#34;&gt;....&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;:&lt;/span&gt;     &lt;span class=&#34;nx&#34;&gt;print&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;function a&amp;quot;&lt;/span&gt;
+  &lt;span class=&#34;p&#34;&gt;....&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;:&lt;/span&gt;
+
+&lt;span class=&#34;nx&#34;&gt;In&lt;/span&gt; &lt;span class=&#34;cp&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;2&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;]&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;def&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;f_b&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;:&lt;/span&gt;
+  &lt;span class=&#34;p&#34;&gt;....&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;:&lt;/span&gt;     &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;f_a&lt;/span&gt;
+  &lt;span class=&#34;p&#34;&gt;....&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;:&lt;/span&gt;
+
+&lt;span class=&#34;nx&#34;&gt;In&lt;/span&gt; &lt;span class=&#34;cp&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;3&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;]&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;def&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;f_c&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;f&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;:&lt;/span&gt;
+  &lt;span class=&#34;p&#34;&gt;....&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;:&lt;/span&gt;     &lt;span class=&#34;nx&#34;&gt;f&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
+  &lt;span class=&#34;p&#34;&gt;....&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;:&lt;/span&gt;
+
+&lt;span class=&#34;nx&#34;&gt;In&lt;/span&gt; &lt;span class=&#34;cp&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;4&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;]&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;f_d&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;f_b&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
+
+&lt;span class=&#34;nx&#34;&gt;In&lt;/span&gt; &lt;span class=&#34;cp&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;5&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;]&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;f_d&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
+&lt;span class=&#34;kd&#34;&gt;function&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;a&lt;/span&gt;
+
+&lt;span class=&#34;nx&#34;&gt;In&lt;/span&gt; &lt;span class=&#34;cp&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;6&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;]&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;f_c&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;f_d&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;span class=&#34;kd&#34;&gt;function&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;a&lt;/span&gt;
+
+&lt;span class=&#34;nx&#34;&gt;In&lt;/span&gt; &lt;span class=&#34;cp&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;7&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;]&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;def&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;f_e&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;name&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;:&lt;/span&gt;
+  &lt;span class=&#34;p&#34;&gt;....&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;:&lt;/span&gt;     &lt;span class=&#34;nx&#34;&gt;def&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;f_f&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;:&lt;/span&gt;
+  &lt;span class=&#34;p&#34;&gt;....&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;:&lt;/span&gt;         &lt;span class=&#34;nx&#34;&gt;print&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;hello&amp;quot;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;+&lt;/span&gt;     &lt;span class=&#34;nx&#34;&gt;str&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;name&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+  &lt;span class=&#34;p&#34;&gt;....&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;:&lt;/span&gt;     &lt;span class=&#34;nx&#34;&gt;f_f&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
+
+&lt;span class=&#34;nx&#34;&gt;In&lt;/span&gt; &lt;span class=&#34;cp&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;8&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;]&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;f_e&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;crow&amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt;hellocrow&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;上面这个命令就能把celery以及它的依赖包全部现在到本地指定路径中。&lt;/p&gt;
-&lt;p&gt;把这些包都传到服务器上，然后在服务器上运行：&lt;/p&gt;
-&lt;div class=&#34;hlcode&#34;&gt;&lt;pre&gt;pip install --no-index -f /YOUR/PACKAGES/PATH celery
+&lt;p&gt;这里需要注意的是，python的闭包函数比如f_f可以访问到父控件的变量。
+知道这些概念之后，看一个简单的装饰器，它会打出被装饰的函数的执行时间：&lt;/p&gt;
+&lt;div class=&#34;hlcode&#34;&gt;&lt;pre&gt;In [9]: def show_time(f):
+   ...:     def _(*args, **kwargs):
+   ...:         start = time.time()
+   ...:         f(*args, **kwargs)
+   ...:         print &amp;quot;%.3fs costs {%s}&amp;quot; % (time.time() - start, f.__name__)
+   ...:     return _
+
+In [10]: @show_time
+    ...: def wait():
+    ...:     time.sleep(1)
+    ...:
+
+In [11]: wait()
+1.005s costs {wait}
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;这样就完成了一次python包的安装。&lt;/p&gt;
-&lt;p&gt;当然，这种方式非常麻烦，如果要装多台服务器的多个python包将做很多无用功。&lt;/p&gt;
-&lt;p&gt;因此我利用fabric写了一个简单的脚本，只需要在config.py里面写入本地下载包的路径，和服务器的host
-然后运行 &lt;code&gt;fab install_pys:celery,tornado,requests&lt;/code&gt; 就能完成安装.&lt;/p&gt;
-&lt;p&gt;也可以手动一步一步安装，具体命令通过 &lt;code&gt;fab -l&lt;/code&gt; 就能看到。&lt;/p&gt;
-&lt;p&gt;项目地址请戳&lt;a href=&#34;https://github.com/wlwang41/install_pys&#34;&gt;这里&lt;/a&gt;。&lt;/p&gt;
-&lt;p&gt;当然搭建一个pypi镜像才是最方便的。&lt;/p&gt;
-&lt;p&gt;近期会开始做一些统一部署方案的工作，以后的python项目可能就会用virtualenv或者docker做隔离，并且搭建一个内部的pypi镜像，
-然后规范requirements.txt，那么装环境就只需要 &lt;code&gt;pip install -r requirements.txt&lt;/code&gt; 就能完成一个项目的环境环境配置了。&lt;/p&gt;
+&lt;p&gt;装饰器本质上就是函数赋值和闭包的结合， &lt;code&gt;@&lt;/code&gt; 不过是一个语法糖而已。 &lt;code&gt;show_time&lt;/code&gt; 函数以被装饰的函数作为形参传入，在函数体重定义了一个内部函数 &lt;code&gt;_&lt;/code&gt; ，这个函数接受任意的参数，调用传进来的函数，然后计时。&lt;/p&gt;
+&lt;p&gt;但是这样有一个问题，被装饰的wait函数，它的一部分属性被替换成了 &lt;code&gt;_&lt;/code&gt; 函数的，比如:&lt;/p&gt;
+&lt;div class=&#34;hlcode&#34;&gt;&lt;pre&gt;In [12]: wait.__name__
+Out[12]: &amp;#39;_&amp;#39;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;解决这个问题的方法很多，最优雅的方式就是使用python自带的functools模块的wraps装饰器：&lt;/p&gt;
+&lt;div class=&#34;hlcode&#34;&gt;&lt;pre&gt;&lt;span class=&#34;n&#34;&gt;In&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;13&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]:&lt;/span&gt; &lt;span class=&#34;kn&#34;&gt;from&lt;/span&gt; &lt;span class=&#34;nn&#34;&gt;functools&lt;/span&gt; &lt;span class=&#34;kn&#34;&gt;import&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;wraps&lt;/span&gt;
+
+&lt;span class=&#34;n&#34;&gt;In&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;14&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]:&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;def&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;show_time&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;f&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;):&lt;/span&gt;
+   &lt;span class=&#34;o&#34;&gt;....&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;     &lt;span class=&#34;nd&#34;&gt;@wraps&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;f&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+   &lt;span class=&#34;o&#34;&gt;....&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;     &lt;span class=&#34;k&#34;&gt;def&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;_&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;args&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;**&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;kwargs&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;):&lt;/span&gt;
+   &lt;span class=&#34;o&#34;&gt;....&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;         &lt;span class=&#34;n&#34;&gt;start&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;time&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;time&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
+   &lt;span class=&#34;o&#34;&gt;....&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;         &lt;span class=&#34;n&#34;&gt;f&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;args&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;**&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;kwargs&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+   &lt;span class=&#34;o&#34;&gt;....&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;         &lt;span class=&#34;k&#34;&gt;print&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;%.3f&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;s costs {&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;%s&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;}&amp;quot;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;%&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;time&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;time&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;-&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;start&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;f&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;__name__&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+   &lt;span class=&#34;o&#34;&gt;....&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;     &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;_&lt;/span&gt;
+   &lt;span class=&#34;o&#34;&gt;....&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;
+
+&lt;span class=&#34;n&#34;&gt;In&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;15&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]:&lt;/span&gt; &lt;span class=&#34;nd&#34;&gt;@show_time&lt;/span&gt;
+   &lt;span class=&#34;o&#34;&gt;....&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;def&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;wait&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;():&lt;/span&gt;
+   &lt;span class=&#34;o&#34;&gt;....&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;     &lt;span class=&#34;n&#34;&gt;time&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;sleep&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+   &lt;span class=&#34;o&#34;&gt;....&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;
+
+&lt;span class=&#34;n&#34;&gt;In&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;16&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]:&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;wait&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
+&lt;span class=&#34;mf&#34;&gt;1.005&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;s&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;costs&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;wait&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+
+&lt;span class=&#34;n&#34;&gt;In&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;17&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]:&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;wait&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;__name__&lt;/span&gt;
+&lt;span class=&#34;n&#34;&gt;Out&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;17&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]:&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#39;wait&amp;#39;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2 id=&#34;_2&#34;&gt;带参数的装饰器&lt;/h2&gt;
+&lt;p&gt;这个也没啥特殊的，本质上来讲，就是在利用闭包，子函数能够访问上层空间的属性这个特点，再包一层，最外层作用仅仅是为了让里层的函数能够访问装饰器的参数，里面还是和普通的装饰器一样。比如：&lt;/p&gt;
+&lt;div class=&#34;hlcode&#34;&gt;&lt;pre&gt;In [18]: def show_time(name=&amp;quot;crow&amp;quot;):
+   ....:     def wrapper(f):
+   ....:         @wraps(f)
+   ....:         def _(*args, **kwargs):
+   ....:             print &amp;quot;hello &amp;quot; + str(name)
+   ....:             start = time.time()
+   ....:             f(*args, **kwargs)
+   ....:             print &amp;quot;%.3fs costs {%s}&amp;quot; % (time.time() - start, f.__name__)
+   ....:         return _
+   ....:     return wrapper
+   ....:
+
+In [19]: @show_time(&amp;quot;world&amp;quot;)
+   ....: def wait():
+   ....:     time.sleep(1)
+   ....:
+
+In [20]: wait()
+hello world
+1.004s costs {wait}
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;这里实际上发生的是:&lt;/p&gt;
+&lt;div class=&#34;hlcode&#34;&gt;&lt;pre&gt;_ = show_time(name)
+wait = _(wait)
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2 id=&#34;_3&#34;&gt;类作为装饰器&lt;/h2&gt;
+&lt;p&gt;类当然也可以作为装饰器，只要类实现了 &lt;code&gt;__call__&lt;/code&gt; 方法。
+比如我们首先重写不带参数的show_time装饰器：&lt;/p&gt;
+&lt;div class=&#34;hlcode&#34;&gt;&lt;pre&gt;&lt;span class=&#34;n&#34;&gt;In&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]:&lt;/span&gt; &lt;span class=&#34;kn&#34;&gt;import&lt;/span&gt; &lt;span class=&#34;nn&#34;&gt;time&lt;/span&gt;
+
+&lt;span class=&#34;n&#34;&gt;In&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;2&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]:&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;class&lt;/span&gt; &lt;span class=&#34;nc&#34;&gt;show_time&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;object&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;):&lt;/span&gt;
+   &lt;span class=&#34;o&#34;&gt;...&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;     &lt;span class=&#34;k&#34;&gt;def&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;__init__&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;bp&#34;&gt;self&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;f&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;):&lt;/span&gt;
+   &lt;span class=&#34;o&#34;&gt;...&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;         &lt;span class=&#34;bp&#34;&gt;self&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;f&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;f&lt;/span&gt;
+   &lt;span class=&#34;o&#34;&gt;...&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;     &lt;span class=&#34;k&#34;&gt;def&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;__call__&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;bp&#34;&gt;self&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;args&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;**&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;kwargs&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;):&lt;/span&gt;
+   &lt;span class=&#34;o&#34;&gt;...&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;         &lt;span class=&#34;n&#34;&gt;start&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;time&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;time&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
+   &lt;span class=&#34;o&#34;&gt;...&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;         &lt;span class=&#34;bp&#34;&gt;self&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;f&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;args&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;**&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;kwargs&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+   &lt;span class=&#34;o&#34;&gt;...&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;         &lt;span class=&#34;k&#34;&gt;print&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;%.3f&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;s costs {&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;%s&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;}&amp;quot;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;%&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;time&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;time&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;-&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;start&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;bp&#34;&gt;self&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;f&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;__name__&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+   &lt;span class=&#34;o&#34;&gt;...&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;
+
+&lt;span class=&#34;n&#34;&gt;In&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;3&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]:&lt;/span&gt; &lt;span class=&#34;nd&#34;&gt;@show_time&lt;/span&gt;
+   &lt;span class=&#34;o&#34;&gt;...&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;def&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;wait&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;():&lt;/span&gt;
+   &lt;span class=&#34;o&#34;&gt;...&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;     &lt;span class=&#34;n&#34;&gt;time&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;sleep&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+   &lt;span class=&#34;o&#34;&gt;...&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;
+
+&lt;span class=&#34;n&#34;&gt;In&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;4&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]:&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;wait&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
+&lt;span class=&#34;mf&#34;&gt;1.003&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;s&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;costs&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;wait&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;实际上 &lt;code&gt;@&lt;/code&gt; 的语法糖被翻译成：&lt;/p&gt;
+&lt;div class=&#34;hlcode&#34;&gt;&lt;pre&gt;wait = show_time(wait)
+wait()
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;这里首先创建了一个show_time的对象 &lt;code&gt;wait&lt;/code&gt; ，然后 &lt;code&gt;wait()&lt;/code&gt; 的时候调用了wait对象的 &lt;code&gt;__call__&lt;/code&gt; 方法。&lt;/p&gt;
+&lt;p&gt;再看一下带参数的写法：&lt;/p&gt;
+&lt;div class=&#34;hlcode&#34;&gt;&lt;pre&gt;In [5]: class show_time(object):
+   ...:     def __init__(self, *args, **kwargs):
+   ...:         print args[0]
+   ...:     def __call__(self, f):
+   ...:         def _(*args, **kwargs):
+   ...:             start = time.time()
+   ...:             f(*args, **kwargs)
+   ...:             print &amp;quot;%.3fs costs {%s}&amp;quot; % (time.time() - start, f.__name__)
+   ...:         return _
+   ...:
+
+In [6]: @show_time(&amp;#39;crow&amp;#39;)
+   ...: def wait():
+   ...:     time.sleep(1)
+   ...:
+crow
+
+In [7]: wait()
+1.004s costs {wait}
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;这里被翻译成：&lt;/p&gt;
+&lt;div class=&#34;hlcode&#34;&gt;&lt;pre&gt;_ = show_time(*args, **kwargs)
+wait = _(wait)
+wait()
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;首先创建了一个show_time对象 &lt;code&gt;_&lt;/code&gt; ，此时把装饰器的参数传到对象中，然后调用 &lt;code&gt;_(wait)&lt;/code&gt; 的时候调用 &lt;code&gt;_&lt;/code&gt; 对象的 &lt;code&gt;__call__&lt;/code&gt; 方法，返回了一个函数，这个函数接受被装饰的函数，并返回调用时间。&lt;/p&gt;
+&lt;h2 id=&#34;_4&#34;&gt;一些好用的装饰器&lt;/h2&gt;
+&lt;p&gt;python中的方法，一般都是叫做 &lt;strong&gt;bound method&lt;/strong&gt; ，调用这些 &lt;strong&gt;bound method&lt;/strong&gt;
+ 的时候，会把调用方法的对象作为第一个参数传进去，这很自然，很多语言都是这样，比如js的this。&lt;/p&gt;
+&lt;div class=&#34;hlcode&#34;&gt;&lt;pre&gt;In [1]: class A(object):
+   ...:     def m1(self, *args):
+   ...:         return args
+   ...:     def m2(*args):
+   ...:         return args
+
+In [2]: a.m1
+Out[2]: &amp;lt;bound method A.m1 of &amp;lt;__main__.A object at 0x104857c50&amp;gt;&amp;gt;
+
+In [3]: a.m1()
+Out[3]: ()
+
+In [4]: a.m2(&amp;#39;hello&amp;#39;)
+Out[4]: (&amp;lt;__main__.A at 0x104857c50&amp;gt;, &amp;#39;hello&amp;#39;)
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;手动先写self，这样能避免取到对象的指针而引起错误。&lt;/p&gt;
+&lt;h3 id=&#34;classmethod&#34;&gt;classmethod&lt;/h3&gt;
+&lt;p&gt;如果方法被这个装饰器装饰，这个方法将还是bound method，只不过第一个参数不是对象，而是类。并且可以通过类名直接访问该方法。&lt;/p&gt;
+&lt;div class=&#34;hlcode&#34;&gt;&lt;pre&gt;In [5]: class A(object):
+   ....:     @classmethod
+   ....:     def m(*args):
+   ....:         return args
+   ....:
+
+In [6]: a = A()
+
+In [7]: a.m
+Out[7]: &amp;lt;bound method type.m of &amp;lt;class &amp;#39;__main__.A&amp;#39;&amp;gt;&amp;gt;
+
+In [8]: a.m(&amp;quot;hello&amp;quot;)
+Out[8]: (__main__.A, &amp;#39;hello&amp;#39;)
+
+In [9]: A.m(&amp;quot;hello&amp;quot;)
+Out[9]: (__main__.A, &amp;#39;hello&amp;#39;)
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h3 id=&#34;staticmethod&#34;&gt;staticmethod&lt;/h3&gt;
+&lt;p&gt;被这个装饰器装饰的方法将使普通的方法，不会有任何对象被隐式的传递。同样也能通过类或者对象访问。&lt;/p&gt;
+&lt;div class=&#34;hlcode&#34;&gt;&lt;pre&gt;&lt;span class=&#34;nx&#34;&gt;In&lt;/span&gt; &lt;span class=&#34;cp&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;10&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;]&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;kr&#34;&gt;class&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;A&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;object&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;:&lt;/span&gt;
+   &lt;span class=&#34;p&#34;&gt;....&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;:&lt;/span&gt;     &lt;span class=&#34;err&#34;&gt;@&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;staticmethod&lt;/span&gt;
+   &lt;span class=&#34;p&#34;&gt;....&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;:&lt;/span&gt;     &lt;span class=&#34;nx&#34;&gt;def&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;m&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;args&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;:&lt;/span&gt;
+   &lt;span class=&#34;p&#34;&gt;....&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;:&lt;/span&gt;         &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;args&lt;/span&gt;
+   &lt;span class=&#34;p&#34;&gt;....&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;:&lt;/span&gt;
+
+&lt;span class=&#34;nx&#34;&gt;In&lt;/span&gt; &lt;span class=&#34;cp&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;11&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;]&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;a&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;A&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
+
+&lt;span class=&#34;nx&#34;&gt;In&lt;/span&gt; &lt;span class=&#34;cp&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;12&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;]&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;a&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;m&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt;Out&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;12&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;]&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&#34;kd&#34;&gt;function&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;__main__&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;m&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;gt;&lt;/span&gt;
+
+&lt;span class=&#34;nx&#34;&gt;In&lt;/span&gt; &lt;span class=&#34;cp&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;13&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;]&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;a&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;m&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt;Out&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;13&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;]&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
+
+&lt;span class=&#34;nx&#34;&gt;In&lt;/span&gt; &lt;span class=&#34;cp&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;14&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;]&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;A&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;m&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt;Out&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;14&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;]&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2 id=&#34;_5&#34;&gt;总结&lt;/h2&gt;
+&lt;p&gt;写装饰器或者看装饰器的时候，如果不带参数的装饰器（@后面的装饰器名后面没有括号）就想成：&lt;/p&gt;
+&lt;div class=&#34;hlcode&#34;&gt;&lt;pre&gt;f = wrapper(f)
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;有参数（有括号就先接形参）就想成：&lt;/p&gt;
+&lt;div class=&#34;hlcode&#34;&gt;&lt;pre&gt;_ = wrapper(*args, **kwargs)
+f = _(f)
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;这样就方便理解了。&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;更多请看&lt;a href=&#34;https://wiki.python.org/moin/PythonDecoratorLibrary&#34;&gt;PythonDecoratorLibrary&lt;/a&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
     </content>
   </entry>
   

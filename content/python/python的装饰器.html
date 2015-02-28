@@ -3,7 +3,7 @@
     <head>
         <link rel="Stylesheet" type="text/css" href="/static/css/style.css">
         <link rel="Stylesheet" type="text/css" href="/static/css/tango.css">
-        <title>crow coffin</title>
+        <title>python的装饰器 - crow coffin</title>
         <meta name="keywords" content="python web"/>
         <meta name="description" content="Learning in the hard way."/>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -31,148 +31,273 @@
         </div>
         <div id="container">
             
-  <div id="wiki_title">crow coffin</div>
+    <div id="content_header">
+        <div id="post-nav">
+            
+            <a href="/">Home</a> » <a href="/#python">python</a> » python的装饰器
+            
+        </div>
+    </div>
+    <div class="clearfix"></div>
+    <div id="title">python的装饰器</div>
+    <div id="content">
+        <h2 id="_1">基础概念</h2>
+<p>Python的装饰器是在实际开发中非常好用的东西，有点类似于c里面的宏，或者java的AOP，要理解它也很容易。</p>
+<p>首先，python中所有东西都是对象，包括函数，函数是first-class对象，所以函数可以作为函数形参，可以作为返回值，也可以直接赋值给另一个变量并且支持闭包函数。如：</p>
+<div class="hlcode"><pre><span class="nx">In</span> <span class="cp">[</span><span class="mi">1</span><span class="cp">]</span><span class="o">:</span> <span class="nx">def</span> <span class="nx">f_a</span><span class="p">()</span><span class="o">:</span>
+  <span class="p">....</span><span class="o">:</span>     <span class="nx">print</span> <span class="s2">&quot;function a&quot;</span>
+  <span class="p">....</span><span class="o">:</span>
 
-  
-  <div class="category_item">
-    
-    
-      
-    <div class="category">
-      <h2 id="python">python</h2>
+<span class="nx">In</span> <span class="cp">[</span><span class="mi">2</span><span class="cp">]</span><span class="o">:</span> <span class="nx">def</span> <span class="nx">f_b</span><span class="p">()</span><span class="o">:</span>
+  <span class="p">....</span><span class="o">:</span>     <span class="k">return</span> <span class="nx">f_a</span>
+  <span class="p">....</span><span class="o">:</span>
+
+<span class="nx">In</span> <span class="cp">[</span><span class="mi">3</span><span class="cp">]</span><span class="o">:</span> <span class="nx">def</span> <span class="nx">f_c</span><span class="p">(</span><span class="nx">f</span><span class="p">)</span><span class="o">:</span>
+  <span class="p">....</span><span class="o">:</span>     <span class="nx">f</span><span class="p">()</span>
+  <span class="p">....</span><span class="o">:</span>
+
+<span class="nx">In</span> <span class="cp">[</span><span class="mi">4</span><span class="cp">]</span><span class="o">:</span> <span class="nx">f_d</span> <span class="o">=</span> <span class="nx">f_b</span><span class="p">()</span>
+
+<span class="nx">In</span> <span class="cp">[</span><span class="mi">5</span><span class="cp">]</span><span class="o">:</span> <span class="nx">f_d</span><span class="p">()</span>
+<span class="kd">function</span> <span class="nx">a</span>
+
+<span class="nx">In</span> <span class="cp">[</span><span class="mi">6</span><span class="cp">]</span><span class="o">:</span> <span class="nx">f_c</span><span class="p">(</span><span class="nx">f_d</span><span class="p">)</span>
+<span class="kd">function</span> <span class="nx">a</span>
+
+<span class="nx">In</span> <span class="cp">[</span><span class="mi">7</span><span class="cp">]</span><span class="o">:</span> <span class="nx">def</span> <span class="nx">f_e</span><span class="p">(</span><span class="nx">name</span><span class="p">)</span><span class="o">:</span>
+  <span class="p">....</span><span class="o">:</span>     <span class="nx">def</span> <span class="nx">f_f</span><span class="p">()</span><span class="o">:</span>
+  <span class="p">....</span><span class="o">:</span>         <span class="nx">print</span> <span class="s2">&quot;hello&quot;</span> <span class="o">+</span>     <span class="nx">str</span><span class="p">(</span><span class="nx">name</span><span class="p">)</span>
+  <span class="p">....</span><span class="o">:</span>     <span class="nx">f_f</span><span class="p">()</span>
+
+<span class="nx">In</span> <span class="cp">[</span><span class="mi">8</span><span class="cp">]</span><span class="o">:</span> <span class="nx">f_e</span><span class="p">(</span><span class="s2">&quot;crow&quot;</span><span class="p">)</span>
+<span class="nx">hellocrow</span>
+</pre></div>
+
+
+<p>这里需要注意的是，python的闭包函数比如f_f可以访问到父控件的变量。
+知道这些概念之后，看一个简单的装饰器，它会打出被装饰的函数的执行时间：</p>
+<div class="hlcode"><pre>In [9]: def show_time(f):
+   ...:     def _(*args, **kwargs):
+   ...:         start = time.time()
+   ...:         f(*args, **kwargs)
+   ...:         print &quot;%.3fs costs {%s}&quot; % (time.time() - start, f.__name__)
+   ...:     return _
+
+In [10]: @show_time
+    ...: def wait():
+    ...:     time.sleep(1)
+    ...:
+
+In [11]: wait()
+1.005s costs {wait}
+</pre></div>
+
+
+<p>装饰器本质上就是函数赋值和闭包的结合， <code>@</code> 不过是一个语法糖而已。 <code>show_time</code> 函数以被装饰的函数作为形参传入，在函数体重定义了一个内部函数 <code>_</code> ，这个函数接受任意的参数，调用传进来的函数，然后计时。</p>
+<p>但是这样有一个问题，被装饰的wait函数，它的一部分属性被替换成了 <code>_</code> 函数的，比如:</p>
+<div class="hlcode"><pre>In [12]: wait.__name__
+Out[12]: &#39;_&#39;
+</pre></div>
+
+
+<p>解决这个问题的方法很多，最优雅的方式就是使用python自带的functools模块的wraps装饰器：</p>
+<div class="hlcode"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">13</span><span class="p">]:</span> <span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">wraps</span>
+
+<span class="n">In</span> <span class="p">[</span><span class="mi">14</span><span class="p">]:</span> <span class="k">def</span> <span class="nf">show_time</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
+   <span class="o">....</span><span class="p">:</span>     <span class="nd">@wraps</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+   <span class="o">....</span><span class="p">:</span>     <span class="k">def</span> <span class="nf">_</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+   <span class="o">....</span><span class="p">:</span>         <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+   <span class="o">....</span><span class="p">:</span>         <span class="n">f</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+   <span class="o">....</span><span class="p">:</span>         <span class="k">print</span> <span class="s">&quot;</span><span class="si">%.3f</span><span class="s">s costs {</span><span class="si">%s</span><span class="s">}&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">__name__</span><span class="p">)</span>
+   <span class="o">....</span><span class="p">:</span>     <span class="k">return</span> <span class="n">_</span>
+   <span class="o">....</span><span class="p">:</span>
+
+<span class="n">In</span> <span class="p">[</span><span class="mi">15</span><span class="p">]:</span> <span class="nd">@show_time</span>
+   <span class="o">....</span><span class="p">:</span> <span class="k">def</span> <span class="nf">wait</span><span class="p">():</span>
+   <span class="o">....</span><span class="p">:</span>     <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+   <span class="o">....</span><span class="p">:</span>
+
+<span class="n">In</span> <span class="p">[</span><span class="mi">16</span><span class="p">]:</span> <span class="n">wait</span><span class="p">()</span>
+<span class="mf">1.005</span><span class="n">s</span> <span class="n">costs</span> <span class="p">{</span><span class="n">wait</span><span class="p">}</span>
+
+<span class="n">In</span> <span class="p">[</span><span class="mi">17</span><span class="p">]:</span> <span class="n">wait</span><span class="o">.</span><span class="n">__name__</span>
+<span class="n">Out</span><span class="p">[</span><span class="mi">17</span><span class="p">]:</span> <span class="s">&#39;wait&#39;</span>
+</pre></div>
+
+
+<h2 id="_2">带参数的装饰器</h2>
+<p>这个也没啥特殊的，本质上来讲，就是在利用闭包，子函数能够访问上层空间的属性这个特点，再包一层，最外层作用仅仅是为了让里层的函数能够访问装饰器的参数，里面还是和普通的装饰器一样。比如：</p>
+<div class="hlcode"><pre>In [18]: def show_time(name=&quot;crow&quot;):
+   ....:     def wrapper(f):
+   ....:         @wraps(f)
+   ....:         def _(*args, **kwargs):
+   ....:             print &quot;hello &quot; + str(name)
+   ....:             start = time.time()
+   ....:             f(*args, **kwargs)
+   ....:             print &quot;%.3fs costs {%s}&quot; % (time.time() - start, f.__name__)
+   ....:         return _
+   ....:     return wrapper
+   ....:
+
+In [19]: @show_time(&quot;world&quot;)
+   ....: def wait():
+   ....:     time.sleep(1)
+   ....:
+
+In [20]: wait()
+hello world
+1.004s costs {wait}
+</pre></div>
+
+
+<p>这里实际上发生的是:</p>
+<div class="hlcode"><pre>_ = show_time(name)
+wait = _(wait)
+</pre></div>
+
+
+<h2 id="_3">类作为装饰器</h2>
+<p>类当然也可以作为装饰器，只要类实现了 <code>__call__</code> 方法。
+比如我们首先重写不带参数的show_time装饰器：</p>
+<div class="hlcode"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">1</span><span class="p">]:</span> <span class="kn">import</span> <span class="nn">time</span>
+
+<span class="n">In</span> <span class="p">[</span><span class="mi">2</span><span class="p">]:</span> <span class="k">class</span> <span class="nc">show_time</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+   <span class="o">...</span><span class="p">:</span>     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">):</span>
+   <span class="o">...</span><span class="p">:</span>         <span class="bp">self</span><span class="o">.</span><span class="n">f</span> <span class="o">=</span> <span class="n">f</span>
+   <span class="o">...</span><span class="p">:</span>     <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+   <span class="o">...</span><span class="p">:</span>         <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+   <span class="o">...</span><span class="p">:</span>         <span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+   <span class="o">...</span><span class="p">:</span>         <span class="k">print</span> <span class="s">&quot;</span><span class="si">%.3f</span><span class="s">s costs {</span><span class="si">%s</span><span class="s">}&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="o">.</span><span class="n">__name__</span><span class="p">)</span>
+   <span class="o">...</span><span class="p">:</span>
+
+<span class="n">In</span> <span class="p">[</span><span class="mi">3</span><span class="p">]:</span> <span class="nd">@show_time</span>
+   <span class="o">...</span><span class="p">:</span> <span class="k">def</span> <span class="nf">wait</span><span class="p">():</span>
+   <span class="o">...</span><span class="p">:</span>     <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+   <span class="o">...</span><span class="p">:</span>
+
+<span class="n">In</span> <span class="p">[</span><span class="mi">4</span><span class="p">]:</span> <span class="n">wait</span><span class="p">()</span>
+<span class="mf">1.003</span><span class="n">s</span> <span class="n">costs</span> <span class="p">{</span><span class="n">wait</span><span class="p">}</span>
+</pre></div>
+
+
+<p>实际上 <code>@</code> 的语法糖被翻译成：</p>
+<div class="hlcode"><pre>wait = show_time(wait)
+wait()
+</pre></div>
+
+
+<p>这里首先创建了一个show_time的对象 <code>wait</code> ，然后 <code>wait()</code> 的时候调用了wait对象的 <code>__call__</code> 方法。</p>
+<p>再看一下带参数的写法：</p>
+<div class="hlcode"><pre>In [5]: class show_time(object):
+   ...:     def __init__(self, *args, **kwargs):
+   ...:         print args[0]
+   ...:     def __call__(self, f):
+   ...:         def _(*args, **kwargs):
+   ...:             start = time.time()
+   ...:             f(*args, **kwargs)
+   ...:             print &quot;%.3fs costs {%s}&quot; % (time.time() - start, f.__name__)
+   ...:         return _
+   ...:
+
+In [6]: @show_time(&#39;crow&#39;)
+   ...: def wait():
+   ...:     time.sleep(1)
+   ...:
+crow
+
+In [7]: wait()
+1.004s costs {wait}
+</pre></div>
+
+
+<p>这里被翻译成：</p>
+<div class="hlcode"><pre>_ = show_time(*args, **kwargs)
+wait = _(wait)
+wait()
+</pre></div>
+
+
+<p>首先创建了一个show_time对象 <code>_</code> ，此时把装饰器的参数传到对象中，然后调用 <code>_(wait)</code> 的时候调用 <code>_</code> 对象的 <code>__call__</code> 方法，返回了一个函数，这个函数接受被装饰的函数，并返回调用时间。</p>
+<h2 id="_4">一些好用的装饰器</h2>
+<p>python中的方法，一般都是叫做 <strong>bound method</strong> ，调用这些 <strong>bound method</strong>
+ 的时候，会把调用方法的对象作为第一个参数传进去，这很自然，很多语言都是这样，比如js的this。</p>
+<div class="hlcode"><pre>In [1]: class A(object):
+   ...:     def m1(self, *args):
+   ...:         return args
+   ...:     def m2(*args):
+   ...:         return args
+
+In [2]: a.m1
+Out[2]: &lt;bound method A.m1 of &lt;__main__.A object at 0x104857c50&gt;&gt;
+
+In [3]: a.m1()
+Out[3]: ()
+
+In [4]: a.m2(&#39;hello&#39;)
+Out[4]: (&lt;__main__.A at 0x104857c50&gt;, &#39;hello&#39;)
+</pre></div>
+
+
+<p>手动先写self，这样能避免取到对象的指针而引起错误。</p>
+<h3 id="classmethod">classmethod</h3>
+<p>如果方法被这个装饰器装饰，这个方法将还是bound method，只不过第一个参数不是对象，而是类。并且可以通过类名直接访问该方法。</p>
+<div class="hlcode"><pre>In [5]: class A(object):
+   ....:     @classmethod
+   ....:     def m(*args):
+   ....:         return args
+   ....:
+
+In [6]: a = A()
+
+In [7]: a.m
+Out[7]: &lt;bound method type.m of &lt;class &#39;__main__.A&#39;&gt;&gt;
+
+In [8]: a.m(&quot;hello&quot;)
+Out[8]: (__main__.A, &#39;hello&#39;)
+
+In [9]: A.m(&quot;hello&quot;)
+Out[9]: (__main__.A, &#39;hello&#39;)
+</pre></div>
+
+
+<h3 id="staticmethod">staticmethod</h3>
+<p>被这个装饰器装饰的方法将使普通的方法，不会有任何对象被隐式的传递。同样也能通过类或者对象访问。</p>
+<div class="hlcode"><pre><span class="nx">In</span> <span class="cp">[</span><span class="mi">10</span><span class="cp">]</span><span class="o">:</span> <span class="kr">class</span> <span class="nx">A</span><span class="p">(</span><span class="nx">object</span><span class="p">)</span><span class="o">:</span>
+   <span class="p">....</span><span class="o">:</span>     <span class="err">@</span><span class="nx">staticmethod</span>
+   <span class="p">....</span><span class="o">:</span>     <span class="nx">def</span> <span class="nx">m</span><span class="p">(</span><span class="o">*</span><span class="nx">args</span><span class="p">)</span><span class="o">:</span>
+   <span class="p">....</span><span class="o">:</span>         <span class="k">return</span> <span class="nx">args</span>
+   <span class="p">....</span><span class="o">:</span>
+
+<span class="nx">In</span> <span class="cp">[</span><span class="mi">11</span><span class="cp">]</span><span class="o">:</span> <span class="nx">a</span> <span class="o">=</span> <span class="nx">A</span><span class="p">()</span>
+
+<span class="nx">In</span> <span class="cp">[</span><span class="mi">12</span><span class="cp">]</span><span class="o">:</span> <span class="nx">a</span><span class="p">.</span><span class="nx">m</span>
+<span class="nx">Out</span><span class="cp">[</span><span class="mi">12</span><span class="cp">]</span><span class="o">:</span> <span class="o">&lt;</span><span class="kd">function</span> <span class="nx">__main__</span><span class="p">.</span><span class="nx">m</span><span class="o">&gt;</span>
+
+<span class="nx">In</span> <span class="cp">[</span><span class="mi">13</span><span class="cp">]</span><span class="o">:</span> <span class="nx">a</span><span class="p">.</span><span class="nx">m</span><span class="p">()</span>
+<span class="nx">Out</span><span class="cp">[</span><span class="mi">13</span><span class="cp">]</span><span class="o">:</span> <span class="p">()</span>
+
+<span class="nx">In</span> <span class="cp">[</span><span class="mi">14</span><span class="cp">]</span><span class="o">:</span> <span class="nx">A</span><span class="p">.</span><span class="nx">m</span><span class="p">()</span>
+<span class="nx">Out</span><span class="cp">[</span><span class="mi">14</span><span class="cp">]</span><span class="o">:</span> <span class="p">()</span>
+</pre></div>
+
+
+<h2 id="_5">总结</h2>
+<p>写装饰器或者看装饰器的时候，如果不带参数的装饰器（@后面的装饰器名后面没有括号）就想成：</p>
+<div class="hlcode"><pre>f = wrapper(f)
+</pre></div>
+
+
+<p>有参数（有括号就先接形参）就想成：</p>
+<div class="hlcode"><pre>_ = wrapper(*args, **kwargs)
+f = _(f)
+</pre></div>
+
+
+<p>这样就方便理解了。</p>
+<blockquote>
+<p>更多请看<a href="https://wiki.python.org/moin/PythonDecoratorLibrary">PythonDecoratorLibrary</a></p>
+</blockquote>
     </div>
-    <div class="category_list">
-      <ul>
-          
-        <li class="pagelist"><a href="./content/python/python-import机制.html">python import机制</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/python/用python一行实现一棵树.html">用python一行实现一棵树</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/python/python中的attributes.html">Python中的attributes</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/python/python-web背景知识.html">python web背景知识</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/python/python中的下划线.html">python中的下划线</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/python/rst语法汇总.html">rst语法汇总</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/python/没有外网权限的机器装python模块.html">没有外网权限的机器装python模块</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/python/python的坑.html">python的坑</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/python/python的装饰器.html">python的装饰器</a></li>
-          
-      </ul>
-    </div>
-      
-    <div class="clearfix"></div>
-    
-    
-      
-    <div class="category">
-      <h2 id="tools">tools</h2>
-    </div>
-    <div class="category_list">
-      <ul>
-          
-        <li class="pagelist"><a href="./content/tools/git-slash-github黑魔法.html">git/github黑魔法</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/tools/各种语言的比较.html">各种语言的比较</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/tools/飞翔在命令行中.html">飞翔在命令行中</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/tools/随意的git-commit.html">随意的git commit</a></li>
-          
-      </ul>
-    </div>
-      
-    <div class="clearfix"></div>
-    
-    
-      
-    <div class="category">
-      <h2 id="notes">notes</h2>
-    </div>
-    <div class="category_list">
-      <ul>
-          
-        <li class="pagelist"><a href="./content/notes/hello.html">Hello World</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/notes/why_has_cb.html">why has cb</a></li>
-          
-      </ul>
-    </div>
-      
-    <div class="clearfix"></div>
-    
-    
-      
-    <div class="category">
-      <h2 id="http">http</h2>
-    </div>
-    <div class="category_list">
-      <ul>
-          
-        <li class="pagelist"><a href="./content/http/mime种类.html">MIME种类</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/http/http_header_for_dummies.html">http header for dummies</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/http/post发送数据方式.html">POST发送数据方式</a></li>
-          
-      </ul>
-    </div>
-      
-    <div class="clearfix"></div>
-    
-    
-      
-    <div class="category">
-      <h2 id="ops">ops</h2>
-    </div>
-    <div class="category_list">
-      <ul>
-          
-        <li class="pagelist"><a href="./content/ops/drbd配置.html">DRBD配置</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/ops/mac下gcc的坑.html">mac下gcc的坑</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/ops/前端页面性能优化.html">前端页面性能优化</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/ops/fastdfs调研.html">fastdfs调研</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/ops/让进程在后台运行.html">让进程在后台运行</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/ops/fastdfs的坑以及补救方案.html">FastDFS的坑以及补救方案</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/ops/ssh隧道代理.html">SSH隧道代理</a></li>
-          
-      </ul>
-    </div>
-      
-    <div class="clearfix"></div>
-    
-  </div>
-  
 
         </div>
         <div id="footer">
