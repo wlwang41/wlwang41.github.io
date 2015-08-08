@@ -3,7 +3,7 @@
     <head>
         <link rel="Stylesheet" type="text/css" href="/static/css/style.css">
         <link rel="Stylesheet" type="text/css" href="/static/css/tango.css">
-        <title>crow coffin</title>
+        <title>用户引导页 - crow coffin</title>
         <meta name="keywords" content="python web"/>
         <meta name="description" content="Learning in the hard way."/>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -31,166 +31,84 @@
         </div>
         <div id="container">
             
-  <div id="wiki_title">crow coffin</div>
+    <div id="content_header">
+        <div id="post-nav">
+            
+            <a href="/">Home</a> » <a href="/#iOS">iOS</a> » 用户引导页
+            
+        </div>
+    </div>
+    <div class="clearfix"></div>
+    <div id="title">用户引导页</div>
+    <div id="content">
+        <p>一般的APP在用户第一次下载，或是版本更新之后，都会有一个用户引导页来告诉用户这次更细或者这个app的主要功能以及用法。
+虽然是一个很低频的页面，但是又必不可少。</p>
+<p>要做这个用户引导页，首先要判断出用户是第一次打开app，或者版本更新。
+要做到这个其实挺简单的，思路就是在UserDefault中去设置一个BOOL类型的值，记录app是否是第一次启动，然后在app启动的生命周期函数中去读取这个值，判断如果为True则去用户引导页，不是就正常启动。对于app的更新， 由于会清空UserDefault，所以效果是一样的。</p>
+<p>具体来说，就是在AppDelegate.m文件中的 <code>- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions</code> 方法中，加上一下判断逻辑：</p>
+<div class="hlcode"><pre><span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="p">[[</span><span class="n">NSUserDefaults</span> <span class="n">standardUserDefaults</span><span class="p">]</span> <span class="n">boolForKey</span><span class="o">:</span><span class="s">@&quot;firstLaunch&quot;</span><span class="p">])</span> <span class="p">{</span>
+        <span class="p">[[</span><span class="n">NSUserDefaults</span> <span class="n">standardUserDefaults</span><span class="p">]</span> <span class="n">setBool</span><span class="o">:</span><span class="nb">YES</span> <span class="n">forKey</span><span class="o">:</span><span class="s">@&quot;firstLaunch&quot;</span><span class="p">];</span>
+        <span class="n">TTUserGuideController</span> <span class="o">*</span><span class="n">userGuide</span> <span class="o">=</span> <span class="p">[[</span><span class="n">TTUserGuideController</span> <span class="n">alloc</span><span class="p">]</span> <span class="n">init</span><span class="p">];</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">window</span><span class="p">.</span><span class="n">rootViewController</span> <span class="o">=</span> <span class="n">userGuide</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
 
-  
-  <div class="category_item">
-    
-    
-      
-    <div class="category">
-      <h2 id="http">http</h2>
+
+<p>然后具体的用户引导页就在TTUserGuideController中去实现。</p>
+<p>最简单的做法就是用UIScrollView来实现滚动，初始化N个UIImageView（或者其他的UIView）每一个View的宽高都是撑满整个屏幕，x的位置则是屏幕宽度的0到N-1倍。UIScrollView的contentSize则为屏幕宽度的N倍。</p>
+<p>初始化一个UIScrollView：</p>
+<div class="hlcode"><pre><span class="n">UIScrollView</span> <span class="o">*</span><span class="n">scrollView</span> <span class="o">=</span> <span class="p">[[</span><span class="n">UIScrollView</span> <span class="n">alloc</span><span class="p">]</span> <span class="n">initWithFrame</span><span class="o">:</span><span class="n">CGRectMake</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">SCREEN_WIDTH</span><span class="p">,</span> <span class="n">SCREEN_HEIGHT</span><span class="p">)];</span>
+<span class="p">[</span><span class="n">scrollView</span> <span class="n">setContentSize</span><span class="o">:</span><span class="n">CGSizeMake</span><span class="p">(</span><span class="n">SCREEN_WIDTH</span> <span class="o">*</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">)];</span>
+<span class="n">wdssdasd</span><span class="p">[</span><span class="n">scrollView</span> <span class="n">setPagingEnabled</span><span class="o">:</span><span class="nb">YES</span><span class="p">];</span>
+<span class="n">scrollView</span><span class="p">.</span><span class="n">showsHorizontalScrollIndicator</span> <span class="o">=</span> <span class="nb">NO</span><span class="p">;</span>
+<span class="n">scrollView</span><span class="p">.</span><span class="n">delegate</span> <span class="o">=</span> <span class="n">self</span><span class="p">;</span>
+</pre></div>
+
+
+<p>这里需要注意的是一定要 <code>setPagingEnabled:YES</code> ，不要就是连续滑动，而不是按页滑动。</p>
+<p>生成3个UIImageView：</p>
+<div class="hlcode"><pre><span class="n">UIImageView</span> <span class="o">*</span><span class="n">imageview2</span> <span class="o">=</span> <span class="p">[[</span><span class="n">UIImageView</span> <span class="n">alloc</span><span class="p">]</span> <span class="n">initWithFrame</span><span class="o">:</span><span class="n">CGRectMake</span><span class="p">(</span><span class="n">SCREEN_WIDTH</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">SCREEN_WIDTH</span><span class="p">,</span> <span class="n">SCREEN_HEIGHT</span><span class="p">)];</span>
+<span class="p">[</span><span class="n">imageview2</span> <span class="n">setImage</span><span class="o">:</span><span class="p">[</span><span class="n">UIImage</span> <span class="n">imageNamed</span><span class="o">:</span><span class="s">@&quot;img-welcome-2.png&quot;</span><span class="p">]];</span>
+<span class="p">[</span><span class="n">imageview2</span> <span class="n">setContentMode</span><span class="o">:</span><span class="n">UIViewContentModeScaleAspectFit</span><span class="p">];</span>
+<span class="n">imageview2</span><span class="p">.</span><span class="n">userInteractionEnabled</span> <span class="o">=</span> <span class="nb">YES</span><span class="p">;</span>
+<span class="p">[</span><span class="n">scrollView</span> <span class="n">addSubview</span><span class="o">:</span><span class="n">imageview2</span><span class="p">];</span>
+</pre></div>
+
+
+<p>注意要把imageView的contentMode设置成 <code>UIViewContentModeScaleAspectFit</code> ，这样如果在ipad或者大屏设备中，只需要把父类view的背景色设置成和图片背景色一致，这样图片不会被拉伸，效果比较好。</p>
+<p>屏幕下方那种点点点的效果，用UIPageControl来实现：</p>
+<div class="hlcode"><pre><span class="n">pageControl</span> <span class="o">=</span> <span class="p">[[</span><span class="n">UIPageControl</span> <span class="n">alloc</span><span class="p">]</span> <span class="n">initWithFrame</span><span class="o">:</span><span class="n">CGRectMake</span><span class="p">(</span><span class="n">SCREEN_WIDTH</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">-</span> <span class="mi">50</span><span class="p">,</span> <span class="n">SCREEN_HEIGHT</span> <span class="o">-</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">50</span><span class="p">)];</span>
+<span class="n">pageControl</span><span class="p">.</span><span class="n">numberOfPages</span> <span class="o">=</span> <span class="mi">3</span><span class="p">;</span>
+<span class="n">pageControl</span><span class="p">.</span><span class="n">currentPage</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="n">pageControl</span><span class="p">.</span><span class="n">pageIndicatorTintColor</span> <span class="o">=</span> <span class="n">TTCOLOR_DEFAULT_GRAY</span><span class="p">;</span>
+<span class="n">pageControl</span><span class="p">.</span><span class="n">currentPageIndicatorTintColor</span> <span class="o">=</span> <span class="n">TTCOLOR_DARK_BLACK</span><span class="p">;</span>
+</pre></div>
+
+
+<p>选中点和没有被选中点的颜色都可以自己定，这里pageControl是一个属性，方便在后面的delegate方法中使用。</p>
+<p>然后在最后一个view上面加一个button，点进会进入主程序。并未这个button做一些简单的渐入动画。</p>
+<p>在scrollView的delegate方法scrollViewDidScroll中判断位移，设置pageControl应该点亮哪一个点，并在适当的时候启动button的渐入动画：</p>
+<div class="hlcode"><pre><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">scrollViewDidScroll:</span><span class="p">(</span><span class="n">UIScrollView</span> <span class="o">*</span><span class="p">)</span><span class="nv">scrollView</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">lastPage</span> <span class="o">=</span> <span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">pageControl</span><span class="p">.</span><span class="n">currentPage</span><span class="p">;</span>
+    <span class="n">CGFloat</span> <span class="n">pageWidth</span> <span class="o">=</span> <span class="n">scrollView</span><span class="p">.</span><span class="n">frame</span><span class="p">.</span><span class="n">size</span><span class="p">.</span><span class="n">width</span><span class="p">;</span>
+    <span class="kt">float</span> <span class="n">fractionalPage</span> <span class="o">=</span> <span class="n">scrollView</span><span class="p">.</span><span class="n">contentOffset</span><span class="p">.</span><span class="n">x</span> <span class="o">/</span> <span class="n">pageWidth</span><span class="p">;</span>
+    <span class="n">NSInteger</span> <span class="n">page</span> <span class="o">=</span> <span class="n">lround</span><span class="p">(</span><span class="n">fractionalPage</span><span class="p">);</span>
+    <span class="n">pageControl</span><span class="p">.</span><span class="n">currentPage</span> <span class="o">=</span> <span class="n">page</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">newPage</span> <span class="o">=</span> <span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">page</span><span class="p">;</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">newPage</span> <span class="o">==</span> <span class="mi">2</span> <span class="o">&amp;&amp;</span> <span class="n">lastPage</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+        <span class="p">[</span><span class="n">self</span> <span class="n">fadeIn</span><span class="p">];</span>
+    <span class="p">}</span>
+    <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">newPage</span> <span class="o">==</span> <span class="mi">1</span> <span class="o">&amp;&amp;</span> <span class="n">lastPage</span> <span class="o">==</span> <span class="mi">2</span><span class="p">)</span> <span class="p">{</span>
+        <span class="p">[</span><span class="n">self</span> <span class="n">fadeOut</span><span class="p">];</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<p>以上就是简单的用户引导页需要的东西了，如果想做3D效果，可以尝试使用<a href="https://github.com/nicklockwood/iCarousel">iCarousel</a>。</p>
     </div>
-    <div class="category_list">
-      <ul>
-          
-        <li class="pagelist"><a href="./content/http/mime种类.html">MIME种类</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/http/http_header_for_dummies.html">http header for dummies</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/http/post发送数据方式.html">POST发送数据方式</a></li>
-          
-      </ul>
-    </div>
-      
-    <div class="clearfix"></div>
-    
-    
-      
-    <div class="category">
-      <h2 id="ops">ops</h2>
-    </div>
-    <div class="category_list">
-      <ul>
-          
-        <li class="pagelist"><a href="./content/ops/drbd配置.html">DRBD配置</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/ops/mac下gcc的坑.html">mac下gcc的坑</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/ops/前端页面性能优化.html">前端页面性能优化</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/ops/fastdfs调研.html">fastdfs调研</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/ops/让进程在后台运行.html">让进程在后台运行</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/ops/fastdfs的坑以及补救方案.html">FastDFS的坑以及补救方案</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/ops/ssh隧道代理.html">SSH隧道代理</a></li>
-          
-      </ul>
-    </div>
-      
-    <div class="clearfix"></div>
-    
-    
-      
-    <div class="category">
-      <h2 id="python">python</h2>
-    </div>
-    <div class="category_list">
-      <ul>
-          
-        <li class="pagelist"><a href="./content/python/python-import机制.html">python import机制</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/python/用python一行实现一棵树.html">用python一行实现一棵树</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/python/python中的attributes.html">Python中的attributes</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/python/python-web背景知识.html">python web背景知识</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/python/python中的下划线.html">python中的下划线</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/python/rst语法汇总.html">rst语法汇总</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/python/没有外网权限的机器装python模块.html">没有外网权限的机器装python模块</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/python/python的坑.html">python的坑</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/python/python的装饰器.html">python的装饰器</a></li>
-          
-      </ul>
-    </div>
-      
-    <div class="clearfix"></div>
-    
-    
-      
-    <div class="category">
-      <h2 id="notes">notes</h2>
-    </div>
-    <div class="category_list">
-      <ul>
-          
-        <li class="pagelist"><a href="./content/notes/hello.html">Hello World</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/notes/why_has_cb.html">why has cb</a></li>
-          
-      </ul>
-    </div>
-      
-    <div class="clearfix"></div>
-    
-    
-      
-    <div class="category">
-      <h2 id="iOS">iOS</h2>
-    </div>
-    <div class="category_list">
-      <ul>
-          
-        <li class="pagelist"><a href="./content/iOS/用户引导页.html">用户引导页</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/iOS/[转]ios面试题.html">[转]iOS面试题</a></li>
-          
-      </ul>
-    </div>
-      
-    <div class="clearfix"></div>
-    
-    
-      
-    <div class="category">
-      <h2 id="tools">tools</h2>
-    </div>
-    <div class="category_list">
-      <ul>
-          
-        <li class="pagelist"><a href="./content/tools/git-slash-github黑魔法.html">git/github黑魔法</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/tools/各种语言的比较.html">各种语言的比较</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/tools/飞翔在命令行中.html">飞翔在命令行中</a></li>
-          
-          
-        <li class="pagelist"><a href="./content/tools/随意的git-commit.html">随意的git commit</a></li>
-          
-      </ul>
-    </div>
-      
-    <div class="clearfix"></div>
-    
-  </div>
-  
 
         </div>
         <div id="footer">
