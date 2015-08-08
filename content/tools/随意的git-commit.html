@@ -48,19 +48,19 @@
 <li>一些补充信息，不超过72字符，并控制好单行长度</li>
 </ul>
 <p>原文如下:</p>
-<div class="hlcode"><pre>Short (50 chars or less) summary of changes
+<div class="hlcode"><pre><span class="n">Short</span> <span class="p">(</span><span class="mi">50</span> <span class="n">chars</span> <span class="n">or</span> <span class="n">less</span><span class="p">)</span> <span class="n">summary</span> <span class="n">of</span> <span class="n">changes</span>
 
-More detailed explanatory text, if necessary.  Wrap it to about 72 characters or so.
-In some contexts, the first line is treated as the subject of an email and the rest of the text as the body.
-The blank line separating the summary from the body is critical (unless you omit the body entirely);
-tools like rebase can get confused if you run the two together.
+<span class="n">More</span> <span class="n">detailed</span> <span class="n">explanatory</span> <span class="n">text</span><span class="p">,</span> <span class="k">if</span> <span class="n">necessary</span><span class="p">.</span>  <span class="n">Wrap</span> <span class="n">it</span> <span class="n">to</span> <span class="n">about</span> <span class="mi">72</span> <span class="n">characters</span> <span class="n">or</span> <span class="n">so</span><span class="p">.</span>
+<span class="n">In</span> <span class="n">some</span> <span class="n">contexts</span><span class="p">,</span> <span class="n">the</span> <span class="n">first</span> <span class="n">line</span> <span class="n">is</span> <span class="n">treated</span> <span class="n">as</span> <span class="n">the</span> <span class="n">subject</span> <span class="n">of</span> <span class="n">an</span> <span class="n">email</span> <span class="n">and</span> <span class="n">the</span> <span class="n">rest</span> <span class="n">of</span> <span class="n">the</span> <span class="n">text</span> <span class="n">as</span> <span class="n">the</span> <span class="n">body</span><span class="p">.</span>
+<span class="n">The</span> <span class="n">blank</span> <span class="n">line</span> <span class="n">separating</span> <span class="n">the</span> <span class="n">summary</span> <span class="n">from</span> <span class="n">the</span> <span class="n">body</span> <span class="n">is</span> <span class="n">critical</span> <span class="p">(</span><span class="n">unless</span> <span class="n">you</span> <span class="n">omit</span> <span class="n">the</span> <span class="n">body</span> <span class="n">entirely</span><span class="p">);</span>
+<span class="n">tools</span> <span class="n">like</span> <span class="n">rebase</span> <span class="n">can</span> <span class="n">get</span> <span class="n">confused</span> <span class="k">if</span> <span class="n">you</span> <span class="n">run</span> <span class="n">the</span> <span class="n">two</span> <span class="n">together</span><span class="p">.</span>
 
-Further paragraphs come after blank lines.
+<span class="n">Further</span> <span class="n">paragraphs</span> <span class="n">come</span> <span class="n">after</span> <span class="n">blank</span> <span class="n">lines</span><span class="p">.</span>
 
-- Bullet points are okay, too
+<span class="o">-</span> <span class="n">Bullet</span> <span class="n">points</span> <span class="n">are</span> <span class="n">okay</span><span class="p">,</span> <span class="n">too</span>
 
-- Typically a hyphen or asterisk is used for the bullet, preceded by a
-  single space, with blank lines in between, but conventions vary here
+<span class="o">-</span> <span class="n">Typically</span> <span class="n">a</span> <span class="n">hyphen</span> <span class="n">or</span> <span class="n">asterisk</span> <span class="n">is</span> <span class="n">used</span> <span class="k">for</span> <span class="n">the</span> <span class="n">bullet</span><span class="p">,</span> <span class="n">preceded</span> <span class="n">by</span> <span class="n">a</span>
+  <span class="n">single</span> <span class="n">space</span><span class="p">,</span> <span class="n">with</span> <span class="n">blank</span> <span class="n">lines</span> <span class="n">in</span> <span class="n">between</span><span class="p">,</span> <span class="n">but</span> <span class="n">conventions</span> <span class="n">vary</span> <span class="n">here</span>
 </pre></div>
 
 
@@ -69,7 +69,7 @@ Further paragraphs come after blank lines.
 <p>那么问题来了，就算要随便写commit log，那怎么才能写得高贵冷艳让人一眼看不出来是瞎写的呢?</p>
 <p>偶然的机会看到了这么一个网站: <a href="http://whatthecommit.com/index.txt">http://whatthecommit.com/index.txt</a>，它能随机生成commit log</p>
 <p>那么要想随便写commit log就只需要下面这行命令就行啦：</p>
-<div class="hlcode"><pre>git commit -m &quot;`curl -s http://whatthecommit.com/index.txt`&quot;
+<div class="hlcode"><pre><span class="n">git</span> <span class="n">commit</span> <span class="o">-</span><span class="n">m</span> <span class="s">&quot;`curl -s http://whatthecommit.com/index.txt`&quot;</span>
 </pre></div>
     </div>
 

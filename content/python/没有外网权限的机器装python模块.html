@@ -43,13 +43,13 @@
     <div id="content">
         <p>由于公司服务器大多数是没有外网权限的，也没有自己的pip源，所以要在服务器上装python的第三方模块相对来说比较复杂.</p>
 <p>实际上，pip有一个功能就是直接把一个项目的所有依赖下载下来，并且不安装：</p>
-<div class="hlcode"><pre>pip install --download /YOUR/DOWNLOAD/PATH celery
+<div class="hlcode"><pre><span class="n">pip</span> <span class="n">install</span> <span class="o">--</span><span class="n">download</span> <span class="o">/</span><span class="n">YOUR</span><span class="o">/</span><span class="n">DOWNLOAD</span><span class="o">/</span><span class="n">PATH</span> <span class="n">celery</span>
 </pre></div>
 
 
 <p>上面这个命令就能把celery以及它的依赖包全部现在到本地指定路径中。</p>
 <p>把这些包都传到服务器上，然后在服务器上运行：</p>
-<div class="hlcode"><pre>pip install --no-index -f /YOUR/PACKAGES/PATH celery
+<div class="hlcode"><pre><span class="n">pip</span> <span class="n">install</span> <span class="o">--</span><span class="n">no</span><span class="o">-</span><span class="n">index</span> <span class="o">-</span><span class="n">f</span> <span class="o">/</span><span class="n">YOUR</span><span class="o">/</span><span class="n">PACKAGES</span><span class="o">/</span><span class="n">PATH</span> <span class="n">celery</span>
 </pre></div>
 
 

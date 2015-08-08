@@ -42,23 +42,23 @@
     <div id="title">用python一行实现一棵树</div>
     <div id="content">
         <p>使用python自带的 <code>defaultdict</code>, 可以一行实现一棵树 <code>tree = lambda: defaultdict (tree)</code>:</p>
-<div class="hlcode"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">1</span><span class="p">]:</span> <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
+<div class="hlcode"><pre><span class="k">In</span> <span class="err">[</span><span class="mi">1</span><span class="cp">]</span>: from collections import defaultdict
 
-<span class="n">In</span> <span class="p">[</span><span class="mi">2</span><span class="p">]:</span> <span class="n">tree</span> <span class="o">=</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">defaultdict</span> <span class="p">(</span><span class="n">tree</span><span class="p">)</span>
+In <span class="cp">[</span><span class="mi">2</span><span class="cp">]</span>: tree = lambda: defaultdict (tree)
 
-<span class="n">In</span> <span class="p">[</span><span class="mi">3</span><span class="p">]:</span> <span class="n">t</span> <span class="o">=</span> <span class="n">tree</span><span class="p">()</span>
+In <span class="cp">[</span><span class="mi">3</span><span class="cp">]</span>: t = tree()
 
-<span class="n">In</span> <span class="p">[</span><span class="mi">4</span><span class="p">]:</span> <span class="n">t</span><span class="p">[</span><span class="s">&#39;name&#39;</span><span class="p">][</span><span class="s">&#39;crow&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;__crow__&#39;</span>
+In <span class="cp">[</span><span class="mi">4</span><span class="cp">]</span>: t<span class="cp">[</span><span class="s1">&#39;name&#39;</span><span class="cp">][</span><span class="s1">&#39;crow&#39;</span><span class="cp">]</span> = &#39;__crow__&#39;
 
-<span class="n">In</span> <span class="p">[</span><span class="mi">5</span><span class="p">]:</span> <span class="n">t</span><span class="p">[</span><span class="s">&#39;name&#39;</span><span class="p">][</span><span class="s">&#39;wlwang&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;__wlwang__&#39;</span>
+In <span class="cp">[</span><span class="mi">5</span><span class="cp">]</span>: t<span class="cp">[</span><span class="s1">&#39;name&#39;</span><span class="cp">][</span><span class="s1">&#39;wlwang&#39;</span><span class="cp">]</span> = &#39;__wlwang__&#39;
 
-<span class="n">In</span> <span class="p">[</span><span class="mi">6</span><span class="p">]:</span> <span class="n">t</span>
-<span class="n">Out</span><span class="p">[</span><span class="mi">6</span><span class="p">]:</span> <span class="n">defaultdict</span><span class="p">(</span><span class="o">&lt;</span><span class="n">function</span> <span class="o">&lt;</span><span class="k">lambda</span><span class="o">&gt;</span> <span class="n">at</span> <span class="mh">0x10bed7140</span><span class="o">&gt;</span><span class="p">,</span> <span class="p">{</span><span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="n">defaultdict</span><span class="p">(</span><span class="o">&lt;</span><span class="n">function</span> <span class="o">&lt;</span><span class="k">lambda</span><span class="o">&gt;</span> <span class="n">at</span> <span class="mh">0x10bed7140</span><span class="o">&gt;</span><span class="p">,</span> <span class="p">{</span><span class="s">&#39;crow&#39;</span><span class="p">:</span> <span class="s">&#39;__crow__&#39;</span><span class="p">,</span> <span class="s">&#39;wlwang&#39;</span><span class="p">:</span> <span class="s">&#39;__wlwang__&#39;</span><span class="p">})})</span>
+In <span class="cp">[</span><span class="mi">6</span><span class="cp">]</span>: t
+Out<span class="cp">[</span><span class="mi">6</span><span class="cp">]</span>: defaultdict(<span class="nt">&lt;function</span> <span class="err">&lt;</span><span class="na">lambda</span><span class="nt">&gt;</span> at 0x10bed7140&gt;, {&#39;name&#39;: defaultdict(<span class="nt">&lt;function</span> <span class="err">&lt;</span><span class="na">lambda</span><span class="nt">&gt;</span> at 0x10bed7140&gt;, {&#39;crow&#39;: &#39;__crow__&#39;, &#39;wlwang&#39;: &#39;__wlwang__&#39;})})
 
-<span class="n">In</span> <span class="p">[</span><span class="mi">7</span><span class="p">]:</span> <span class="kn">import</span> <span class="nn">json</span>
+In <span class="cp">[</span><span class="mi">7</span><span class="cp">]</span>: import json
 
-<span class="n">In</span> <span class="p">[</span><span class="mi">8</span><span class="p">]:</span> <span class="k">print</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
-<span class="p">{</span><span class="s">&quot;name&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s">&quot;crow&quot;</span><span class="p">:</span> <span class="s">&quot;__crow__&quot;</span><span class="p">,</span> <span class="s">&quot;wlwang&quot;</span><span class="p">:</span> <span class="s">&quot;__wlwang__&quot;</span><span class="p">}}</span>
+In <span class="cp">[</span><span class="mi">8</span><span class="cp">]</span>: print json.dumps(t)
+{&quot;name&quot;: {&quot;crow&quot;: &quot;__crow__&quot;, &quot;wlwang&quot;: &quot;__wlwang__&quot;}}
 </pre></div>
 
 

@@ -79,10 +79,10 @@
 6
 7</pre></div></td><td class="code"><div class="hlcode"><pre><span class="c">#!/bin/bash</span>
 
-<span class="nv">conn_count</span><span class="o">=</span><span class="sb">`</span>netstat -antp <span class="p">|</span> grep fdfs <span class="p">|</span> wc -l<span class="sb">`</span>
+<span class="nv">conn_count</span><span class="o">=</span><span class="sb">`</span>netstat -antp | grep fdfs | wc -l<span class="sb">`</span>
 
-<span class="k">if</span> <span class="o">[</span> <span class="nv">$conn_count</span> -gt <span class="m">500</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
-    ssh root@your_app_server_ip <span class="s2">&quot;service php-fpm restart&quot;</span>
+<span class="k">if</span> <span class="o">[</span> <span class="nv">$conn_count</span> -gt 500 <span class="o">]</span>; <span class="k">then</span>
+<span class="k">    </span>ssh root@your_app_server_ip <span class="s2">&quot;service php-fpm restart&quot;</span>
 <span class="k">fi</span>
 </pre></div>
 </td></tr></table>
@@ -100,10 +100,10 @@
 6
 7</pre></div></td><td class="code"><div class="hlcode"><pre><span class="c">#!/bin/bash</span>
 
-<span class="nv">mem</span><span class="o">=</span><span class="sb">`</span>free -m <span class="p">|</span> awk <span class="s1">&#39;NR==2{print $4}&#39;</span><span class="sb">`</span>
+<span class="nv">mem</span><span class="o">=</span><span class="sb">`</span>free -m | awk <span class="s1">&#39;NR==2{print $4}&#39;</span><span class="sb">`</span>
 
-<span class="k">if</span> <span class="o">[</span> <span class="nv">$mem</span> -lt <span class="m">1024</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
-    <span class="nb">echo</span> <span class="s2">&quot;1&quot;</span> &gt; /proc/sys/vm/drop_caches
+<span class="k">if</span> <span class="o">[</span> <span class="nv">$mem</span> -lt 1024 <span class="o">]</span>; <span class="k">then</span>
+<span class="k">    </span><span class="nb">echo</span> <span class="s2">&quot;1&quot;</span> &gt; /proc/sys/vm/drop_caches
 <span class="k">fi</span>
 </pre></div>
 </td></tr></table>

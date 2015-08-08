@@ -47,8 +47,8 @@
 <li>
 <p><code>_</code> 在代码中单独出现，这种情况 <code>_</code> 表示一个零时变量。
 这样别人看代码的时候，就知道这是一个没有意义的零时变量，比起叫tmp或者temp更加简洁。</p>
-<div class="hlcode"><pre>for _ in range(10):
-    do_something_ten_times()
+<div class="hlcode"><pre><span class="k">for</span> <span class="n">_</span> <span class="n">in</span> <span class="n">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span><span class="o">:</span>
+    <span class="n">do_something_ten_times</span><span class="p">()</span>
 </pre></div>
 
 
@@ -58,11 +58,11 @@
 </li>
 <li>
 <p><code>_</code> 在解释器中出现，则表示上一个执行的结果，如：</p>
-<div class="hlcode"><pre>In [1]: 1 + 1
-Out[1]: 2
+<div class="hlcode"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">:</span> <span class="mi">1</span> <span class="o">+</span> <span class="mi">1</span>
+<span class="n">Out</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">:</span> <span class="mi">2</span>
 
-In [2]: _
-Out[2]: 2
+<span class="n">In</span> <span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">:</span> <span class="n">_</span>
+<span class="n">Out</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">:</span> <span class="mi">2</span>
 </pre></div>
 
 
@@ -73,52 +73,52 @@ Out[2]: 2
 <li>双下划线开头以及结尾( <code>__init__</code> )，这些一般都是python自带的一些magic method。之所以被双下划线包起来，是为了区别用户自己定义方法。</li>
 <li>
 <p>最少2个下划线开头，最多一个下划线结尾，python会对这些方法名加入类名后重组，如</p>
-<div class="hlcode"><pre>In [1]: class A(object):
+<div class="hlcode"><pre><span class="k">In</span> <span class="err">[</span><span class="mi">1</span><span class="cp">]</span>: class A(object):
 ...:     a = 1
 ...:     __b = 2
 ...:     def __f(self):
 ...:         pass
 ...:
 
-In [2]: a = A()
+In <span class="cp">[</span><span class="mi">2</span><span class="cp">]</span>: a = A()
 
-In [3]: dir(a)
-Out[3]:
-[&#39;_A__b&#39;,
- &#39;_A__f&#39;,
- &#39;__class__&#39;,
- &#39;__delattr__&#39;,
- &#39;__dict__&#39;,
- &#39;__doc__&#39;,
- &#39;__format__&#39;,
- &#39;__getattribute__&#39;,
- &#39;__hash__&#39;,
- &#39;__init__&#39;,
- &#39;__module__&#39;,
- &#39;__new__&#39;,
- &#39;__reduce__&#39;,
- &#39;__reduce_ex__&#39;,
- &#39;__repr__&#39;,
- &#39;__setattr__&#39;,
- &#39;__sizeof__&#39;,
- &#39;__str__&#39;,
- &#39;__subclasshook__&#39;,
- &#39;__weakref__&#39;,
- &#39;a&#39;]
+In <span class="cp">[</span><span class="mi">3</span><span class="cp">]</span>: dir(a)
+Out<span class="cp">[</span><span class="mi">3</span><span class="cp">]</span>:
+<span class="cp">[</span><span class="s1">&#39;_A__b&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;_A__f&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;__class__&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;__delattr__&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;__dict__&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;__doc__&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;__format__&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;__getattribute__&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;__hash__&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;__init__&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;__module__&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;__new__&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;__reduce__&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;__reduce_ex__&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;__repr__&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;__setattr__&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;__sizeof__&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;__str__&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;__subclasshook__&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;__weakref__&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;a&#39;</span><span class="cp">]</span>
 
-In [4]: getattr(a, &#39;a&#39;)
-Out[4]: 1
+In <span class="cp">[</span><span class="mi">4</span><span class="cp">]</span>: getattr(a, &#39;a&#39;)
+Out<span class="cp">[</span><span class="mi">4</span><span class="cp">]</span>: 1
 
-In [5]: getattr(a, &#39;__b&#39;)
+In <span class="cp">[</span><span class="mi">5</span><span class="cp">]</span>: getattr(a, &#39;__b&#39;)
 ---------------------------------------------------------------------------
 AttributeError                            Traceback (most recent call last)
-&lt;ipython-input-5-ae11a9e10a99&gt; in &lt;module&gt;()
+<span class="nt">&lt;ipython</span><span class="na">-input-5-ae11a9e10a99</span><span class="nt">&gt;</span> in <span class="nt">&lt;module&gt;</span>()
 ----&gt; 1 getattr(a, &#39;__b&#39;)
 
 AttributeError: &#39;A&#39; object has no attribute &#39;__b&#39;
 
-In [6]: getattr(a, &#39;_A__b&#39;)
-Out[6]: 2
+In <span class="cp">[</span><span class="mi">6</span><span class="cp">]</span>: getattr(a, &#39;_A__b&#39;)
+Out<span class="cp">[</span><span class="mi">6</span><span class="cp">]</span>: 2
 </pre></div>
 
 

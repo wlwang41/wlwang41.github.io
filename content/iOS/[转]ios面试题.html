@@ -3,7 +3,7 @@
     <head>
         <link rel="Stylesheet" type="text/css" href="/static/css/style.css">
         <link rel="Stylesheet" type="text/css" href="/static/css/tango.css">
-        <title>SSH隧道代理 - crow coffin</title>
+        <title>[转]iOS面试题 - crow coffin</title>
         <meta name="keywords" content="python web"/>
         <meta name="description" content="Learning in the hard way."/>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -34,87 +34,62 @@
     <div id="content_header">
         <div id="post-nav">
             
-            <a href="/">Home</a> » <a href="/#ops">ops</a> » SSH隧道代理
+            <a href="/">Home</a> » <a href="/#iOS">iOS</a> » [转]iOS面试题
             
         </div>
     </div>
     <div class="clearfix"></div>
-    <div id="title">SSH隧道代理</div>
+    <div id="title">[转]iOS面试题</div>
     <div id="content">
-        <p>最近pypi镜像搭建好了，实际上pip本身有一个--proxy的指令，能够制定一个代理，就能完成内网机器无法通过pip访问外网资源的问题.
-通过代理就能完成基本的下载包的需求了，而且其他的一些命令如gem，curl等等大多数常见的命令都支持走代理模式。</p>
-<p>而且大家总在说 "用nginx做反向代理"，那么到底什么代理，什么是反向代理呢?</p>
-<h2 id="_1">正向代理</h2>
-<p>正向代理是客户端和服务器中间的服务器，为了从原始服务器取得内容，客户端向代理服务器发送一个请求并指定目标（原始服务器），
-然后代理服务器向原始服务器转发请求并将获得的内容返回给客户端。</p>
-<p>举个例子，比如正常情况下我没法办上youtube，但是我有个aws的机器，它不受GFW的限制，能够访问youtube，我也能正常访问那个aws的机器，
-那么我通过发送请求给aws的机器，让他转发我的请求给youtube，然后把youtube返回的数据给我，我就能通过aws的机器作为跳板访问GFW，
-那个aws的机器也就是代理服务器的角色，并且这种方式就是正向代理。</p>
-<p>总结一下，正向代理就是我想访问一台机器，但是被墙了访问不到，我需要一台机器作为跳板转发我的请求。</p>
-<h2 id="_2">反向代理</h2>
-<p>于正向代理不同，反向代理更多的是为了保护原始服务器。
-对于客户端而言，反向代理中的代理服务器就是原始服务器，客户端并不需要知道有这个代理的角色存在，
-因此客户端也不需要一些额外的设置，比如正向代理中制定代理服务器是谁。</p>
-<p>比如在原始服务器A上配置防火墙，使得只有服务器B能够访问A，并且通过B服务器转发A的数据实现于外界的通信。这样对于客户端，它只需要和B交互，
-从而隐藏了服务器A，B服务器也就是反向代理服务器。由于有代理服务器的存在，对于后面的原始服务器来说，也就多了一层做负载均衡的服务器。</p>
-<h2 id="_3">透明代理</h2>
-<p>还有一种代理方式叫做透明代理，比如我实习的时候机器就不能上qq，这个就是透明代理，它在内网和外网之间捕捉用户的请求，过滤一部分请求。</p>
-<h2 id="ssh">SSH端口转发</h2>
-<p>有一种很简单的方式就能做到代理功能，那就是SSH本身提供的端口转发功能。
-要想理解清楚SSH端口转发，首先必须记住这样几个原则：</p>
-<ul>
-<li>SSH简单的理解就是2台机器之间安全的数据通道，它包括ssh的client和ssh的server2个角色，这样的一条通道也就是ssh隧道(ssh tunneling)</li>
-<li>SSH 端口转发自然需要 SSH 连接，而 SSH 连接是有方向的，从 SSH Client 到 SSH Server</li>
-<li>我们的应用的请求也是有方向的，一般是客户端向服务器端发出请求</li>
-<li>一旦这2个方向相同，我们称为ssh的本地转发(-L)，不同则为远端转发(-R)</li>
-<li>命令一般是跑在ssh client的机器上的</li>
-</ul>
-<h3 id="_4">本地转发</h3>
-<p>ssh本地转发命令为：</p>
-<div class="hlcode"><pre><span class="n">ssh</span> <span class="o">-</span><span class="n">L</span> <span class="o">&lt;</span><span class="n">local</span> <span class="n">port</span><span class="o">&gt;:&lt;</span><span class="n">remote</span> <span class="n">host</span><span class="o">&gt;:&lt;</span><span class="n">remote</span> <span class="n">port</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">SSH</span> <span class="n">hostname</span><span class="o">&gt;</span>
-</pre></div>
-
-
-<p>这条命令可以翻译成：从本地的<local port>端口发出请求，通过<SSH hostname>这台机器作为跳板转发请求到<remote host>的<remote port>端口。
-<remote host>是相对<SSH hostname>而言的，比如<remote host>是127.0.0.1的话，就是<SSH hostname>本身。
-所以一般如果<remote host>是127.0.0.1的话，跳板机或者代理服务器就是目标服务器。</p>
-<p>举个例子：</p>
-<ol>
-<li>A是一台在我家的机器macbook air，它可以访问taobao，也就是服务器C</li>
-<li>B是一台在公司的机器imac，由于在公司的内网，所以在家的A访问不到B</li>
-<li>C是taobao的服务器，公司不让上taobao，所以服务器B访问不了C</li>
-</ol>
-<p>现在要想在让B服务器能访问C的80端口，由于防火墙这条路本身是走不通的，但是由于B能访问A，A能访问C，所以能把A作为代理服务器实现这一要求。</p>
-<p>在服务器B和服务器A之间建立ssh隧道，在SSH端口转发中，由于服务器B能连接到服务器A，并且请求是从服务器B发出，所以B既是ssh的client，也是请求的客户端
-所以此时应该在B上去运行ssh的本地转发命令: <code>ssh -L 8080:HOST_C:80 HOST_A</code></p>
-<h3 id="_5">远端转发</h3>
-<p>ssh远端转发的命令为：</p>
-<div class="hlcode"><pre><span class="n">ssh</span> <span class="o">-</span><span class="n">R</span> <span class="o">&lt;</span><span class="n">local</span> <span class="n">port</span><span class="o">&gt;:&lt;</span><span class="n">remote</span> <span class="n">host</span><span class="o">&gt;:&lt;</span><span class="n">remote</span> <span class="n">port</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">SSH</span> <span class="n">hostname</span><span class="o">&gt;</span>
-</pre></div>
-
-
-<p>由于本身B是可以访问A的，但是A访问不到B，现在要想服务器A访问到B，也就是在家能连上公司的机器。</p>
-<p>服务器B能连上A，所以B应该是ssh的client，此时请求是由A发起的，所以A是请求客户端，方向不同，所以是远端转发。
-因此在B上运行命令: <code>ssh -R 2222:127.0.0.1:22 HOST_A</code> ,这里127.0.0.1是因为通过A服务器转发的目的服务器就是A本身。
-这样在A上的2222端口就映射到了B的22端口。</p>
-<h3 id="_6">动态转发</h3>
-<p>不管是本地转发还是远端转发，都需要一个具体的应用服务器的地址和端口号，要想访问其他机器的内容就得绑定很多条这样的转发命令，
-通过动态转发就能省去这一个应用服务器的信息。</p>
-<div class="hlcode"><pre><span class="n">ssh</span> <span class="o">-</span><span class="n">D</span> <span class="o">&lt;</span><span class="n">local</span> <span class="n">port</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">SSH</span> <span class="n">Server</span><span class="o">&gt;</span>
-</pre></div>
-
-
-<p>当我们在一个不安全的 WiFi 环境下上网，用 SSH 动态转发来保护我们的网页浏览等信息无疑是十分必要的。
-比如在本机运行： <code>sh -D 7001 &lt;SSH Server&gt;</code> 这样就相当于通过<SSH Server>创建了一个SOCKS代理。</p>
-<p>我们可以直接使用localhost:7001 来作为正常的 SOCKS 代理来使用，直接在浏览器上设置即可。
-在 SSH Client 端无法访问的网站现在也都可以正常浏览。
-而这里需要值得注意的是，此时 SSH 所包护的范围只包括从浏览器端（SSH Client 端）到 SSH Server 端的连接，并不包含从 SSH Server 端 到目标网站的连接。
-如果后半截连接的安全不能得到充分的保证的话，这种方式仍不是合适的解决方案。</p>
-<p>这个时候还可以在本机将SOCKS代理转成HTTP代理。
-比如在本地安装<a href="http://www.pps.univ-paris-diderot.fr/~jch/software/polipo/">polipo</a>，修改polipo.conf文件，把SOCKS代理填上127.0.0.1:7001，然后 <code>export http_proxy="127.0.0.1:8123" &amp;&amp; export https_proxy="127.0.0.1:8123"</code> 就在本地的8123端口起了一个http代理。</p>
+        <p>最近看到一个项目，是别人总结的iOS面试题的解法，这个项目目前还没有写完，我觉得写得挺好的，就把我感兴趣的题搬运过来。往后我会逐步加入别的题目，争取把这篇文章做成面试题的wiki。</p>
 <blockquote>
-<p>参考了IBM的<a href="https://www.ibm.com/developerworks/cn/linux/l-cn-sshforward/">实战 SSH 端口转发</a></p>
+<p>原项目地址：<a href="https://github.com/ChenYilong/iOSInterviewQuestions">戳我</a></p>
 </blockquote>
+<h1 id="property">@property相关</h1>
+<h2 id="weakassign">什么情况使用weak关键字，相比assign有什么不同</h2>
+<p>首先要明白 <code>weak</code> 是干什么。</p>
+<p><code>weak</code> 此特质表明该属性定义了一种“非拥有关系” (nonowning relationship)。为这种属性设置新值时，设置方法既不保留新值，也不释放旧值。此特质同 <code>assign</code> 类似， 然而在属性所指的对象遭到摧毁时，属性值也会清空(nil out)，也就是说 <code>weak</code> 当对象销毁的时候,指针会被自动设置为nil。 而 <code>assign</code> 的“设置方法”只会执行针对“纯量类型” (scalar type，例如 CGFloat 或 NSlnteger 等)的简单赋值操作。 <code>assign</code> 可以用非OC对象，而 <code>weak</code> 必须用于OC对象。</p>
+<p>那么什么情况下，应该用weak关键字呢？</p>
+<ul>
+<li>在ARC中，出现循环引用的时候，必须要有一端使用weak，比如:自定义View的代理属性(delegate)<ul>
+<li>自身已经对它进行一次强引用，没有必要再强引用一次，此时也会使用 <code>weak</code></li>
+</ul>
+</li>
+</ul>
+<h2 id="copy">什么情况下用copy关键字</h2>
+<div class="hlcode"><pre><span class="o">*</span> <span class="n">NSString</span><span class="err">、</span><span class="n">NSArray</span><span class="err">、</span><span class="n">NSDictionary</span> <span class="err">等等经常使用</span><span class="n">copy</span><span class="err">关键字，是因为他们有对应的可变类型：</span><span class="n">NSMutableString</span><span class="err">、</span><span class="n">NSMutableArray</span><span class="err">、</span><span class="n">NSMutableDictionary</span><span class="p">(</span><span class="err">具体为什么下面的问题会提到</span><span class="p">)</span>
+<span class="o">*</span> <span class="err">`</span><span class="n">block</span><span class="err">`</span> <span class="err">也经常使用</span><span class="n">copy</span><span class="err">关键字，</span> <span class="err">`</span><span class="n">block</span><span class="err">`</span> <span class="err">使用</span> <span class="err">`</span><span class="n">copy</span><span class="err">`</span> <span class="err">是从</span><span class="n">MRC</span><span class="err">遗留下来的“传统”，在</span><span class="n">MRC</span><span class="err">中，方法内部的</span> <span class="err">`</span><span class="n">block</span><span class="err">`</span> <span class="err">是在栈区的，使用</span> <span class="err">`</span><span class="n">copy</span><span class="err">`</span> <span class="err">可以把它放到堆区。在</span><span class="n">ARC</span><span class="err">中写不写都行：对于</span> <span class="err">`</span><span class="n">block</span><span class="err">`</span> <span class="err">使用</span> <span class="err">`</span><span class="n">copy</span><span class="err">`</span> <span class="err">还是</span> <span class="err">`</span><span class="n">strong</span><span class="err">`</span> <span class="err">效果是一样的，但写上</span> <span class="err">`</span><span class="n">copy</span><span class="err">`</span> <span class="err">也无伤大雅，还能时刻提醒我们：编译器自动对</span><span class="n">block</span><span class="err">进行了</span><span class="n">copy</span><span class="err">操作。</span>
+</pre></div>
+
+
+<h2 id="property-copy-nsmutablearray-array">这个写法会出什么问题： <code>@property (copy) NSMutableArray *array;</code></h2>
+<div class="hlcode"><pre><span class="o">*</span> <span class="err">添加，删除，修改数组内的元素的时候，程序会因为找不到对应的方法而崩溃，因为</span> <span class="err">`</span><span class="n">copy</span><span class="err">`</span> <span class="err">就是复制一个不可变</span><span class="n">NSArray</span><span class="err">的对象</span>
+<span class="o">*</span> <span class="err">使用了</span><span class="n">atomic</span><span class="err">属性会严重影响性能</span><span class="p">(</span><span class="err">默认就是</span><span class="n">atomic</span><span class="p">)</span><span class="err">。该属性使用了同步锁，会在创建时生成一些额外的代码用于帮助编写多线程程序，这会带来性能问题，通过声明</span><span class="n">nonatomic</span><span class="err">可以节省这些虽然很小但是不必要额外开销。</span>
+</pre></div>
+
+
+<h2 id="autosynthesis">什么是“自动合成”（autosynthesis）</h2>
+<div class="hlcode"><pre><span class="err">完成属性定义后，编译器会自动编写访问这些属性所需的方法，此过程叫做“自动合成”</span><span class="p">(</span> <span class="n">autosynthesis</span><span class="p">)</span><span class="err">。需要强调的是，这个过程由编译</span> <span class="err">器在编译期执行，所以编辑器里看不到这些“合成方法”</span><span class="p">(</span><span class="n">synthesized</span> <span class="n">method</span><span class="p">)</span><span class="err">的源代码。除了生成方法代码</span> <span class="n">getter</span><span class="err">、</span><span class="n">setter</span> <span class="err">之外，编译器还要自动向类中添加适当类型的实例变量，并且在属性名前面加下划线，以此作为实例变量的名字。可以在类的实现代码里通过</span> <span class="err">@</span><span class="n">synthesize</span><span class="err">语法来指定实例变量的名字（默认是加上下划线）。</span>
+</pre></div>
+
+
+<h2 id="synthesizedynamic">@synthesize和@dynamic分别有什么作用</h2>
+<div class="hlcode"><pre><span class="o">*</span> <span class="err">@</span><span class="n">property</span><span class="err">有两个对应的词，一个是@</span><span class="n">synthesize</span><span class="err">，一个是@</span><span class="n">dynamic</span><span class="err">。如果@</span><span class="n">synthesize</span><span class="err">和@</span><span class="n">dynamic</span><span class="err">都没写，那么默认的就是@</span><span class="n">syntheszie</span> <span class="n">var</span> <span class="o">=</span> <span class="n">_var</span><span class="p">;</span>
+<span class="o">*</span> <span class="err">@</span><span class="n">synthesize</span><span class="err">的语义是如果你没有手动实现</span><span class="n">setter</span><span class="err">方法和</span><span class="n">getter</span><span class="err">方法，那么编译器会自动为你加上这两个方法。</span>
+<span class="o">*</span> <span class="err">@</span><span class="n">dynamic</span><span class="err">告诉编译器：属性的</span><span class="n">setter</span><span class="err">与</span><span class="n">getter</span><span class="err">方法由用户自己实现，不自动生成。（当然对于</span><span class="n">readonly</span><span class="err">的属性只需提供</span><span class="n">getter</span><span class="err">即可）。假如一个属性被声明为@</span><span class="n">dynamic</span> <span class="n">var</span><span class="err">，然后你没有提供@</span><span class="n">setter</span><span class="err">方法和@</span><span class="n">getter</span><span class="err">方法，编译的时候没问题，但是当程序运行到</span><span class="n">instance</span><span class="p">.</span><span class="n">var</span> <span class="o">=</span> <span class="n">someVar</span><span class="err">，由于缺</span><span class="n">setter</span><span class="err">方法会导致程序崩溃；或者当运行到</span> <span class="n">someVar</span> <span class="o">=</span> <span class="n">var</span><span class="err">时，由于缺</span><span class="n">getter</span><span class="err">方法同样会导致崩溃。编译时没问题，运行时才执行相应的方法，这就是所谓的动态绑定。</span>
+</pre></div>
+
+
+<h2 id="propertynsstringnsarraynsdictionarycopystrong">用@property声明的NSString（或NSArray，NSDictionary）经常使用copy关键字，为什么？如果改用strong关键字，可能造成什么问题</h2>
+<div class="hlcode"><pre><span class="err">首先要明白，</span> <span class="err">`</span><span class="n">strong</span><span class="err">`</span> <span class="err">和</span> <span class="err">`</span><span class="n">copy</span><span class="err">`</span> <span class="err">它们的区别是什么</span>
+
+<span class="o">*</span> <span class="err">因为父类指针可以指向子类对象</span><span class="p">,</span><span class="err">使用</span><span class="n">copy</span><span class="err">的目的是为了让本对象的属性不受外界影响</span><span class="p">,</span><span class="err">使用</span><span class="n">copy</span><span class="err">无论给我传入是一个可变对象还是不可对象</span><span class="p">,</span><span class="err">我本身持有的就是一个不可变的副本</span>
+<span class="o">*</span> <span class="err">如果我们使用是</span><span class="n">strong</span><span class="p">,</span><span class="err">那么这个属性就有可能指向一个可变对象</span><span class="p">,</span><span class="err">如果这个可变对象在外部被修改了</span><span class="p">,</span><span class="err">那么会影响该属性</span>
+
+<span class="n">copy</span><span class="err">此特质所表达的所属关系与</span><span class="n">strong</span><span class="err">类似。然而设置方法并不保留新值，而是将其“拷贝”</span> <span class="p">(</span><span class="n">copy</span><span class="p">)</span><span class="err">。</span> <span class="err">当属性类型为</span><span class="n">NSString</span><span class="err">时，经常用此特质来保护其封装性，因为传递给设置方法的新值有可能指向一个</span><span class="n">NSMutableString</span><span class="err">类的实例。这个类是</span><span class="n">NSString</span><span class="err">的子类，表示一种可修改其值的字符串，此时若是不拷贝字符串，那么设置完属性之后，字符串的值就可能会在对象不知情的情况下遭人更改。所以，这时就要拷贝一份“不可变”</span> <span class="p">(</span><span class="n">immutable</span><span class="p">)</span><span class="err">的字符串，确保对象中的字符串值不会无意间变动。只要实现属性所用的对象是“可变的”</span> <span class="p">(</span><span class="n">mutable</span><span class="p">)</span><span class="err">，就应该在设置新属性值时拷贝一份。</span>
+
+<span class="err">在非集合类对象中：对</span><span class="n">immutable</span><span class="err">对象进行</span><span class="n">copy</span><span class="err">操作，是指针复制，</span><span class="n">mutableCopy</span><span class="err">操作时内容复制；对</span><span class="n">mutable</span><span class="err">对象进行</span><span class="n">copy</span><span class="err">和</span><span class="n">mutableCopy</span><span class="err">都是内容复制。</span>
+</pre></div>
     </div>
 
         </div>

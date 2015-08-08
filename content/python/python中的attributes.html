@@ -43,15 +43,15 @@
     <div id="content">
         <p>前言：这篇文章主要是翻译整理了Pycoders's Weekly邮件推荐的一篇文章，原文地址请戳<a href="http://blog.lerner.co.il/python-attributes/">这里</a></p>
 <p>在python中，声明一个类是非常容易的，比如：</p>
-<div class="hlcode"><pre><span class="k">class</span> <span class="n">Foo</span>(<span class="n">object</span>):
-    <span class="n">def</span> <span class="n">__init__</span>(<span class="k">self</span>, <span class="o">x</span>, <span class="n">y</span>):
-        <span class="k">self</span>.<span class="o">x</span> = <span class="o">x</span>
-        <span class="k">self</span>.<span class="n">y</span> = <span class="n">y</span>
+<div class="hlcode"><pre><span class="n">class</span> <span class="n">Foo</span><span class="p">(</span><span class="n">object</span><span class="p">)</span><span class="o">:</span>
+    <span class="n">def</span> <span class="n">__init__</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span><span class="o">:</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">y</span>
 </pre></div>
 
 
 <p>这样就声明了一个名叫Foo的类，有这个类创造一个对象也同样简单：</p>
-<div class="hlcode"><pre>f = Foo(20, &#39;hello&#39;)
+<div class="hlcode"><pre><span class="n">f</span> <span class="o">=</span> <span class="n">Foo</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="err">&#39;</span><span class="n">hello</span><span class="err">&#39;</span><span class="p">)</span>
 </pre></div>
 
 
@@ -66,36 +66,36 @@
 <li>对于其他的对象: 返回它的属性，它类的属性，以及各个父类的属性</li>
 </ul>
 <p>所以对于python中的变量都可以通过 <code>dir</code> 函数来查看它的属性：</p>
-<div class="hlcode"><pre>In [3]: s = &quot;hello&quot;
+<div class="hlcode"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">:</span> <span class="n">s</span> <span class="o">=</span> <span class="s">&quot;hello&quot;</span>
 
-In [4]: len(dir(s))
-Out[4]: 71
+<span class="n">In</span> <span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">:</span> <span class="n">len</span><span class="p">(</span><span class="n">dir</span><span class="p">(</span><span class="n">s</span><span class="p">))</span>
+<span class="n">Out</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">:</span> <span class="mi">71</span>
 
-In [5]: i = 123
+<span class="n">In</span> <span class="p">[</span><span class="mi">5</span><span class="p">]</span><span class="o">:</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">123</span>
 
-In [6]: len(dir(i))
-Out[6]: 64
+<span class="n">In</span> <span class="p">[</span><span class="mi">6</span><span class="p">]</span><span class="o">:</span> <span class="n">len</span><span class="p">(</span><span class="n">dir</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+<span class="n">Out</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span><span class="o">:</span> <span class="mi">64</span>
 
-In [7]: t = (1, 2, 3)
+<span class="n">In</span> <span class="p">[</span><span class="mi">7</span><span class="p">]</span><span class="o">:</span> <span class="n">t</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
 
-In [8]: len(dir(t))
-Out[8]: 32
+<span class="n">In</span> <span class="p">[</span><span class="mi">8</span><span class="p">]</span><span class="o">:</span> <span class="n">len</span><span class="p">(</span><span class="n">dir</span><span class="p">(</span><span class="n">t</span><span class="p">))</span>
+<span class="n">Out</span><span class="p">[</span><span class="mi">8</span><span class="p">]</span><span class="o">:</span> <span class="mi">32</span>
 
-In [9]: def f():
-   ...:     pass
-   ...:
+<span class="n">In</span> <span class="p">[</span><span class="mi">9</span><span class="p">]</span><span class="o">:</span> <span class="n">def</span> <span class="n">f</span><span class="p">()</span><span class="o">:</span>
+   <span class="p">...</span><span class="o">:</span>     <span class="n">pass</span>
+   <span class="p">...</span><span class="o">:</span>
 
-In [10]: len(dir(f))
-Out[10]: 31
+<span class="n">In</span> <span class="p">[</span><span class="mi">10</span><span class="p">]</span><span class="o">:</span> <span class="n">len</span><span class="p">(</span><span class="n">dir</span><span class="p">(</span><span class="n">f</span><span class="p">))</span>
+<span class="n">Out</span><span class="p">[</span><span class="mi">10</span><span class="p">]</span><span class="o">:</span> <span class="mi">31</span>
 </pre></div>
 
 
 <p>可以看到，方法都有属性，因为方法也是对象嘛，这个js程序员应该不会陌生，js里面也是所有变量都是对象。
 我们设置可以对方法进行赋值：</p>
-<div class="hlcode"><pre>In [11]: f.a = 1
+<div class="hlcode"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">11</span><span class="p">]</span><span class="o">:</span> <span class="n">f</span><span class="p">.</span><span class="n">a</span> <span class="o">=</span> <span class="mi">1</span>
 
-In [12]: f.a
-Out[12]: 1
+<span class="n">In</span> <span class="p">[</span><span class="mi">12</span><span class="p">]</span><span class="o">:</span> <span class="n">f</span><span class="p">.</span><span class="n">a</span>
+<span class="n">Out</span><span class="p">[</span><span class="mi">12</span><span class="p">]</span><span class="o">:</span> <span class="mi">1</span>
 </pre></div>
 
 
@@ -117,36 +117,36 @@ Out[12]: 1
 同理，<code>f.x = 10</code> 也只是 <code>setattr(f, "x", 10)</code> 的语法糖。
 并且在python中，可以为对象的属性赋任何类型的值，就算赋一个复杂的对象也没有关系。
 当然，如果对对象中一个没有声明过的属性赋值，会先创建这个属性。如:</p>
-<div class="hlcode"><pre>In [21]: f.new_attr = &quot;hello&quot;
+<div class="hlcode"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">21</span><span class="p">]</span><span class="o">:</span> <span class="n">f</span><span class="p">.</span><span class="n">new_attr</span> <span class="o">=</span> <span class="s">&quot;hello&quot;</span>
 
-In [22]: f.school = &quot;blue_shit&quot;
+<span class="n">In</span> <span class="p">[</span><span class="mi">22</span><span class="p">]</span><span class="o">:</span> <span class="n">f</span><span class="p">.</span><span class="n">school</span> <span class="o">=</span> <span class="s">&quot;blue_shit&quot;</span>
 </pre></div>
 
 
 <p>虽然我们可以随时为对象增加属性，但是一个好的编程规范就是把属性的初始化操作都封装到 <code>__init__</code> 方法中，而不是到处随时初始化一个属性。</p>
 <p>对于一个对象来说，我们可以随时对它初始化一个属性，对于类来说也是一样，如：</p>
-<div class="hlcode"><pre>In [24]: class F(object):
-....:     pass
-....:
+<div class="hlcode"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">24</span><span class="p">]</span><span class="o">:</span> <span class="n">class</span> <span class="n">F</span><span class="p">(</span><span class="n">object</span><span class="p">)</span><span class="o">:</span>
+<span class="p">....</span><span class="o">:</span>     <span class="n">pass</span>
+<span class="p">....</span><span class="o">:</span>
 
-In [25]: F.age = 21
+<span class="n">In</span> <span class="p">[</span><span class="mi">25</span><span class="p">]</span><span class="o">:</span> <span class="n">F</span><span class="p">.</span><span class="n">age</span> <span class="o">=</span> <span class="mi">21</span>
 
-In [26]: F.age
-Out[26]: 21
+<span class="n">In</span> <span class="p">[</span><span class="mi">26</span><span class="p">]</span><span class="o">:</span> <span class="n">F</span><span class="p">.</span><span class="n">age</span>
+<span class="n">Out</span><span class="p">[</span><span class="mi">26</span><span class="p">]</span><span class="o">:</span> <span class="mi">21</span>
 </pre></div>
 
 
 <p>类也是对象，所以类也会有属性。同样，到处对类初始化属性是一个非常不好的习惯，对象可以把这些操作封装到 <code>__init__</code> 方法里面，对类来说，可以把这些操作封装到类的声明里面。对于在类的主体中初始化的属性，会被立即执行，但是通过 <code>def</code> 关键字声明的方法，则不会被执行，只有被调用到才会执行。如下的代码中，print函数就会被执行，name会被初始化，但是func方法主体则不会被执行。</p>
-<div class="hlcode"><pre>In [29]: class F(object):
-....:     name = &quot;crow&quot;
-....:     print &quot;in class&quot;
-....:     def func():
-....:         print &quot;in func&quot;
-....:
-in class
+<div class="hlcode"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">29</span><span class="p">]</span><span class="o">:</span> <span class="n">class</span> <span class="n">F</span><span class="p">(</span><span class="n">object</span><span class="p">)</span><span class="o">:</span>
+<span class="p">....</span><span class="o">:</span>     <span class="n">name</span> <span class="o">=</span> <span class="s">&quot;crow&quot;</span>
+<span class="p">....</span><span class="o">:</span>     <span class="n">print</span> <span class="s">&quot;in class&quot;</span>
+<span class="p">....</span><span class="o">:</span>     <span class="n">def</span> <span class="n">func</span><span class="p">()</span><span class="o">:</span>
+<span class="p">....</span><span class="o">:</span>         <span class="n">print</span> <span class="s">&quot;in func&quot;</span>
+<span class="p">....</span><span class="o">:</span>
+<span class="n">in</span> <span class="n">class</span>
 
-In [30]: F.name
-Out[30]: &#39;crow&#39;
+<span class="n">In</span> <span class="p">[</span><span class="mi">30</span><span class="p">]</span><span class="o">:</span> <span class="n">F</span><span class="p">.</span><span class="n">name</span>
+<span class="n">Out</span><span class="p">[</span><span class="mi">30</span><span class="p">]</span><span class="o">:</span> <span class="err">&#39;</span><span class="n">crow</span><span class="err">&#39;</span>
 </pre></div>
 
 
@@ -161,15 +161,15 @@ Out[30]: &#39;crow&#39;
 <p>因此，在上面讨论到的例子中，我们调用 <code>f.say()</code> python会先查找对象f，没有找到一个名叫say的属性，因此就会去找f的类，Foo，然后找到了这个属性，python使用了方法的重写魔法，最后就调用到了 <code>Foo.say(f)</code> .</p>
 <p>所以说，python实际上没有实例变量和类变量这一说，只有对象和属性。</p>
 <p>但是我们应该避免一种情况，那就是类属性和实例属性重名的问题，例如：</p>
-<div class="hlcode"><pre><span class="k">class</span> <span class="n">Person</span>(<span class="n">object</span>):
-    <span class="n">population</span> = <span class="mi">0</span>
-    <span class="n">def</span> <span class="n">__init__</span>(<span class="k">self</span>, <span class="nb">first</span>, <span class="k">last</span>):
-        <span class="k">self</span>.<span class="nb">first</span> = <span class="nb">first</span>
-        <span class="k">self</span>.<span class="k">last</span> = <span class="k">last</span>
-        <span class="k">self</span>.<span class="n">population</span> += <span class="mi">1</span>
+<div class="hlcode"><pre><span class="n">class</span> <span class="n">Person</span><span class="p">(</span><span class="n">object</span><span class="p">)</span><span class="o">:</span>
+    <span class="n">population</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">def</span> <span class="n">__init__</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">first</span><span class="p">,</span> <span class="n">last</span><span class="p">)</span><span class="o">:</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">first</span> <span class="o">=</span> <span class="n">first</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">last</span> <span class="o">=</span> <span class="n">last</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">population</span> <span class="o">+=</span> <span class="mi">1</span>
 
-<span class="n">p1</span> = <span class="n">Person</span>(<span class="s">&#39;Reuven&#39;</span>, <span class="s">&#39;Lerner&#39;</span>)
-<span class="n">p2</span> = <span class="n">Person</span>(<span class="s">&#39;foo&#39;</span>, <span class="s">&#39;bar&#39;</span>)
+<span class="n">p1</span> <span class="o">=</span> <span class="n">Person</span><span class="p">(</span><span class="err">&#39;</span><span class="n">Reuven</span><span class="err">&#39;</span><span class="p">,</span> <span class="err">&#39;</span><span class="n">Lerner</span><span class="err">&#39;</span><span class="p">)</span>
+<span class="n">p2</span> <span class="o">=</span> <span class="n">Person</span><span class="p">(</span><span class="err">&#39;</span><span class="n">foo</span><span class="err">&#39;</span><span class="p">,</span> <span class="err">&#39;</span><span class="n">bar</span><span class="err">&#39;</span><span class="p">)</span>
 </pre></div>
 
 

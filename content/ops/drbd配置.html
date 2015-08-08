@@ -58,28 +58,28 @@ rails在这部分和git这部分的通讯走的是用sidekiq(redis)作的消息�
 </ul>
 <h2 id="_2">依赖安装</h2>
 <p>运行下面命令，安装编译所需依赖：</p>
-<div class="hlcode"><pre>yum install gcc libxslt kernel-headers kernel-devel-`uname -r` make wget rpm-build flex
+<div class="hlcode"><pre><span class="n">yum</span> <span class="n">install</span> <span class="n">gcc</span> <span class="n">libxslt</span> <span class="n">kernel</span><span class="o">-</span><span class="n">headers</span> <span class="n">kernel</span><span class="o">-</span><span class="n">devel</span><span class="o">-</span><span class="err">`</span><span class="n">uname</span> <span class="o">-</span><span class="n">r</span><span class="err">`</span> <span class="n">make</span> <span class="n">wget</span> <span class="n">rpm</span><span class="o">-</span><span class="n">build</span> <span class="n">flex</span>
 </pre></div>
 
 
 <h2 id="_3">下载安装源码包</h2>
 <p>在指定路径下如 <code>/opt/resource</code> 下运行：</p>
-<div class="hlcode"><pre>wget http://oss.linbit.com/drbd/8.4/drbd-8.4.0.tar.gz &amp;&amp; tar xzvf drbd-8.4.0.tar.gz
-cd drbd-8.4.0
-./configure --prefix=/opt/drbd --localstatedir=/var --sysconfdir=/etc --with-km
-make &amp;&amp; make install
-cp /opt/drbd/etc/rc.d/init.d/drbd /etc/rc.d/init.d
-chkconfig --add drbd
-chkconfig drbd on
+<div class="hlcode"><pre><span class="n">wget</span> <span class="n">http</span><span class="o">:</span><span class="c1">//oss.linbit.com/drbd/8.4/drbd-8.4.0.tar.gz &amp;&amp; tar xzvf drbd-8.4.0.tar.gz</span>
+<span class="n">cd</span> <span class="n">drbd</span><span class="o">-</span><span class="mf">8.4.0</span>
+<span class="p">.</span><span class="o">/</span><span class="n">configure</span> <span class="o">--</span><span class="n">prefix</span><span class="o">=/</span><span class="n">opt</span><span class="o">/</span><span class="n">drbd</span> <span class="o">--</span><span class="n">localstatedir</span><span class="o">=/</span><span class="n">var</span> <span class="o">--</span><span class="n">sysconfdir</span><span class="o">=/</span><span class="n">etc</span> <span class="o">--</span><span class="n">with</span><span class="o">-</span><span class="n">km</span>
+<span class="n">make</span> <span class="o">&amp;&amp;</span> <span class="n">make</span> <span class="n">install</span>
+<span class="n">cp</span> <span class="o">/</span><span class="n">opt</span><span class="o">/</span><span class="n">drbd</span><span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">rc</span><span class="p">.</span><span class="n">d</span><span class="o">/</span><span class="n">init</span><span class="p">.</span><span class="n">d</span><span class="o">/</span><span class="n">drbd</span> <span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">rc</span><span class="p">.</span><span class="n">d</span><span class="o">/</span><span class="n">init</span><span class="p">.</span><span class="n">d</span>
+<span class="n">chkconfig</span> <span class="o">--</span><span class="n">add</span> <span class="n">drbd</span>
+<span class="n">chkconfig</span> <span class="n">drbd</span> <span class="n">on</span>
 </pre></div>
 
 
 <h2 id="_4">编译模块</h2>
-<div class="hlcode"><pre>cd drbd
-make clean all
-make KDIR=/lib/modules/`uname -r`
-cp drbd.ko /lib/modules/`uname -r`/kernel/lib/
-depmod
+<div class="hlcode"><pre><span class="n">cd</span> <span class="n">drbd</span>
+<span class="n">make</span> <span class="n">clean</span> <span class="n">all</span>
+<span class="n">make</span> <span class="n">KDIR</span><span class="o">=/</span><span class="n">lib</span><span class="o">/</span><span class="n">modules</span><span class="o">/</span><span class="err">`</span><span class="n">uname</span> <span class="o">-</span><span class="n">r</span><span class="err">`</span>
+<span class="n">cp</span> <span class="n">drbd</span><span class="p">.</span><span class="n">ko</span> <span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">modules</span><span class="o">/</span><span class="err">`</span><span class="n">uname</span> <span class="o">-</span><span class="n">r</span><span class="err">`</span><span class="o">/</span><span class="n">kernel</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span>
+<span class="n">depmod</span>
 </pre></div>
 
 
@@ -95,48 +95,48 @@ depmod
 <h2 id="drbd">DRBD配置</h2>
 <p>打开/opt/drbd/etc/drbd.d/global_common.conf文件，确保在global中usage-count yes配置，以及common中的net里面有protocal C。</p>
 <p>然后在/opt/drbd/etc/drbd.d/中创建一个r0.res的文件，输入如下信息:</p>
-<div class="hlcode"><pre><span class="nt">resource</span> <span class="nt">r0</span> <span class="p">{</span>
-  <span class="n">on</span> <span class="n">host_84_109</span> <span class="err">{</span>
+<div class="hlcode"><pre><span class="n">resource</span> <span class="n">r0</span> <span class="p">{</span>
+  <span class="n">on</span> <span class="n">host_84_109</span> <span class="p">{</span>
     <span class="n">device</span>    <span class="o">/</span><span class="n">dev</span><span class="o">/</span><span class="n">drbd1</span><span class="p">;</span>
     <span class="n">disk</span>      <span class="o">/</span><span class="n">dev</span><span class="o">/</span><span class="n">xvdb1</span><span class="p">;</span>
-    <span class="n">address</span>   <span class="m">10</span><span class="o">.</span><span class="m">31</span><span class="o">.</span><span class="m">84</span><span class="o">.</span><span class="m">109</span><span class="o">:</span><span class="m">7789</span><span class="p">;</span>
+    <span class="n">address</span>   <span class="mf">10.31.84.109</span><span class="o">:</span><span class="mi">7789</span><span class="p">;</span>
     <span class="n">meta</span><span class="o">-</span><span class="n">disk</span> <span class="n">internal</span><span class="p">;</span>
   <span class="p">}</span>
-  <span class="nt">on</span> <span class="nt">host_84_206</span> <span class="p">{</span>
+  <span class="n">on</span> <span class="n">host_84_206</span> <span class="p">{</span>
     <span class="n">device</span>    <span class="o">/</span><span class="n">dev</span><span class="o">/</span><span class="n">drbd1</span><span class="p">;</span>
     <span class="n">disk</span>      <span class="o">/</span><span class="n">dev</span><span class="o">/</span><span class="n">xvdb1</span><span class="p">;</span>
-    <span class="n">address</span>   <span class="m">10</span><span class="o">.</span><span class="m">31</span><span class="o">.</span><span class="m">84</span><span class="o">.</span><span class="m">206</span><span class="o">:</span><span class="m">7789</span><span class="p">;</span>
+    <span class="n">address</span>   <span class="mf">10.31.84.206</span><span class="o">:</span><span class="mi">7789</span><span class="p">;</span>
     <span class="n">meta</span><span class="o">-</span><span class="n">disk</span> <span class="n">internal</span><span class="p">;</span>
   <span class="p">}</span>
-<span class="err">}</span>
+<span class="p">}</span>
 </pre></div>
 
 
 <p>要注意主机名和服务器的主机名一致。</p>
 <h2 id="_6">建立资源</h2>
 <p>首先载入drbd模块</p>
-<div class="hlcode"><pre>modprobe drbd
+<div class="hlcode"><pre><span class="n">modprobe</span> <span class="n">drbd</span>
 </pre></div>
 
 
 <p>确认drbd模块载入</p>
-<div class="hlcode"><pre>lsmod | grep drbd
+<div class="hlcode"><pre><span class="n">lsmod</span> <span class="o">|</span> <span class="n">grep</span> <span class="n">drbd</span>
 </pre></div>
 
 
 <p>清空分区数据，如果下面配文件系统失败，很有可能是这里需要清一下</p>
-<div class="hlcode"><pre>dd if=/dev/zero of=/dev/sda3 bs=1M count=100
+<div class="hlcode"><pre><span class="n">dd</span> <span class="k">if</span><span class="o">=/</span><span class="n">dev</span><span class="o">/</span><span class="n">zero</span> <span class="n">of</span><span class="o">=/</span><span class="n">dev</span><span class="o">/</span><span class="n">sda3</span> <span class="n">bs</span><span class="o">=</span><span class="mi">1</span><span class="n">M</span> <span class="n">count</span><span class="o">=</span><span class="mi">100</span>
 </pre></div>
 
 
 <p>建立资源r0</p>
-<div class="hlcode"><pre>drbdadm create-md r0
+<div class="hlcode"><pre><span class="n">drbdadm</span> <span class="n">create</span><span class="o">-</span><span class="n">md</span> <span class="n">r0</span>
 </pre></div>
 
 
 <h2 id="drbd_1">启动drbd服务</h2>
 <p>在2台机器上运行下面命令启动服务：</p>
-<div class="hlcode"><pre>service drbd start
+<div class="hlcode"><pre><span class="n">service</span> <span class="n">drbd</span> <span class="n">start</span>
 </pre></div>
 
 

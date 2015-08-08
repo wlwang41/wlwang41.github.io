@@ -136,13 +136,13 @@ Storage server直接利用OS的文件系统调用管理文件。</p>
 </li>
 <li>
 <p>在Nginx上进行如下配置，这样Nginx就会截获url中的参数attname，在Http响应头里面加上字段 <code>Content-Disposition "attachment;filename=$arg_attname"</code></p>
-<div class="hlcode"><pre><span class="x">location /group2/M00 </span><span class="err">{</span><span class="x"></span>
-<span class="x">    root /data/store/data;</span>
-<span class="x">    if (</span><span class="p">$</span><span class="nv">arg_attname</span><span class="x"> ~ &quot;^(.*).apk&quot;) </span><span class="err">{</span><span class="x"></span>
-<span class="x">            add_header Content-Disposition &quot;attachment;filename=</span><span class="p">$</span><span class="nv">arg_attname</span><span class="x">&quot;;</span>
-<span class="x">    }</span>
-<span class="x">    ngx_fastdfs_module;</span>
-<span class="x">}</span>
+<div class="hlcode"><pre><span class="n">location</span> <span class="o">/</span><span class="n">group2</span><span class="o">/</span><span class="n">M00</span> <span class="p">{</span>
+    <span class="n">root</span> <span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">store</span><span class="o">/</span><span class="n">data</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="err">$</span><span class="n">arg_attname</span> <span class="o">~</span> <span class="s">&quot;^(.*).apk&quot;</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">add_header</span> <span class="n">Content</span><span class="o">-</span><span class="n">Disposition</span> <span class="s">&quot;attachment;filename=$arg_attname&quot;</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="n">ngx_fastdfs_module</span><span class="p">;</span>
+<span class="p">}</span>
 </pre></div>
 
 
@@ -351,229 +351,229 @@ http.server_port=8080  # HTTP服务端口
 
 
 <h3 id="storageconf">storage.conf</h3>
-<div class="hlcode"><pre>disabled=false  # 同上
+<div class="hlcode"><pre><span class="n">disabled</span><span class="o">=</span><span class="nb">false</span>  <span class="err">#</span> <span class="err">同上</span>
 
-group_name=group1  # 指定此storage server所在组(卷)
+<span class="n">group_name</span><span class="o">=</span><span class="n">group1</span>  <span class="err">#</span> <span class="err">指定此</span><span class="n">storage</span> <span class="n">server</span><span class="err">所在组</span><span class="p">(</span><span class="err">卷</span><span class="p">)</span>
 
-bind_addr=  # 同上
+<span class="n">bind_addr</span><span class="o">=</span>  <span class="err">#</span> <span class="err">同上</span>
 
-# bind_addr通常是针对server的。当指定bind_addr时，本参数才有效。
-# 本storage server作为client连接其他服务器（如tracker server、其他storage server），是否绑定bind_addr。
-client_bind=true
+<span class="cp"># bind_addr通常是针对server的。当指定bind_addr时，本参数才有效。</span>
+<span class="cp"># 本storage server作为client连接其他服务器（如tracker server、其他storage server），是否绑定bind_addr。</span>
+<span class="n">client_bind</span><span class="o">=</span><span class="nb">true</span>
 
-port=23000  # storage server服务端口
+<span class="n">port</span><span class="o">=</span><span class="mi">23000</span>  <span class="err">#</span> <span class="n">storage</span> <span class="n">server</span><span class="err">服务端口</span>
 
-connect_timeout=30  # 同上
+<span class="n">connect_timeout</span><span class="o">=</span><span class="mi">30</span>  <span class="err">#</span> <span class="err">同上</span>
 
-network_timeout=60  # 同上
+<span class="n">network_timeout</span><span class="o">=</span><span class="mi">60</span>  <span class="err">#</span> <span class="err">同上</span>
 
-heart_beat_interval=30  # 心跳间隔时间，单位为秒 (这里是指主动向tracker server 发送心跳)
+<span class="n">heart_beat_interval</span><span class="o">=</span><span class="mi">30</span>  <span class="err">#</span> <span class="err">心跳间隔时间，单位为秒</span> <span class="p">(</span><span class="err">这里是指主动向</span><span class="n">tracker</span> <span class="n">server</span> <span class="err">发送心跳</span><span class="p">)</span>
 
-stat_report_interval=60  # storage server向tracker server报告磁盘剩余空间的时间间隔，单位为秒。
+<span class="n">stat_report_interval</span><span class="o">=</span><span class="mi">60</span>  <span class="err">#</span> <span class="n">storage</span> <span class="n">server</span><span class="err">向</span><span class="n">tracker</span> <span class="n">server</span><span class="err">报告磁盘剩余空间的时间间隔，单位为秒。</span>
 
-base_path=/home/yuqing/fastdfs  # 同上
+<span class="n">base_path</span><span class="o">=/</span><span class="n">home</span><span class="o">/</span><span class="n">yuqing</span><span class="o">/</span><span class="n">fastdfs</span>  <span class="err">#</span> <span class="err">同上</span>
 
-max_connections=256  # 同上
+<span class="n">max_connections</span><span class="o">=</span><span class="mi">256</span>  <span class="err">#</span> <span class="err">同上</span>
 
-work_threads=4  # 同上
+<span class="n">work_threads</span><span class="o">=</span><span class="mi">4</span>  <span class="err">#</span> <span class="err">同上</span>
 
-# V2.0引入本参数。设置队列结点的buffer大小。工作队列消耗的内存大小 = buff_size * max_connections
-# 设置得大一些，系统整体性能会有所提升。
-# 消耗的内存请不要超过系统物理内存大小。另外，对于32位系统，请注意使用到的内存不要超过3GB
-buff_size = 256KB
+<span class="cp"># V2.0引入本参数。设置队列结点的buffer大小。工作队列消耗的内存大小 = buff_size * max_connections</span>
+<span class="cp"># 设置得大一些，系统整体性能会有所提升。</span>
+<span class="cp"># 消耗的内存请不要超过系统物理内存大小。另外，对于32位系统，请注意使用到的内存不要超过3GB</span>
+<span class="n">buff_size</span> <span class="o">=</span> <span class="mi">256</span><span class="n">KB</span>
 
-# V2.09引入本参数。设置为true，表示不使用操作系统的文件内容缓冲特性。
-# 如果文件数量很多，且访问很分散，可以考虑将本参数设置为true
-disk_rw_direct = false
+<span class="cp"># V2.09引入本参数。设置为true，表示不使用操作系统的文件内容缓冲特性。</span>
+<span class="cp"># 如果文件数量很多，且访问很分散，可以考虑将本参数设置为true</span>
+<span class="n">disk_rw_direct</span> <span class="o">=</span> <span class="nb">false</span>
 
-disk_rw_separated = true  # V2.0引入本参数。磁盘IO读写是否分离，缺省是分离的。
+<span class="n">disk_rw_separated</span> <span class="o">=</span> <span class="nb">true</span>  <span class="err">#</span> <span class="n">V2</span><span class="mf">.0</span><span class="err">引入本参数。磁盘</span><span class="n">IO</span><span class="err">读写是否分离，缺省是分离的。</span>
 
-# V2.0引入本参数。针对单个存储路径的读线程数，缺省值为1。
-# 读写分离时，系统中的读线程数 = disk_reader_threads * store_path_count
-# 读写混合时，系统中的读写线程数 = (disk_reader_threads + disk_writer_threads) * store_path_count
-disk_reader_threads = 1
+<span class="cp"># V2.0引入本参数。针对单个存储路径的读线程数，缺省值为1。</span>
+<span class="cp"># 读写分离时，系统中的读线程数 = disk_reader_threads * store_path_count</span>
+<span class="cp"># 读写混合时，系统中的读写线程数 = (disk_reader_threads + disk_writer_threads) * store_path_count</span>
+<span class="n">disk_reader_threads</span> <span class="o">=</span> <span class="mi">1</span>
 
-# V2.0引入本参数。针对单个存储路径的写线程数，缺省值为1。
-# 读写分离时，系统中的写线程数 = disk_writer_threads * store_path_count
-# 读写混合时，系统中的读写线程数 = (disk_reader_threads + disk_writer_threads) * store_path_count
-disk_writer_threads = 1
+<span class="cp"># V2.0引入本参数。针对单个存储路径的写线程数，缺省值为1。</span>
+<span class="cp"># 读写分离时，系统中的写线程数 = disk_writer_threads * store_path_count</span>
+<span class="cp"># 读写混合时，系统中的读写线程数 = (disk_reader_threads + disk_writer_threads) * store_path_count</span>
+<span class="n">disk_writer_threads</span> <span class="o">=</span> <span class="mi">1</span>
 
-# 同步文件时，如果从binlog中没有读到要同步的文件，休眠N毫秒后重新读取。0表示不休眠，立即再次尝试读取。
-# 出于CPU消耗考虑，不建议设置为0。如何希望同步尽可能快一些，可以将本参数设置得小一些，比如设置为10ms
-sync_wait_msec=200
+<span class="cp"># 同步文件时，如果从binlog中没有读到要同步的文件，休眠N毫秒后重新读取。0表示不休眠，立即再次尝试读取。</span>
+<span class="cp"># 出于CPU消耗考虑，不建议设置为0。如何希望同步尽可能快一些，可以将本参数设置得小一些，比如设置为10ms</span>
+<span class="n">sync_wait_msec</span><span class="o">=</span><span class="mi">200</span>
 
-sync_interval=0  # 同步上一个文件后，再同步下一个文件的时间间隔，单位为毫秒，0表示不休眠，直接同步下一个文件。
+<span class="n">sync_interval</span><span class="o">=</span><span class="mi">0</span>  <span class="err">#</span> <span class="err">同步上一个文件后，再同步下一个文件的时间间隔，单位为毫秒，</span><span class="mi">0</span><span class="err">表示不休眠，直接同步下一个文件。</span>
 
-sync_start_time=00:00
+<span class="n">sync_start_time</span><span class="o">=</span><span class="mo">00</span><span class="o">:</span><span class="mo">00</span>
 
-sync_end_time=23:59  # 上面二个一起解释。允许系统同步的时间段 (默认是全天) 。一般用于避免高峰同步产生一些问题而设定
+<span class="n">sync_end_time</span><span class="o">=</span><span class="mi">23</span><span class="o">:</span><span class="mi">59</span>  <span class="err">#</span> <span class="err">上面二个一起解释。允许系统同步的时间段</span> <span class="p">(</span><span class="err">默认是全天</span><span class="p">)</span> <span class="err">。一般用于避免高峰同步产生一些问题而设定</span>
 
-# 同步完N个文件后，把storage的mark文件同步到磁盘
-# 注：如果mark文件内容没有变化，则不会同步
-write_mark_file_freq=500
+<span class="cp"># 同步完N个文件后，把storage的mark文件同步到磁盘</span>
+<span class="cp"># 注：如果mark文件内容没有变化，则不会同步</span>
+<span class="n">write_mark_file_freq</span><span class="o">=</span><span class="mi">500</span>
 
-store_path_count=1  # 存放文件时storage server支持多个路径（例如磁盘）。这里配置存放文件的基路径数目，通常只配一个目录。
+<span class="n">store_path_count</span><span class="o">=</span><span class="mi">1</span>  <span class="err">#</span> <span class="err">存放文件时</span><span class="n">storage</span> <span class="n">server</span><span class="err">支持多个路径（例如磁盘）。这里配置存放文件的基路径数目，通常只配一个目录。</span>
 
-#store_path1=/home/yuqing/fastdfs2
-# 逐一配置store_path个路径，索引号基于0。注意配置方法后面有0,1,2 ......，需要配置0到store_path - 1。
-# 如果不配置base_path0，那边它就和base_path对应的路径一样。
-store_path0=/home/yuqing/fastdfs
+<span class="cp">#store_path1=/home/yuqing/fastdfs2</span>
+<span class="cp"># 逐一配置store_path个路径，索引号基于0。注意配置方法后面有0,1,2 ......，需要配置0到store_path - 1。</span>
+<span class="cp"># 如果不配置base_path0，那边它就和base_path对应的路径一样。</span>
+<span class="n">store_path0</span><span class="o">=/</span><span class="n">home</span><span class="o">/</span><span class="n">yuqing</span><span class="o">/</span><span class="n">fastdfs</span>
 
-# FastDFS存储文件时，采用了两级目录。这里配置存放文件的目录个数 (系统的存储机制,大家看看文件存储的目录就知道了)
-# 如果本参数只为N（如：256），那么storage server在初次运行时，会自动创建 N * N 个存放文件的子目录。
-subdir_count_per_path=256
+<span class="cp"># FastDFS存储文件时，采用了两级目录。这里配置存放文件的目录个数 (系统的存储机制,大家看看文件存储的目录就知道了)</span>
+<span class="cp"># 如果本参数只为N（如：256），那么storage server在初次运行时，会自动创建 N * N 个存放文件的子目录。</span>
+<span class="n">subdir_count_per_path</span><span class="o">=</span><span class="mi">256</span>
 
-# tracker_server 的列表 要写端口的哦 (再次提醒是主动连接tracker_server )
-# 有多个tracker server时，每个tracker server写一行
-tracker_server=10.62.164.84:22122
-tracker_server=10.62.245.170:22122
+<span class="cp"># tracker_server 的列表 要写端口的哦 (再次提醒是主动连接tracker_server )</span>
+<span class="cp"># 有多个tracker server时，每个tracker server写一行</span>
+<span class="n">tracker_server</span><span class="o">=</span><span class="mf">10.62.164.84</span><span class="o">:</span><span class="mi">22122</span>
+<span class="n">tracker_server</span><span class="o">=</span><span class="mf">10.62.245.170</span><span class="o">:</span><span class="mi">22122</span>
 
-log_level=info  # 同上
+<span class="n">log_level</span><span class="o">=</span><span class="n">info</span>  <span class="err">#</span> <span class="err">同上</span>
 
-run_by_group=  # 同上
+<span class="n">run_by_group</span><span class="o">=</span>  <span class="err">#</span> <span class="err">同上</span>
 
-run_by_user=  # 同上
+<span class="n">run_by_user</span><span class="o">=</span>  <span class="err">#</span> <span class="err">同上</span>
 
-# 允许连接本storage server的IP地址列表 （不包括自带HTTP服务的所有连接）
-# 可以配置多行，每行都会起作用
-allow_hosts=*
+<span class="cp"># 允许连接本storage server的IP地址列表 （不包括自带HTTP服务的所有连接）</span>
+<span class="cp"># 可以配置多行，每行都会起作用</span>
+<span class="n">allow_hosts</span><span class="o">=*</span>
 
-#  文件在data目录下分散存储策略。
-# 0: 轮流存放，在一个目录下存储设置的文件数后（参数file_distribute_rotate_count中设置文件数），使用下一个目录进行存储。
-# 1: 随机存储，根据文件名对应的hash code来分散存储。
-file_distribute_path_mode=0
+<span class="cp">#  文件在data目录下分散存储策略。</span>
+<span class="cp"># 0: 轮流存放，在一个目录下存储设置的文件数后（参数file_distribute_rotate_count中设置文件数），使用下一个目录进行存储。</span>
+<span class="cp"># 1: 随机存储，根据文件名对应的hash code来分散存储。</span>
+<span class="n">file_distribute_path_mode</span><span class="o">=</span><span class="mi">0</span>
 
-# 当上面的参数file_distribute_path_mode配置为0（轮流存放方式）时，本参数有效。
-# 当一个目录下的文件存放的文件数达到本参数值时，后续上传的文件存储到下一个目录中。
-file_distribute_rotate_count=100
+<span class="cp"># 当上面的参数file_distribute_path_mode配置为0（轮流存放方式）时，本参数有效。</span>
+<span class="cp"># 当一个目录下的文件存放的文件数达到本参数值时，后续上传的文件存储到下一个目录中。</span>
+<span class="n">file_distribute_rotate_count</span><span class="o">=</span><span class="mi">100</span>
 
-fsync_after_written_bytes=0  # 当写入大文件时，每写入N个字节，调用一次系统函数fsync将内容强行同步到硬盘。0表示从不调用fsync
+<span class="n">fsync_after_written_bytes</span><span class="o">=</span><span class="mi">0</span>  <span class="err">#</span> <span class="err">当写入大文件时，每写入</span><span class="n">N</span><span class="err">个字节，调用一次系统函数</span><span class="n">fsync</span><span class="err">将内容强行同步到硬盘。</span><span class="mi">0</span><span class="err">表示从不调用</span><span class="n">fsync</span>
 
-# 同步或刷新日志信息到硬盘的时间间隔，单位为秒
-# 注意：storage server 的日志信息不是时时写硬盘的，而是先写内存。
-sync_log_buff_interval=10
+<span class="cp"># 同步或刷新日志信息到硬盘的时间间隔，单位为秒</span>
+<span class="cp"># 注意：storage server 的日志信息不是时时写硬盘的，而是先写内存。</span>
+<span class="n">sync_log_buff_interval</span><span class="o">=</span><span class="mi">10</span>
 
-# 同步binglog（更新操作日志）到硬盘的时间间隔，单位为秒
-# 本参数会影响新上传文件同步延迟时间
-sync_binlog_buff_interval=60
+<span class="cp"># 同步binglog（更新操作日志）到硬盘的时间间隔，单位为秒</span>
+<span class="cp"># 本参数会影响新上传文件同步延迟时间</span>
+<span class="n">sync_binlog_buff_interval</span><span class="o">=</span><span class="mi">60</span>
 
-# 把storage的stat文件同步到磁盘的时间间隔，单位为秒。
-# 注：如果stat文件内容没有变化，不会进行同步
-sync_stat_file_interval=300
+<span class="cp"># 把storage的stat文件同步到磁盘的时间间隔，单位为秒。</span>
+<span class="cp"># 注：如果stat文件内容没有变化，不会进行同步</span>
+<span class="n">sync_stat_file_interval</span><span class="o">=</span><span class="mi">300</span>
 
-# 线程栈的大小。FastDFS server端采用了线程方式。
-# 对于V1.x，storage server线程栈不应小于512KB；对于V2.0，线程栈大于等于128KB即可。
-# 线程栈越大，一个线程占用的系统资源就越多。
-# 对于V1.x，如果要启动更多的线程（max_connections），可以适当降低本参数值。
-thread_stack_size=512KB
+<span class="cp"># 线程栈的大小。FastDFS server端采用了线程方式。</span>
+<span class="cp"># 对于V1.x，storage server线程栈不应小于512KB；对于V2.0，线程栈大于等于128KB即可。</span>
+<span class="cp"># 线程栈越大，一个线程占用的系统资源就越多。</span>
+<span class="cp"># 对于V1.x，如果要启动更多的线程（max_connections），可以适当降低本参数值。</span>
+<span class="n">thread_stack_size</span><span class="o">=</span><span class="mi">512</span><span class="n">KB</span>
 
-upload_priority=10  # 本storage server作为源服务器，上传文件的优先级，可以为负数。值越小，优先级越高。这里就和 tracker.conf 中store_server= 2时的配置相对应了
+<span class="n">upload_priority</span><span class="o">=</span><span class="mi">10</span>  <span class="err">#</span> <span class="err">本</span><span class="n">storage</span> <span class="n">server</span><span class="err">作为源服务器，上传文件的优先级，可以为负数。值越小，优先级越高。这里就和</span> <span class="n">tracker</span><span class="p">.</span><span class="n">conf</span> <span class="err">中</span><span class="n">store_server</span><span class="o">=</span> <span class="mi">2</span><span class="err">时的配置相对应了</span>
 
-# 是否检测上传文件已经存在。如果已经存在，则不存在文件内容，建立一个符号链接以节省磁盘空间。
-# 这个应用要配合FastDHT 使用，所以打开前要先安装FastDHT
-# 1或yes 是检测，0或no 是不检测
-check_file_duplicate=0
+<span class="cp"># 是否检测上传文件已经存在。如果已经存在，则不存在文件内容，建立一个符号链接以节省磁盘空间。</span>
+<span class="cp"># 这个应用要配合FastDHT 使用，所以打开前要先安装FastDHT</span>
+<span class="cp"># 1或yes 是检测，0或no 是不检测</span>
+<span class="n">check_file_duplicate</span><span class="o">=</span><span class="mi">0</span>
 
-# 文件去重时，文件内容的签名方式：
-## hash： 4个hash code
-## md5：MD5
-file_signature_method=hash
+<span class="cp"># 文件去重时，文件内容的签名方式：</span>
+<span class="cp">## hash： 4个hash code</span>
+<span class="cp">## md5：MD5</span>
+<span class="n">file_signature_method</span><span class="o">=</span><span class="n">hash</span>
 
-key_namespace=FastDFS  # 当上个参数设定为1 或 yes时 (true/on也是可以的) ， 在FastDHT中的命名空间。
+<span class="n">key_namespace</span><span class="o">=</span><span class="n">FastDFS</span>  <span class="err">#</span> <span class="err">当上个参数设定为</span><span class="mi">1</span> <span class="err">或</span> <span class="n">yes</span><span class="err">时</span> <span class="p">(</span><span class="nb">true</span><span class="o">/</span><span class="n">on</span><span class="err">也是可以的</span><span class="p">)</span> <span class="err">，</span> <span class="err">在</span><span class="n">FastDHT</span><span class="err">中的命名空间。</span>
 
-keep_alive=0  # 与FastDHT servers 的连接方式 (是否为持久连接) ，默认是0（短连接方式）。可以考虑使用长连接，这要看FastDHT server的连接数是否够用。
+<span class="n">keep_alive</span><span class="o">=</span><span class="mi">0</span>  <span class="err">#</span> <span class="err">与</span><span class="n">FastDHT</span> <span class="n">servers</span> <span class="err">的连接方式</span> <span class="p">(</span><span class="err">是否为持久连接</span><span class="p">)</span> <span class="err">，默认是</span><span class="mi">0</span><span class="err">（短连接方式）。可以考虑使用长连接，这要看</span><span class="n">FastDHT</span> <span class="n">server</span><span class="err">的连接数是否够用。</span>
 
-use_access_log = false  # 是否将文件操作记录到access log
+<span class="n">use_access_log</span> <span class="o">=</span> <span class="nb">false</span>  <span class="err">#</span> <span class="err">是否将文件操作记录到</span><span class="n">access</span> <span class="n">log</span>
 
-rotate_access_log = false  # 是否定期轮转access log，目前仅支持一天轮转一次
+<span class="n">rotate_access_log</span> <span class="o">=</span> <span class="nb">false</span>  <span class="err">#</span> <span class="err">是否定期轮转</span><span class="n">access</span> <span class="n">log</span><span class="err">，目前仅支持一天轮转一次</span>
 
-access_log_rotate_time=00:00  # access log定期轮转的时间点，只有当rotate_access_log设置为true时有效
+<span class="n">access_log_rotate_time</span><span class="o">=</span><span class="mo">00</span><span class="o">:</span><span class="mo">00</span>  <span class="err">#</span> <span class="n">access</span> <span class="n">log</span><span class="err">定期轮转的时间点，只有当</span><span class="n">rotate_access_log</span><span class="err">设置为</span><span class="nb">true</span><span class="err">时有效</span>
 
-rotate_error_log = false  # 是否定期轮转error log，目前仅支持一天轮转一次
+<span class="n">rotate_error_log</span> <span class="o">=</span> <span class="nb">false</span>  <span class="err">#</span> <span class="err">是否定期轮转</span><span class="n">error</span> <span class="n">log</span><span class="err">，目前仅支持一天轮转一次</span>
 
-error_log_rotate_time=00:00  # error log定期轮转的时间点，只有当rotate_error_log设置为true时有效
+<span class="n">error_log_rotate_time</span><span class="o">=</span><span class="mo">00</span><span class="o">:</span><span class="mo">00</span>  <span class="err">#</span> <span class="n">error</span> <span class="n">log</span><span class="err">定期轮转的时间点，只有当</span><span class="n">rotate_error_log</span><span class="err">设置为</span><span class="nb">true</span><span class="err">时有效</span>
 
-# access log按文件大小轮转
-# 设置为0表示不按文件大小轮转，否则当access log达到该大小，就会轮转到新文件中
-rotate_access_log_size = 0
+<span class="cp"># access log按文件大小轮转</span>
+<span class="cp"># 设置为0表示不按文件大小轮转，否则当access log达到该大小，就会轮转到新文件中</span>
+<span class="n">rotate_access_log_size</span> <span class="o">=</span> <span class="mi">0</span>
 
-# error log按文件大小轮转
-# 设置为0表示不按文件大小轮转，否则当error log达到该大小，就会轮转到新文件中
-rotate_error_log_size = 0
+<span class="cp"># error log按文件大小轮转</span>
+<span class="cp"># 设置为0表示不按文件大小轮转，否则当error log达到该大小，就会轮转到新文件中</span>
+<span class="n">rotate_error_log_size</span> <span class="o">=</span> <span class="mi">0</span>
 
-file_sync_skip_invalid_record=false  # 文件同步的时候，是否忽略无效的binlog记录
+<span class="n">file_sync_skip_invalid_record</span><span class="o">=</span><span class="nb">false</span>  <span class="err">#</span> <span class="err">文件同步的时候，是否忽略无效的</span><span class="n">binlog</span><span class="err">记录</span>
 
-http.disabled=false
+<span class="n">http</span><span class="p">.</span><span class="n">disabled</span><span class="o">=</span><span class="nb">false</span>
 
-http.server_port=8888
+<span class="n">http</span><span class="p">.</span><span class="n">server_port</span><span class="o">=</span><span class="mi">8888</span>
 
-http.trunk_size=256KB  # http.trunk_size表示读取文件内容的buffer大小（一次读取的文件内容大小），也就是回复给HTTP client的块大小。
+<span class="n">http</span><span class="p">.</span><span class="n">trunk_size</span><span class="o">=</span><span class="mi">256</span><span class="n">KB</span>  <span class="err">#</span> <span class="n">http</span><span class="p">.</span><span class="n">trunk_size</span><span class="err">表示读取文件内容的</span><span class="n">buffer</span><span class="err">大小（一次读取的文件内容大小），也就是回复给</span><span class="n">HTTP</span> <span class="n">client</span><span class="err">的块大小。</span>
 
-# storage server上web server域名，通常仅针对单独部署的web server。这样URL中就可以通过域名方式来访问storage server上的文件了，
-# 这个参数为空就是IP地址的方式。
-http.domain_name=
+<span class="cp"># storage server上web server域名，通常仅针对单独部署的web server。这样URL中就可以通过域名方式来访问storage server上的文件了，</span>
+<span class="cp"># 这个参数为空就是IP地址的方式。</span>
+<span class="n">http</span><span class="p">.</span><span class="n">domain_name</span><span class="o">=</span>
 
-#use &quot;#include&quot; directive to include HTTP other settiongs
-##include http.conf
+<span class="cp">#use &quot;#include&quot; directive to include HTTP other settiongs</span>
+<span class="cp">##include http.conf</span>
 </pre></div>
 
 
 <h3 id="_8">缓存</h3>
 <p>缓存的方案选取的是在tracker的机器上安装 <code>ngx_cache_purge</code> 模块来提供缓存。</p>
 <p>修改nginx配置如下:</p>
-<div class="hlcode"><pre><span class="nt">worker_processes</span>  <span class="nt">4</span><span class="o">;</span>                  <span class="err">#根据</span><span class="nt">CPU</span><span class="err">核心数而定</span>
-<span class="nt">events</span> <span class="p">{</span>
-    <span class="n">worker_connections</span>  <span class="m">65535</span><span class="p">;</span>        <span class="err">#最大链接数</span>
+<div class="hlcode"><pre><span class="n">worker_processes</span>  <span class="mi">4</span><span class="p">;</span>                  <span class="err">#根据</span><span class="n">CPU</span><span class="err">核心数而定</span>
+<span class="n">events</span> <span class="p">{</span>
+    <span class="n">worker_connections</span>  <span class="mi">65535</span><span class="p">;</span>        <span class="err">#最大链接数</span>
     <span class="n">use</span> <span class="n">epoll</span><span class="p">;</span>                        <span class="err">#新版本的</span><span class="n">Linux</span><span class="err">可使用</span><span class="n">epoll</span><span class="err">加快处理性能</span>
 <span class="p">}</span>
-<span class="nt">http</span> <span class="p">{</span>
+<span class="n">http</span> <span class="p">{</span>
     <span class="err">#设置缓存参数</span>
-    <span class="n">server_names_hash_bucket_size</span> <span class="m">128</span><span class="p">;</span>
-    <span class="n">client_header_buffer_size</span> <span class="m">32</span><span class="n">k</span><span class="p">;</span>
-    <span class="n">large_client_header_buffers</span> <span class="m">4</span> <span class="m">32</span><span class="n">k</span><span class="p">;</span>
-    <span class="n">client_max_body_size</span> <span class="m">300</span><span class="n">m</span><span class="p">;</span>
+    <span class="n">server_names_hash_bucket_size</span> <span class="mi">128</span><span class="p">;</span>
+    <span class="n">client_header_buffer_size</span> <span class="mi">32</span><span class="n">k</span><span class="p">;</span>
+    <span class="n">large_client_header_buffers</span> <span class="mi">4</span> <span class="mi">32</span><span class="n">k</span><span class="p">;</span>
+    <span class="n">client_max_body_size</span> <span class="mi">300</span><span class="n">m</span><span class="p">;</span>
     <span class="n">sendfile</span>        <span class="n">on</span><span class="p">;</span>
     <span class="n">tcp_nopush</span>      <span class="n">on</span><span class="p">;</span>
     <span class="n">proxy_redirect</span> <span class="n">off</span><span class="p">;</span>
     <span class="n">proxy_set_header</span> <span class="n">Host</span> <span class="err">$</span><span class="n">http_host</span><span class="p">;</span>
     <span class="n">proxy_set_header</span> <span class="n">X</span><span class="o">-</span><span class="n">Real</span><span class="o">-</span><span class="n">IP</span> <span class="err">$</span><span class="n">remote_addr</span><span class="p">;</span>
     <span class="n">proxy_set_header</span> <span class="n">X</span><span class="o">-</span><span class="n">Forwarded</span><span class="o">-</span><span class="n">For</span> <span class="err">$</span><span class="n">proxy_add_x_forwarded_for</span><span class="p">;</span>
-    <span class="n">proxy_connect_timeout</span> <span class="m">90</span><span class="p">;</span>
-    <span class="n">proxy_send_timeout</span> <span class="m">90</span><span class="p">;</span>
-    <span class="n">proxy_read_timeout</span> <span class="m">90</span><span class="p">;</span>
-    <span class="n">proxy_buffer_size</span> <span class="m">16</span><span class="n">k</span><span class="p">;</span>
-    <span class="n">proxy_buffers</span> <span class="m">4</span> <span class="m">64</span><span class="n">k</span><span class="p">;</span>
-    <span class="n">proxy_busy_buffers_size</span> <span class="m">128</span><span class="n">k</span><span class="p">;</span>
-    <span class="n">proxy_temp_file_write_size</span> <span class="m">128</span><span class="n">k</span><span class="p">;</span>
+    <span class="n">proxy_connect_timeout</span> <span class="mi">90</span><span class="p">;</span>
+    <span class="n">proxy_send_timeout</span> <span class="mi">90</span><span class="p">;</span>
+    <span class="n">proxy_read_timeout</span> <span class="mi">90</span><span class="p">;</span>
+    <span class="n">proxy_buffer_size</span> <span class="mi">16</span><span class="n">k</span><span class="p">;</span>
+    <span class="n">proxy_buffers</span> <span class="mi">4</span> <span class="mi">64</span><span class="n">k</span><span class="p">;</span>
+    <span class="n">proxy_busy_buffers_size</span> <span class="mi">128</span><span class="n">k</span><span class="p">;</span>
+    <span class="n">proxy_temp_file_write_size</span> <span class="mi">128</span><span class="n">k</span><span class="p">;</span>
     <span class="err">#设置缓存存储路径、存储方式、分配内存大小、磁盘最大空间、缓存期限</span>
-    <span class="n">proxy_cache_path</span> <span class="o">/</span><span class="n">var</span><span class="o">/</span><span class="n">cache</span><span class="o">/</span><span class="n">nginx</span><span class="o">/</span><span class="n">proxy_cache</span> <span class="n">levels</span><span class="o">=</span><span class="m">1</span><span class="o">:</span><span class="m">2</span> <span class="n">keys_zone</span><span class="o">=</span><span class="n">http</span><span class="o">-</span><span class="n">cache</span><span class="o">:</span><span class="m">500</span><span class="n">m</span> <span class="n">max_size</span><span class="o">=</span><span class="m">10</span><span class="n">g</span> <span class="n">inactive</span><span class="o">=</span><span class="m">30</span><span class="n">d</span><span class="p">;</span>
+    <span class="n">proxy_cache_path</span> <span class="o">/</span><span class="n">var</span><span class="o">/</span><span class="n">cache</span><span class="o">/</span><span class="n">nginx</span><span class="o">/</span><span class="n">proxy_cache</span> <span class="n">levels</span><span class="o">=</span><span class="mi">1</span><span class="o">:</span><span class="mi">2</span> <span class="n">keys_zone</span><span class="o">=</span><span class="n">http</span><span class="o">-</span><span class="n">cache</span><span class="o">:</span><span class="mi">500</span><span class="n">m</span> <span class="n">max_size</span><span class="o">=</span><span class="mi">10</span><span class="n">g</span> <span class="n">inactive</span><span class="o">=</span><span class="mi">30</span><span class="n">d</span><span class="p">;</span>
     <span class="n">proxy_temp_path</span> <span class="o">/</span><span class="n">var</span><span class="o">/</span><span class="n">cache</span><span class="o">/</span><span class="n">nginx</span><span class="o">/</span><span class="n">proxy_cache</span><span class="o">/</span><span class="n">tmp</span><span class="p">;</span>
 
     <span class="err">#设置</span><span class="n">group1</span><span class="err">的服务器</span>
-    <span class="n">upstream</span> <span class="n">fdfs_group1</span> <span class="err">{</span>
-        <span class="n">server</span> <span class="m">172</span><span class="o">.</span><span class="m">16</span><span class="o">.</span><span class="m">1</span><span class="o">.</span><span class="m">203</span><span class="o">:</span><span class="m">8080</span> <span class="n">weight</span><span class="o">=</span><span class="m">1</span> <span class="n">max_fails</span><span class="o">=</span><span class="m">2</span> <span class="n">fail_timeout</span><span class="o">=</span><span class="m">30s</span><span class="p">;</span>
-        <span class="n">server</span> <span class="m">172</span><span class="o">.</span><span class="m">16</span><span class="o">.</span><span class="m">1</span><span class="o">.</span><span class="m">204</span><span class="o">:</span><span class="m">8080</span> <span class="n">weight</span><span class="o">=</span><span class="m">1</span> <span class="n">max_fails</span><span class="o">=</span><span class="m">2</span> <span class="n">fail_timeout</span><span class="o">=</span><span class="m">30s</span><span class="p">;</span>
+    <span class="n">upstream</span> <span class="n">fdfs_group1</span> <span class="p">{</span>
+        <span class="n">server</span> <span class="mf">172.16.1.203</span><span class="o">:</span><span class="mi">8080</span> <span class="n">weight</span><span class="o">=</span><span class="mi">1</span> <span class="n">max_fails</span><span class="o">=</span><span class="mi">2</span> <span class="n">fail_timeout</span><span class="o">=</span><span class="mi">30</span><span class="n">s</span><span class="p">;</span>
+        <span class="n">server</span> <span class="mf">172.16.1.204</span><span class="o">:</span><span class="mi">8080</span> <span class="n">weight</span><span class="o">=</span><span class="mi">1</span> <span class="n">max_fails</span><span class="o">=</span><span class="mi">2</span> <span class="n">fail_timeout</span><span class="o">=</span><span class="mi">30</span><span class="n">s</span><span class="p">;</span>
     <span class="p">}</span>
-    <span class="nt">server</span> <span class="p">{</span>
+    <span class="n">server</span> <span class="p">{</span>
         <span class="err">#设置服务器端口</span>
-        <span class="n">listen</span>       <span class="m">8080</span><span class="p">;</span>
+        <span class="n">listen</span>       <span class="mi">8080</span><span class="p">;</span>
         <span class="err">#设置</span><span class="n">group1</span><span class="err">的负载均衡参数</span>
-        <span class="n">location</span> <span class="o">/</span><span class="n">group1</span><span class="o">/</span><span class="n">M00</span> <span class="err">{</span>
+        <span class="n">location</span> <span class="o">/</span><span class="n">group1</span><span class="o">/</span><span class="n">M00</span> <span class="p">{</span>
             <span class="n">proxy_next_upstream</span> <span class="n">http_502</span> <span class="n">http_504</span> <span class="n">error</span> <span class="n">timeout</span> <span class="n">invalid_header</span><span class="p">;</span>
             <span class="n">proxy_cache</span> <span class="n">http</span><span class="o">-</span><span class="n">cache</span><span class="p">;</span>
-            <span class="n">proxy_cache_valid</span>  <span class="m">200</span> <span class="m">304</span> <span class="m">12</span><span class="n">h</span><span class="p">;</span>
+            <span class="n">proxy_cache_valid</span>  <span class="mi">200</span> <span class="mi">304</span> <span class="mi">12</span><span class="n">h</span><span class="p">;</span>
             <span class="n">proxy_cache_key</span> <span class="err">$</span><span class="n">uri</span><span class="err">$</span><span class="n">is_args</span><span class="err">$</span><span class="n">args</span><span class="p">;</span>
-            <span class="n">proxy_pass</span> <span class="n">http</span><span class="o">://</span><span class="n">fdfs_group1</span><span class="p">;</span>
-            <span class="n">expires</span> <span class="m">30</span><span class="n">d</span><span class="p">;</span>
+            <span class="n">proxy_pass</span> <span class="n">http</span><span class="o">:</span><span class="c1">//fdfs_group1;</span>
+            <span class="n">expires</span> <span class="mi">30</span><span class="n">d</span><span class="p">;</span>
         <span class="p">}</span>
-    <span class="err">}</span>
-    <span class="nt">location</span> <span class="o">~</span> <span class="o">/</span><span class="nt">purge</span><span class="o">(/.*)</span> <span class="p">{</span>
-        <span class="n">allow</span> <span class="m">127</span><span class="o">.</span><span class="m">0</span><span class="o">.</span><span class="m">0</span><span class="o">.</span><span class="m">1</span><span class="p">;</span>
-        <span class="n">allow</span> <span class="m">172</span><span class="o">.</span><span class="m">16</span><span class="o">.</span><span class="m">1</span><span class="o">.</span><span class="m">0</span><span class="o">/</span><span class="m">24</span><span class="p">;</span>
-        <span class="n">deny</span> <span class="n">all</span><span class="p">;</span>
-        <span class="n">proxy_cache_purge</span> <span class="n">http</span><span class="o">-</span><span class="n">cache</span>  <span class="err">$</span><span class="m">1</span><span class="err">$</span><span class="n">is_args</span><span class="err">$</span><span class="n">args</span><span class="p">;</span>
     <span class="p">}</span>
-<span class="err">}</span>
+    <span class="n">location</span> <span class="o">~</span> <span class="o">/</span><span class="n">purge</span><span class="p">(</span><span class="o">/</span><span class="p">.</span><span class="o">*</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">allow</span> <span class="mf">127.0.0.1</span><span class="p">;</span>
+        <span class="n">allow</span> <span class="mf">172.16.1.0</span><span class="o">/</span><span class="mi">24</span><span class="p">;</span>
+        <span class="n">deny</span> <span class="n">all</span><span class="p">;</span>
+        <span class="n">proxy_cache_purge</span> <span class="n">http</span><span class="o">-</span><span class="n">cache</span>  <span class="err">$</span><span class="mi">1</span><span class="err">$</span><span class="n">is_args</span><span class="err">$</span><span class="n">args</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
 </pre></div>
 
 
@@ -669,11 +669,11 @@ http.domain_name=
 <p><strong>参考自作者博客<a href="http://blog.chinaunix.net/uid-20315669-id-1967079.html">FastDFS HOWTO -- Protocol</a></strong></p>
 <p>FastDFS采用TCP/IP协议，package包含header和body, header和body都可能为空</p>
 <p>header格式：</p>
-<div class="hlcode"><pre>@ TRACKER_PROTO_PKG_LEN_SIZE bytes package length
-@ 1 byte command
-@ 1 byte status
-note:
-TRACKER_PROTO_PKG_LEN_SIZE (8) bytes number buff is Big-Endian bytes
+<div class="hlcode"><pre><span class="err">@</span> <span class="n">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="n">bytes</span> <span class="n">package</span> <span class="n">length</span>
+<span class="err">@</span> <span class="mi">1</span> <span class="n">byte</span> <span class="n">command</span>
+<span class="err">@</span> <span class="mi">1</span> <span class="n">byte</span> <span class="n">status</span>
+<span class="nl">note:</span>
+<span class="n">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="p">(</span><span class="mi">8</span><span class="p">)</span> <span class="n">bytes</span> <span class="n">number</span> <span class="n">buff</span> <span class="n">is</span> <span class="n">Big</span><span class="o">-</span><span class="n">Endian</span> <span class="n">bytes</span>
 </pre></div>
 
 
@@ -681,23 +681,23 @@ TRACKER_PROTO_PKG_LEN_SIZE (8) bytes number buff is Big-Endian bytes
 <p>按照发送方和接收方角色不同可以分为5大类：</p>
 <h3 id="1-common-command">1. Common Command 通用命令</h3>
 <p><strong>FDFS_PROTO_CMD_QUIT</strong></p>
-<div class="hlcode"><pre><span class="err">#</span> <span class="kd">function</span><span class="o">:</span> <span class="nx">notify</span> <span class="nx">server</span> <span class="nx">connection</span> <span class="nx">will</span> <span class="nx">be</span> <span class="nx">closed</span> <span class="err">（</span><span class="nx">通知服务器连接将会中断</span><span class="err">）</span>
-<span class="err">#</span> <span class="nx">request</span> <span class="nx">body</span><span class="o">:</span> <span class="nx">none</span> <span class="p">(</span><span class="nx">no</span> <span class="nx">body</span> <span class="nx">part</span><span class="p">)</span>
-<span class="err">#</span> <span class="nx">response</span><span class="o">:</span> <span class="nx">none</span> <span class="p">(</span><span class="nx">no</span> <span class="nx">header</span> <span class="nx">and</span> <span class="nx">no</span> <span class="nx">body</span><span class="p">)</span>
+<div class="hlcode"><pre><span class="c"># function: notify server connection will be closed （通知服务器连接将会中断）</span>
+<span class="c"># request body: none (no body part)</span>
+<span class="c"># response: none (no header and no body)</span>
 </pre></div>
 
 
 <p><strong>FDFS_PROTO_CMD_ACTIVE_TEST</strong></p>
-<div class="hlcode"><pre><span class="err">#</span> <span class="kd">function</span><span class="o">:</span> <span class="nx">active</span> <span class="nx">test</span> <span class="err">（</span><span class="nx">测试是否active</span><span class="err">）</span>
-<span class="err">#</span> <span class="nx">request</span> <span class="nx">body</span><span class="o">:</span> <span class="nx">none</span>
-<span class="err">#</span> <span class="nx">response</span> <span class="nx">body</span><span class="o">:</span> <span class="nx">none</span>
+<div class="hlcode"><pre><span class="c"># function: active test （测试是否active）</span>
+<span class="c"># request body: none</span>
+<span class="c"># response body: none</span>
 </pre></div>
 
 
 <h3 id="2-storage-server-tracker-server">2. storage server 发送给tracker server的命令</h3>
 <p>这些commond的response 是 TRACKER_PROTO_CMD_STORAGE_RESP</p>
 <p><strong>TRACKER_PROTO_CMD_STORAGE_JOIN</strong></p>
-<div class="hlcode"><pre><span class="err">#</span> <span class="kd">function</span><span class="o">:</span> <span class="nx">storage</span> <span class="nx">join</span> <span class="nx">to</span> <span class="nx">tracker</span> <span class="p">(</span><span class="nx">将storage加入到tracker的track列表</span><span class="p">)</span>
+<div class="hlcode"><pre><span class="err">#</span> <span class="kd">function</span><span class="o">:</span> <span class="nx">storage</span> <span class="nx">join</span> <span class="nx">to</span> <span class="nx">tracker</span> <span class="p">(</span><span class="err">将</span><span class="nx">storage</span><span class="err">加入到</span><span class="nx">tracker</span><span class="err">的</span><span class="nx">track</span><span class="err">列表</span><span class="p">)</span>
 <span class="err">#</span> <span class="nx">request</span> <span class="nx">body</span><span class="o">:</span>
     <span class="err">@</span> <span class="nx">FDFS_GROUP_NAME_MAX_LEN</span> <span class="o">+</span> <span class="mi">1</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">group</span> <span class="nx">name</span>
     <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">storage</span> <span class="nx">server</span> <span class="nx">port</span>
@@ -714,13 +714,13 @@ TRACKER_PROTO_PKG_LEN_SIZE (8) bytes number buff is Big-Endian bytes
     <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">tracker</span> <span class="nx">server</span> <span class="nx">count</span> <span class="nx">excluding</span> <span class="nx">current</span> <span class="nx">tracker</span>
 <span class="err">#</span> <span class="nx">response</span> <span class="nx">body</span><span class="o">:</span>
     <span class="err">@</span> <span class="nx">FDFS_IPADDR_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">sync</span> <span class="nx">source</span> <span class="nx">storage</span> <span class="nx">server</span> <span class="nx">ip</span> <span class="nx">address</span>
-<span class="err">#</span> <span class="nx">memo</span><span class="o">:</span> <span class="k">return</span> <span class="nx">all</span> <span class="nx">storage</span> <span class="nx">servers</span> <span class="k">in</span> <span class="nx">the</span> <span class="nx">group</span> <span class="nx">only</span> <span class="nx">when</span> <span class="nx">storage</span> <span class="nx">servers</span> <span class="nx">changed</span> <span class="nx">or</span> <span class="k">return</span> <span class="nx">none</span><span class="err">（</span><span class="nx">仅当storage</span> <span class="nx">server生效才返回所有的storage</span> <span class="nx">server</span><span class="p">,</span><span class="nx">否则返回空</span><span class="err">）</span>
+<span class="err">#</span> <span class="nx">memo</span><span class="o">:</span> <span class="k">return</span> <span class="nx">all</span> <span class="nx">storage</span> <span class="nx">servers</span> <span class="k">in</span> <span class="nx">the</span> <span class="nx">group</span> <span class="nx">only</span> <span class="nx">when</span> <span class="nx">storage</span> <span class="nx">servers</span> <span class="nx">changed</span> <span class="nx">or</span> <span class="k">return</span> <span class="nx">none</span><span class="err">（仅当</span><span class="nx">storage</span> <span class="nx">server</span><span class="err">生效才返回所有的</span><span class="nx">storage</span> <span class="nx">server</span><span class="p">,</span><span class="err">否则返回空）</span>
 </pre></div>
 
 
 <p><strong>TRACKER_PROTO_CMD_STORAGE_BEAT</strong></p>
-<div class="hlcode"><pre><span class="err">#</span> <span class="kd">function</span><span class="o">:</span> <span class="nx">heart</span> <span class="nx">beat</span> <span class="err">（</span><span class="nx">心跳</span><span class="err">）</span>
-<span class="err">#</span> <span class="nx">request</span> <span class="nx">body</span><span class="o">:</span> <span class="nx">none</span> <span class="nx">or</span> <span class="nx">storage</span> <span class="nx">stat</span> <span class="nx">info</span> <span class="err">（</span><span class="nx">返回空或者storage状态信息</span><span class="err">）</span>
+<div class="hlcode"><pre><span class="err">#</span> <span class="kd">function</span><span class="o">:</span> <span class="nx">heart</span> <span class="nx">beat</span> <span class="err">（心跳）</span>
+<span class="err">#</span> <span class="nx">request</span> <span class="nx">body</span><span class="o">:</span> <span class="nx">none</span> <span class="nx">or</span> <span class="nx">storage</span> <span class="nx">stat</span> <span class="nx">info</span> <span class="err">（返回空或者</span><span class="nx">storage</span><span class="err">状态信息）</span>
    <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">total</span> <span class="nx">upload</span> <span class="nx">count</span>
    <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">success</span> <span class="nx">upload</span> <span class="nx">count</span>
    <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">total</span> <span class="nx">set</span> <span class="nx">metadata</span> <span class="nx">count</span>
@@ -740,15 +740,15 @@ TRACKER_PROTO_PKG_LEN_SIZE (8) bytes number buff is Big-Endian bytes
    <span class="err">@</span><span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span>  <span class="nx">last</span> <span class="nx">synced</span> <span class="nx">timestamp</span>
    <span class="err">@</span><span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span>  <span class="nx">last</span> <span class="nx">heart</span> <span class="nx">beat</span> <span class="nx">timestamp</span>
 <span class="err">#</span> <span class="nx">response</span> <span class="nx">body</span><span class="o">:</span> <span class="nx">same</span> <span class="nx">to</span> <span class="nx">command</span> <span class="nx">TRACKER_PROTO_CMD_STORAGE_JOIN</span>
-<span class="err">#</span> <span class="nx">memo</span><span class="o">:</span> <span class="nx">storage</span> <span class="nx">server</span> <span class="nx">sync</span> <span class="nx">it</span><span class="err">&#39;</span><span class="nx">s</span> <span class="nx">stat</span> <span class="nx">info</span> <span class="nx">to</span> <span class="nx">tracker</span> <span class="nx">server</span> <span class="nx">only</span> <span class="nx">when</span> <span class="nx">storage</span> <span class="nx">stat</span> <span class="nx">info</span> <span class="nx">changed</span><span class="err">（</span><span class="nx">仅当storage</span> <span class="nx">server的状态信息改变时才将其同步到tracker</span><span class="err">）</span>
+<span class="err">#</span> <span class="nx">memo</span><span class="o">:</span> <span class="nx">storage</span> <span class="nx">server</span> <span class="nx">sync</span> <span class="nx">it</span><span class="err">&#39;</span><span class="nx">s</span> <span class="nx">stat</span> <span class="nx">info</span> <span class="nx">to</span> <span class="nx">tracker</span> <span class="nx">server</span> <span class="nx">only</span> <span class="nx">when</span> <span class="nx">storage</span> <span class="nx">stat</span> <span class="nx">info</span> <span class="nx">changed</span><span class="err">（仅当</span><span class="nx">storage</span> <span class="nx">server</span><span class="err">的状态信息改变时才将其同步到</span><span class="nx">tracker</span><span class="err">）</span>
 </pre></div>
 
 
 <p><strong>TRACKER_PROTO_CMD_STORAGE_REPORT</strong></p>
-<div class="hlcode"><pre><span class="err">#</span> <span class="kd">function</span><span class="o">:</span> <span class="nx">report</span> <span class="nx">disk</span> <span class="nx">usage</span><span class="p">(</span><span class="nx">报告硬盘使用情况</span><span class="p">)</span>
+<div class="hlcode"><pre><span class="err">#</span> <span class="kd">function</span><span class="o">:</span> <span class="nx">report</span> <span class="nx">disk</span> <span class="nx">usage</span><span class="p">(</span><span class="err">报告硬盘使用情况</span><span class="p">)</span>
 <span class="err">#</span> <span class="nx">request</span> <span class="nx">body</span><span class="o">:</span>
-    <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">total</span> <span class="nx">space</span> <span class="k">in</span> <span class="nx">MB</span><span class="err">（</span><span class="nx">硬盘总体积</span><span class="err">）</span>
-    <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">free</span> <span class="nx">space</span> <span class="k">in</span> <span class="nx">MB</span> <span class="err">（</span><span class="nx">空闲大小</span><span class="err">）</span>
+    <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">total</span> <span class="nx">space</span> <span class="k">in</span> <span class="nx">MB</span><span class="err">（硬盘总体积）</span>
+    <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">free</span> <span class="nx">space</span> <span class="k">in</span> <span class="nx">MB</span> <span class="err">（空闲大小）</span>
 <span class="err">#</span> <span class="nx">response</span> <span class="nx">body</span><span class="o">:</span> <span class="nx">same</span> <span class="nx">to</span> <span class="nx">command</span> <span class="nx">TRACKER_PROTO_CMD_STORAGE_JOIN</span>
 </pre></div>
 
@@ -763,28 +763,28 @@ TRACKER_PROTO_PKG_LEN_SIZE (8) bytes number buff is Big-Endian bytes
 
 
 <p><strong>TRACKER_PROTO_CMD_STORAGE_SYNC_SRC_REQ</strong></p>
-<div class="hlcode"><pre><span class="err">#</span> <span class="kd">function</span><span class="o">:</span> <span class="nx">source</span> <span class="nx">storage</span> <span class="nx">require</span> <span class="nx">sync</span><span class="p">.</span> <span class="nx">when</span> <span class="nx">add</span> <span class="nx">a</span> <span class="k">new</span> <span class="nx">storage</span> <span class="nx">server</span><span class="p">,</span> <span class="nx">the</span> <span class="nx">existed</span> <span class="nx">storage</span> <span class="nx">servers</span> <span class="k">in</span> <span class="nx">the</span> <span class="nx">same</span> <span class="nx">group</span> <span class="nx">will</span> <span class="nx">ask</span> <span class="nx">the</span> <span class="nx">tracker</span> <span class="nx">server</span> <span class="nx">to</span> <span class="nx">tell</span> <span class="nx">the</span> <span class="nx">source</span> <span class="nx">storage</span> <span class="nx">server</span> <span class="nx">which</span> <span class="nx">will</span> <span class="nx">sync</span> <span class="nx">old</span> <span class="nx">data</span> <span class="nx">to</span> <span class="nx">it</span><span class="err">（</span><span class="nx">当新添加一个storage</span> <span class="nx">server时</span><span class="err">，</span><span class="nx">同组的其他storage</span> <span class="nx">server会向tracker请求告诉新的storage有数据要同步给他</span><span class="err">）</span>
+<div class="hlcode"><pre><span class="err">#</span> <span class="kd">function</span><span class="o">:</span> <span class="nx">source</span> <span class="nx">storage</span> <span class="nx">require</span> <span class="nx">sync</span><span class="p">.</span> <span class="nx">when</span> <span class="nx">add</span> <span class="nx">a</span> <span class="k">new</span> <span class="nx">storage</span> <span class="nx">server</span><span class="p">,</span> <span class="nx">the</span> <span class="nx">existed</span> <span class="nx">storage</span> <span class="nx">servers</span> <span class="k">in</span> <span class="nx">the</span> <span class="nx">same</span> <span class="nx">group</span> <span class="nx">will</span> <span class="nx">ask</span> <span class="nx">the</span> <span class="nx">tracker</span> <span class="nx">server</span> <span class="nx">to</span> <span class="nx">tell</span> <span class="nx">the</span> <span class="nx">source</span> <span class="nx">storage</span> <span class="nx">server</span> <span class="nx">which</span> <span class="nx">will</span> <span class="nx">sync</span> <span class="nx">old</span> <span class="nx">data</span> <span class="nx">to</span> <span class="nx">it</span><span class="err">（当新添加一个</span><span class="nx">storage</span> <span class="nx">server</span><span class="err">时，同组的其他</span><span class="nx">storage</span> <span class="nx">server</span><span class="err">会向</span><span class="nx">tracker</span><span class="err">请求告诉新的</span><span class="nx">storage</span><span class="err">有数据要同步给他）</span>
 <span class="err">#</span> <span class="nx">request</span> <span class="nx">body</span><span class="o">:</span>
-    <span class="err">@</span> <span class="nx">FDFS_IPADDR_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">dest</span> <span class="nx">storage</span> <span class="nx">server</span> <span class="p">(</span><span class="k">new</span> <span class="nx">storage</span> <span class="nx">server</span><span class="p">)</span> <span class="nx">ip</span> <span class="nx">address</span> <span class="err">（</span><span class="nx">新加入的storage</span> <span class="nx">server的ip地址</span><span class="err">）</span>
+    <span class="err">@</span> <span class="nx">FDFS_IPADDR_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">dest</span> <span class="nx">storage</span> <span class="nx">server</span> <span class="p">(</span><span class="k">new</span> <span class="nx">storage</span> <span class="nx">server</span><span class="p">)</span> <span class="nx">ip</span> <span class="nx">address</span> <span class="err">（新加入的</span><span class="nx">storage</span> <span class="nx">server</span><span class="err">的</span><span class="nx">ip</span><span class="err">地址）</span>
 <span class="err">#</span> <span class="nx">response</span> <span class="nx">body</span><span class="o">:</span> <span class="nx">none</span> <span class="nx">or</span>
-    <span class="err">@</span> <span class="nx">FDFS_IPADDR_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">source</span> <span class="nx">storage</span> <span class="nx">server</span> <span class="nx">ip</span> <span class="nx">address</span><span class="err">（</span><span class="nx">源storage</span> <span class="nx">server的ip地址</span><span class="err">）</span>
+    <span class="err">@</span> <span class="nx">FDFS_IPADDR_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">source</span> <span class="nx">storage</span> <span class="nx">server</span> <span class="nx">ip</span> <span class="nx">address</span><span class="err">（源</span><span class="nx">storage</span> <span class="nx">server</span><span class="err">的</span><span class="nx">ip</span><span class="err">地址）</span>
     <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">sync</span> <span class="nx">until</span> <span class="nx">timestamp</span>
-<span class="err">#</span> <span class="nx">memo</span><span class="o">:</span> <span class="k">if</span> <span class="nx">the</span> <span class="nx">dest</span> <span class="nx">storage</span> <span class="nx">server</span> <span class="nx">not</span> <span class="k">do</span> <span class="nx">need</span> <span class="nx">sync</span> <span class="nx">from</span> <span class="nx">one</span> <span class="nx">of</span> <span class="nx">storage</span> <span class="nx">servers</span> <span class="k">in</span> <span class="nx">the</span> <span class="nx">group</span><span class="p">,</span> <span class="nx">the</span> <span class="nx">response</span> <span class="nx">body</span> <span class="nx">is</span> <span class="nx">emtpy</span><span class="err">（</span><span class="nx">若新storage</span> <span class="nx">server不需要源storage</span> <span class="nx">server的同步</span><span class="err">，</span><span class="nx">返回空</span><span class="err">）</span>
+<span class="err">#</span> <span class="nx">memo</span><span class="o">:</span> <span class="k">if</span> <span class="nx">the</span> <span class="nx">dest</span> <span class="nx">storage</span> <span class="nx">server</span> <span class="nx">not</span> <span class="k">do</span> <span class="nx">need</span> <span class="nx">sync</span> <span class="nx">from</span> <span class="nx">one</span> <span class="nx">of</span> <span class="nx">storage</span> <span class="nx">servers</span> <span class="k">in</span> <span class="nx">the</span> <span class="nx">group</span><span class="p">,</span> <span class="nx">the</span> <span class="nx">response</span> <span class="nx">body</span> <span class="nx">is</span> <span class="nx">emtpy</span><span class="err">（若新</span><span class="nx">storage</span> <span class="nx">server</span><span class="err">不需要源</span><span class="nx">storage</span> <span class="nx">server</span><span class="err">的同步，返回空）</span>
 </pre></div>
 
 
 <p><strong>TRACKER_PROTO_CMD_STORAGE_SYNC_DEST_REQ</strong></p>
-<div class="hlcode"><pre><span class="err">#</span> <span class="kd">function</span><span class="o">:</span> <span class="nx">dest</span> <span class="nx">storage</span> <span class="nx">server</span> <span class="p">(</span><span class="k">new</span> <span class="nx">storage</span> <span class="nx">server</span><span class="p">)</span> <span class="nx">require</span> <span class="nx">sync</span><span class="err">（</span><span class="nx">新加入的storage</span> <span class="nx">向tracker请求同步</span><span class="err">）</span>
+<div class="hlcode"><pre><span class="err">#</span> <span class="kd">function</span><span class="o">:</span> <span class="nx">dest</span> <span class="nx">storage</span> <span class="nx">server</span> <span class="p">(</span><span class="k">new</span> <span class="nx">storage</span> <span class="nx">server</span><span class="p">)</span> <span class="nx">require</span> <span class="nx">sync</span><span class="err">（新加入的</span><span class="nx">storage</span> <span class="err">向</span><span class="nx">tracker</span><span class="err">请求同步）</span>
 <span class="err">#</span> <span class="nx">request</span> <span class="nx">body</span><span class="o">:</span> <span class="nx">none</span>
 <span class="err">#</span> <span class="nx">response</span> <span class="nx">body</span><span class="o">:</span> <span class="nx">none</span> <span class="nx">or</span>
     <span class="err">@</span> <span class="nx">FDFS_IPADDR_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">source</span> <span class="nx">storage</span> <span class="nx">server</span> <span class="nx">ip</span> <span class="nx">address</span>
     <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">sync</span> <span class="nx">until</span> <span class="nx">timestamp</span>
-<span class="err">#</span> <span class="nx">memo</span><span class="o">:</span> <span class="k">if</span> <span class="nx">the</span> <span class="nx">dest</span> <span class="nx">storage</span> <span class="nx">server</span> <span class="nx">not</span> <span class="k">do</span> <span class="nx">need</span> <span class="nx">sync</span> <span class="nx">from</span> <span class="nx">one</span> <span class="nx">of</span> <span class="nx">storage</span> <span class="nx">servers</span> <span class="k">in</span> <span class="nx">the</span> <span class="nx">group</span><span class="p">,</span> <span class="nx">the</span> <span class="nx">response</span> <span class="nx">body</span> <span class="nx">is</span> <span class="nx">emtpy</span><span class="err">（</span><span class="nx">若新storage</span> <span class="nx">server不需要源storage</span> <span class="nx">server的同步</span><span class="err">，</span><span class="nx">返回空</span><span class="err">）</span>
+<span class="err">#</span> <span class="nx">memo</span><span class="o">:</span> <span class="k">if</span> <span class="nx">the</span> <span class="nx">dest</span> <span class="nx">storage</span> <span class="nx">server</span> <span class="nx">not</span> <span class="k">do</span> <span class="nx">need</span> <span class="nx">sync</span> <span class="nx">from</span> <span class="nx">one</span> <span class="nx">of</span> <span class="nx">storage</span> <span class="nx">servers</span> <span class="k">in</span> <span class="nx">the</span> <span class="nx">group</span><span class="p">,</span> <span class="nx">the</span> <span class="nx">response</span> <span class="nx">body</span> <span class="nx">is</span> <span class="nx">emtpy</span><span class="err">（若新</span><span class="nx">storage</span> <span class="nx">server</span><span class="err">不需要源</span><span class="nx">storage</span> <span class="nx">server</span><span class="err">的同步，返回空）</span>
 </pre></div>
 
 
 <p><strong>TRACKER_PROTO_CMD_STORAGE_SYNC_NOTIFY</strong></p>
-<div class="hlcode"><pre><span class="err">#</span> <span class="kd">function</span><span class="o">:</span> <span class="k">new</span> <span class="nx">storage</span> <span class="nx">server</span> <span class="nx">sync</span> <span class="nx">notify</span><span class="p">(</span><span class="nx">新storage同步通告</span><span class="p">)</span>
+<div class="hlcode"><pre><span class="err">#</span> <span class="kd">function</span><span class="o">:</span> <span class="k">new</span> <span class="nx">storage</span> <span class="nx">server</span> <span class="nx">sync</span> <span class="nx">notify</span><span class="p">(</span><span class="err">新</span><span class="nx">storage</span><span class="err">同步通告</span><span class="p">)</span>
 <span class="err">#</span> <span class="nx">request</span> <span class="nx">body</span><span class="o">:</span>
     <span class="err">@</span> <span class="nx">FDFS_IPADDR_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">source</span> <span class="nx">storage</span> <span class="nx">server</span> <span class="nx">ip</span> <span class="nx">address</span>
     <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">sync</span> <span class="nx">until</span> <span class="nx">timestamp</span>
@@ -795,7 +795,7 @@ TRACKER_PROTO_PKG_LEN_SIZE (8) bytes number buff is Big-Endian bytes
 <h3 id="3clienttracker-server">3.client发送给tracker server的命令</h3>
 <p>以下两个命令的response是TRACKER_PROTO_CMD_SERVER_RESP</p>
 <p><strong>TRACKER_PROTO_CMD_SERVER_LIST_GROUP</strong></p>
-<div class="hlcode"><pre><span class="err">#</span> <span class="kd">function</span><span class="o">:</span> <span class="nx">list</span> <span class="nx">all</span> <span class="nx">groups</span> <span class="err">（</span><span class="nx">列出所有的group</span><span class="err">）</span>
+<div class="hlcode"><pre><span class="err">#</span> <span class="kd">function</span><span class="o">:</span> <span class="nx">list</span> <span class="nx">all</span> <span class="nx">groups</span> <span class="err">（列出所有的</span><span class="nx">group</span><span class="err">）</span>
 <span class="err">#</span> <span class="nx">request</span> <span class="nx">body</span><span class="o">:</span> <span class="nx">none</span>
 <span class="err">#</span> <span class="nx">response</span> <span class="nx">body</span><span class="o">:</span> <span class="nx">n</span> <span class="nx">group</span> <span class="nx">entries</span><span class="p">,</span> <span class="nx">n</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">,</span> <span class="nx">the</span> <span class="nx">format</span> <span class="nx">of</span> <span class="nx">each</span> <span class="nx">entry</span><span class="o">:</span>
  <span class="err">@</span> <span class="nx">FDFS_GROUP_NAME_MAX_LEN</span><span class="o">+</span><span class="mi">1</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">group</span> <span class="nx">name</span>
@@ -811,9 +811,9 @@ TRACKER_PROTO_PKG_LEN_SIZE (8) bytes number buff is Big-Endian bytes
 
 
 <p><strong>TRACKER_PROTO_CMD_SERVER_LIST_STORAGE</strong></p>
-<div class="hlcode"><pre><span class="err">#</span> <span class="kd">function</span><span class="o">:</span> <span class="nx">list</span> <span class="nx">storage</span> <span class="nx">servers</span> <span class="nx">of</span> <span class="nx">a</span> <span class="nx">group</span><span class="err">（</span><span class="nx">列出某个组的所有storage</span> <span class="nx">server</span><span class="err">）</span>
+<div class="hlcode"><pre><span class="err">#</span> <span class="kd">function</span><span class="o">:</span> <span class="nx">list</span> <span class="nx">storage</span> <span class="nx">servers</span> <span class="nx">of</span> <span class="nx">a</span> <span class="nx">group</span><span class="err">（列出某个组的所有</span><span class="nx">storage</span> <span class="nx">server</span><span class="err">）</span>
 <span class="err">#</span> <span class="nx">request</span> <span class="nx">body</span><span class="o">:</span>
-    <span class="err">@</span> <span class="nx">FDFS_GROUP_NAME_MAX_LEN</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">the</span> <span class="nx">group</span> <span class="nx">name</span> <span class="nx">to</span> <span class="nx">query</span><span class="p">(</span><span class="nx">要列的组名</span><span class="p">)</span>
+    <span class="err">@</span> <span class="nx">FDFS_GROUP_NAME_MAX_LEN</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">the</span> <span class="nx">group</span> <span class="nx">name</span> <span class="nx">to</span> <span class="nx">query</span><span class="p">(</span><span class="err">要列的组名</span><span class="p">)</span>
 <span class="err">#</span> <span class="nx">response</span> <span class="nx">body</span><span class="o">:</span> <span class="nx">n</span> <span class="nx">storage</span> <span class="nx">entries</span><span class="p">,</span> <span class="nx">n</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">,</span> <span class="nx">the</span> <span class="nx">format</span> <span class="nx">of</span> <span class="nx">each</span> <span class="nx">entry</span><span class="o">:</span>
    <span class="err">@</span> <span class="mi">1</span> <span class="kr">byte</span><span class="o">:</span> <span class="nx">status</span>
    <span class="err">@</span> <span class="nx">FDFS_IPADDR_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">ip</span> <span class="nx">address</span>
@@ -828,78 +828,78 @@ TRACKER_PROTO_PKG_LEN_SIZE (8) bytes number buff is Big-Endian bytes
    <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">store</span> <span class="nx">path</span> <span class="nx">count</span>
    <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">subdir</span> <span class="nx">count</span> <span class="nx">per</span> <span class="nx">path</span>
    <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">current</span> <span class="nx">write</span> <span class="nx">path</span><span class="cp">[</span>
-   <span class="p">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="kt">bytes</span><span class="p">:</span> <span class="nx">storage</span> <span class="nx">server</span> <span class="nx">port</span>
-   <span class="p">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="kt">bytes</span><span class="p">:</span> <span class="nx">storage</span> <span class="nx">http</span> <span class="nx">port</span>
-   <span class="p">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="kt">bytes</span><span class="p">:</span> <span class="nx">total</span> <span class="nx">upload</span> <span class="nx">count</span>
-   <span class="p">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="kt">bytes</span><span class="p">:</span> <span class="nx">success</span> <span class="nx">upload</span> <span class="nx">count</span>
-   <span class="p">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="kt">bytes</span><span class="p">:</span> <span class="nx">total</span> <span class="kt">set</span> <span class="nx">metadata</span> <span class="nx">count</span>
-   <span class="p">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="kt">bytes</span><span class="p">:</span> <span class="nx">success</span> <span class="kt">set</span> <span class="nx">metadata</span> <span class="nx">count</span>
-   <span class="p">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="kt">bytes</span><span class="p">:</span> <span class="nx">total</span> <span class="nx">delete</span> <span class="nx">count</span>
-   <span class="p">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="kt">bytes</span><span class="p">:</span> <span class="nx">success</span> <span class="nx">delete</span> <span class="nx">count</span>
-   <span class="p">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="kt">bytes</span><span class="p">:</span> <span class="nx">total</span> <span class="nx">download</span> <span class="nx">count</span>
-   <span class="p">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="kt">bytes</span><span class="p">:</span> <span class="nx">success</span> <span class="nx">download</span> <span class="nx">count</span>
-   <span class="p">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="kt">bytes</span><span class="p">:</span> <span class="nx">total</span> <span class="nx">get</span> <span class="nx">metadata</span> <span class="nx">count</span>
-   <span class="p">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="kt">bytes</span><span class="p">:</span> <span class="nx">success</span> <span class="nx">get</span> <span class="nx">metadata</span> <span class="nx">count</span>
-   <span class="p">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="kt">bytes</span><span class="p">:</span> <span class="nx">total</span> <span class="nx">create</span> <span class="k">link</span> <span class="nx">count</span>
-   <span class="p">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="kt">bytes</span><span class="p">:</span> <span class="nx">success</span> <span class="nx">create</span> <span class="k">link</span> <span class="nx">count</span>
-   <span class="p">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="kt">bytes</span><span class="p">:</span> <span class="nx">total</span> <span class="nx">delete</span> <span class="k">link</span> <span class="nx">count</span>
-   <span class="p">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="kt">bytes</span><span class="p">:</span> <span class="nx">success</span> <span class="nx">delete</span> <span class="k">link</span> <span class="nx">count</span>
-   <span class="p">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="kt">bytes</span><span class="p">:</span> <span class="nx">last</span> <span class="nx">source</span> <span class="nx">update</span> <span class="nx">timestamp</span>
-   <span class="p">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="kt">bytes</span><span class="p">:</span> <span class="nx">last</span> <span class="nx">sync</span> <span class="nx">update</span> <span class="nx">timestamp</span>
-   <span class="p">@</span><span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="kt">bytes</span><span class="p">:</span>  <span class="nx">last</span> <span class="nx">synced</span> <span class="nx">timestamp</span>
-   <span class="p">@</span><span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="kt">bytes</span><span class="p">:</span>  <span class="nx">last</span> <span class="nx">heart</span> <span class="nx">beat</span> <span class="nx">timestamp</span>
+   <span class="p">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nb">bytes</span><span class="p">:</span> <span class="nx">storage</span> <span class="nx">server</span> <span class="nb">port</span>
+   <span class="p">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nb">bytes</span><span class="p">:</span> <span class="nx">storage</span> <span class="nx">http</span> <span class="nb">port</span>
+   <span class="p">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nb">bytes</span><span class="p">:</span> <span class="nx">total</span> <span class="nx">upload</span> <span class="nb">count</span>
+   <span class="p">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nb">bytes</span><span class="p">:</span> <span class="nx">success</span> <span class="nx">upload</span> <span class="nb">count</span>
+   <span class="p">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nb">bytes</span><span class="p">:</span> <span class="nx">total</span> <span class="nb">set</span> <span class="nx">metadata</span> <span class="nb">count</span>
+   <span class="p">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nb">bytes</span><span class="p">:</span> <span class="nx">success</span> <span class="nb">set</span> <span class="nx">metadata</span> <span class="nb">count</span>
+   <span class="p">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nb">bytes</span><span class="p">:</span> <span class="nx">total</span> <span class="nb">delete</span> <span class="nb">count</span>
+   <span class="p">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nb">bytes</span><span class="p">:</span> <span class="nx">success</span> <span class="nb">delete</span> <span class="nb">count</span>
+   <span class="p">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nb">bytes</span><span class="p">:</span> <span class="nx">total</span> <span class="nx">download</span> <span class="nb">count</span>
+   <span class="p">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nb">bytes</span><span class="p">:</span> <span class="nx">success</span> <span class="nx">download</span> <span class="nb">count</span>
+   <span class="p">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nb">bytes</span><span class="p">:</span> <span class="nx">total</span> <span class="nb">get</span> <span class="nx">metadata</span> <span class="nb">count</span>
+   <span class="p">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nb">bytes</span><span class="p">:</span> <span class="nx">success</span> <span class="nb">get</span> <span class="nx">metadata</span> <span class="nb">count</span>
+   <span class="p">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nb">bytes</span><span class="p">:</span> <span class="nx">total</span> <span class="nb">create</span> <span class="k">link</span> <span class="nb">count</span>
+   <span class="p">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nb">bytes</span><span class="p">:</span> <span class="nx">success</span> <span class="nb">create</span> <span class="k">link</span> <span class="nb">count</span>
+   <span class="p">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nb">bytes</span><span class="p">:</span> <span class="nx">total</span> <span class="nb">delete</span> <span class="k">link</span> <span class="nb">count</span>
+   <span class="p">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nb">bytes</span><span class="p">:</span> <span class="nx">success</span> <span class="nb">delete</span> <span class="k">link</span> <span class="nb">count</span>
+   <span class="p">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nb">bytes</span><span class="p">:</span> <span class="nb">last</span> <span class="nb">source</span> <span class="nx">update</span> <span class="nx">timestamp</span>
+   <span class="p">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nb">bytes</span><span class="p">:</span> <span class="nb">last</span> <span class="nx">sync</span> <span class="nx">update</span> <span class="nx">timestamp</span>
+   <span class="p">@</span><span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nb">bytes</span><span class="p">:</span>  <span class="nb">last</span> <span class="nx">synced</span> <span class="nx">timestamp</span>
+   <span class="p">@</span><span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nb">bytes</span><span class="p">:</span>  <span class="nb">last</span> <span class="nx">heart</span> <span class="nx">beat</span> <span class="nx">timestamp</span>
 </pre></div>
 
 
 <p>以下命令response是 TRACKER_PROTO_CMD_SERVICE_RESP</p>
 <p><strong>TRACKER_PROTO_CMD_SERVICE_QUERY_STORE_WITHOUT_GROUP_ONE</strong></p>
-<div class="hlcode"><pre><span class="cp"># function: query which storage server to store file(查询向哪一个storage server保存文件)</span>
-<span class="cp"># request body: none</span>
-<span class="cp"># response body:</span>
- <span class="p">@</span> <span class="n">FDFS_GROUP_NAME_MAX_LEN</span> <span class="nl">bytes</span><span class="p">:</span> <span class="n">group</span> <span class="n">name</span>
- <span class="p">@</span> <span class="n">FDFS_IPADDR_SIZE</span> <span class="o">-</span> <span class="mi">1</span> <span class="nl">bytes</span><span class="p">:</span> <span class="n">storage</span> <span class="n">server</span> <span class="n">ip</span> <span class="n">address</span>
- <span class="p">@</span> <span class="n">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nl">bytes</span><span class="p">:</span> <span class="n">storage</span> <span class="n">server</span> <span class="n">port</span>
- <span class="mi">@1</span> <span class="nl">byte</span><span class="p">:</span> <span class="n">store</span> <span class="n">path</span> <span class="n">index</span> <span class="n">on</span> <span class="n">the</span> <span class="n">storage</span> <span class="n">server</span>
+<div class="hlcode"><pre><span class="err">#</span> <span class="kd">function</span><span class="o">:</span> <span class="nx">query</span> <span class="nx">which</span> <span class="nx">storage</span> <span class="nx">server</span> <span class="nx">to</span> <span class="nx">store</span> <span class="nx">file</span><span class="p">(</span><span class="err">查询向哪一个</span><span class="nx">storage</span> <span class="nx">server</span><span class="err">保存文件</span><span class="p">)</span>
+<span class="err">#</span> <span class="nx">request</span> <span class="nx">body</span><span class="o">:</span> <span class="nx">none</span>
+<span class="err">#</span> <span class="nx">response</span> <span class="nx">body</span><span class="o">:</span>
+ <span class="err">@</span> <span class="nx">FDFS_GROUP_NAME_MAX_LEN</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">group</span> <span class="nx">name</span>
+ <span class="err">@</span> <span class="nx">FDFS_IPADDR_SIZE</span> <span class="o">-</span> <span class="mi">1</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">storage</span> <span class="nx">server</span> <span class="nx">ip</span> <span class="nx">address</span>
+ <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">storage</span> <span class="nx">server</span> <span class="nx">port</span>
+ <span class="err">@</span><span class="mi">1</span> <span class="kr">byte</span><span class="o">:</span> <span class="nx">store</span> <span class="nx">path</span> <span class="nx">index</span> <span class="nx">on</span> <span class="nx">the</span> <span class="nx">storage</span> <span class="nx">server</span>
 </pre></div>
 
 
 <p><strong>TRACKER_PROTO_CMD_SERVICE_QUERY_STORE_WITHOUT_GROUP_ALL</strong></p>
-<div class="hlcode"><pre><span class="cp"># function: query which storage server to store file</span>
-<span class="cp"># request body: none</span>
-<span class="cp"># response body:</span>
-    <span class="p">@</span> <span class="n">FDFS_GROUP_NAME_MAX_LEN</span> <span class="nl">bytes</span><span class="p">:</span> <span class="n">group</span> <span class="n">name</span>
-    <span class="p">@</span> <span class="n">FDFS_IPADDR_SIZE</span> <span class="o">-</span> <span class="mi">1</span> <span class="nl">bytes</span><span class="p">:</span> <span class="n">storage</span> <span class="n">server</span> <span class="n">ip</span> <span class="n">address</span> <span class="p">(</span><span class="o">*</span> <span class="n">multi</span><span class="p">)</span>
-    <span class="p">@</span> <span class="n">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nl">bytes</span><span class="p">:</span> <span class="n">storage</span> <span class="n">server</span> <span class="n">port</span> <span class="p">(</span><span class="o">*</span><span class="n">multi</span><span class="p">)</span>
-    <span class="mi">@1</span> <span class="nl">byte</span><span class="p">:</span> <span class="n">store</span> <span class="n">path</span> <span class="n">index</span> <span class="n">on</span> <span class="n">the</span> <span class="n">storage</span> <span class="n">server</span>
+<div class="hlcode"><pre><span class="err">#</span> <span class="kd">function</span><span class="o">:</span> <span class="nx">query</span> <span class="nx">which</span> <span class="nx">storage</span> <span class="nx">server</span> <span class="nx">to</span> <span class="nx">store</span> <span class="nx">file</span>
+<span class="err">#</span> <span class="nx">request</span> <span class="nx">body</span><span class="o">:</span> <span class="nx">none</span>
+<span class="err">#</span> <span class="nx">response</span> <span class="nx">body</span><span class="o">:</span>
+    <span class="err">@</span> <span class="nx">FDFS_GROUP_NAME_MAX_LEN</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">group</span> <span class="nx">name</span>
+    <span class="err">@</span> <span class="nx">FDFS_IPADDR_SIZE</span> <span class="o">-</span> <span class="mi">1</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">storage</span> <span class="nx">server</span> <span class="nx">ip</span> <span class="nx">address</span> <span class="p">(</span><span class="o">*</span> <span class="nx">multi</span><span class="p">)</span>
+    <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">storage</span> <span class="nx">server</span> <span class="nx">port</span> <span class="p">(</span><span class="o">*</span><span class="nx">multi</span><span class="p">)</span>
+    <span class="err">@</span><span class="mi">1</span> <span class="kr">byte</span><span class="o">:</span> <span class="nx">store</span> <span class="nx">path</span> <span class="nx">index</span> <span class="nx">on</span> <span class="nx">the</span> <span class="nx">storage</span> <span class="nx">server</span>
 </pre></div>
 
 
 <p><strong>TRACKER_PROTO_CMD_SERVICE_QUERY_STORE_WITH_GROUP_ONE</strong></p>
-<div class="hlcode"><pre><span class="cp"># function: query which storage server to store file</span>
-<span class="cp"># request body:</span>
-    <span class="p">@</span> <span class="n">FDFS_GROUP_NAME_MAX_LEN</span> <span class="nl">bytes</span><span class="p">:</span> <span class="n">group</span> <span class="n">name</span>
-<span class="cp"># response body:</span>
-    <span class="p">@</span> <span class="n">FDFS_GROUP_NAME_MAX_LEN</span> <span class="nl">bytes</span><span class="p">:</span> <span class="n">group</span> <span class="n">name</span>
-    <span class="p">@</span> <span class="n">FDFS_IPADDR_SIZE</span> <span class="o">-</span> <span class="mi">1</span> <span class="nl">bytes</span><span class="p">:</span> <span class="n">storage</span> <span class="n">server</span> <span class="n">ip</span> <span class="n">address</span>
-    <span class="p">@</span> <span class="n">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nl">bytes</span><span class="p">:</span> <span class="n">storage</span> <span class="n">server</span> <span class="n">port</span>
-    <span class="mi">@1</span> <span class="nl">byte</span><span class="p">:</span> <span class="n">store</span> <span class="n">path</span> <span class="n">index</span> <span class="n">on</span> <span class="n">the</span> <span class="n">storage</span> <span class="n">server</span>
+<div class="hlcode"><pre><span class="err">#</span> <span class="kd">function</span><span class="o">:</span> <span class="nx">query</span> <span class="nx">which</span> <span class="nx">storage</span> <span class="nx">server</span> <span class="nx">to</span> <span class="nx">store</span> <span class="nx">file</span>
+<span class="err">#</span> <span class="nx">request</span> <span class="nx">body</span><span class="o">:</span>
+    <span class="err">@</span> <span class="nx">FDFS_GROUP_NAME_MAX_LEN</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">group</span> <span class="nx">name</span>
+<span class="err">#</span> <span class="nx">response</span> <span class="nx">body</span><span class="o">:</span>
+    <span class="err">@</span> <span class="nx">FDFS_GROUP_NAME_MAX_LEN</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">group</span> <span class="nx">name</span>
+    <span class="err">@</span> <span class="nx">FDFS_IPADDR_SIZE</span> <span class="o">-</span> <span class="mi">1</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">storage</span> <span class="nx">server</span> <span class="nx">ip</span> <span class="nx">address</span>
+    <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">storage</span> <span class="nx">server</span> <span class="nx">port</span>
+    <span class="err">@</span><span class="mi">1</span> <span class="kr">byte</span><span class="o">:</span> <span class="nx">store</span> <span class="nx">path</span> <span class="nx">index</span> <span class="nx">on</span> <span class="nx">the</span> <span class="nx">storage</span> <span class="nx">server</span>
 </pre></div>
 
 
 <p><strong>TRACKER_PROTO_CMD_SERVICE_QUERY_STORE_WITH_GROUP_ALL</strong></p>
-<div class="hlcode"><pre><span class="cp"># function: query which storage server to store file</span>
-<span class="cp"># request body:</span>
-    <span class="p">@</span> <span class="n">FDFS_GROUP_NAME_MAX_LEN</span> <span class="nl">bytes</span><span class="p">:</span> <span class="n">group</span> <span class="n">name</span>
-<span class="cp"># response body:</span>
-    <span class="p">@</span> <span class="n">FDFS_GROUP_NAME_MAX_LEN</span> <span class="nl">bytes</span><span class="p">:</span> <span class="n">group</span> <span class="n">name</span>
-    <span class="p">@</span> <span class="n">FDFS_IPADDR_SIZE</span> <span class="o">-</span> <span class="mi">1</span> <span class="nl">bytes</span><span class="p">:</span> <span class="n">storage</span> <span class="n">server</span> <span class="n">ip</span> <span class="n">address</span>  <span class="p">(</span><span class="o">*</span> <span class="n">multi</span><span class="p">)</span>
-    <span class="p">@</span> <span class="n">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nl">bytes</span><span class="p">:</span> <span class="n">storage</span> <span class="n">server</span> <span class="n">port</span>   <span class="p">(</span><span class="o">*</span> <span class="n">multi</span><span class="p">)</span>
-    <span class="mi">@1</span> <span class="nl">byte</span><span class="p">:</span> <span class="n">store</span> <span class="n">path</span> <span class="n">index</span> <span class="n">on</span> <span class="n">the</span> <span class="n">storage</span> <span class="n">server</span>
+<div class="hlcode"><pre><span class="err">#</span> <span class="kd">function</span><span class="o">:</span> <span class="nx">query</span> <span class="nx">which</span> <span class="nx">storage</span> <span class="nx">server</span> <span class="nx">to</span> <span class="nx">store</span> <span class="nx">file</span>
+<span class="err">#</span> <span class="nx">request</span> <span class="nx">body</span><span class="o">:</span>
+    <span class="err">@</span> <span class="nx">FDFS_GROUP_NAME_MAX_LEN</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">group</span> <span class="nx">name</span>
+<span class="err">#</span> <span class="nx">response</span> <span class="nx">body</span><span class="o">:</span>
+    <span class="err">@</span> <span class="nx">FDFS_GROUP_NAME_MAX_LEN</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">group</span> <span class="nx">name</span>
+    <span class="err">@</span> <span class="nx">FDFS_IPADDR_SIZE</span> <span class="o">-</span> <span class="mi">1</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">storage</span> <span class="nx">server</span> <span class="nx">ip</span> <span class="nx">address</span>  <span class="p">(</span><span class="o">*</span> <span class="nx">multi</span><span class="p">)</span>
+    <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">storage</span> <span class="nx">server</span> <span class="nx">port</span>   <span class="p">(</span><span class="o">*</span> <span class="nx">multi</span><span class="p">)</span>
+    <span class="err">@</span><span class="mi">1</span> <span class="kr">byte</span><span class="o">:</span> <span class="nx">store</span> <span class="nx">path</span> <span class="nx">index</span> <span class="nx">on</span> <span class="nx">the</span> <span class="nx">storage</span> <span class="nx">server</span>
 </pre></div>
 
 
 <p><strong>TRACKER_PROTO_CMD_SERVICE_QUERY_FETCH</strong></p>
-<div class="hlcode"><pre><span class="err">#</span> <span class="kd">function</span><span class="o">:</span> <span class="nx">query</span> <span class="nx">which</span> <span class="nx">storage</span> <span class="nx">server</span> <span class="nx">to</span> <span class="nx">download</span> <span class="nx">the</span> <span class="nx">file</span><span class="err">（</span><span class="nx">查询向哪个storage</span> <span class="nx">server</span> <span class="nx">请求下载文件</span><span class="err">）</span>
+<div class="hlcode"><pre><span class="err">#</span> <span class="kd">function</span><span class="o">:</span> <span class="nx">query</span> <span class="nx">which</span> <span class="nx">storage</span> <span class="nx">server</span> <span class="nx">to</span> <span class="nx">download</span> <span class="nx">the</span> <span class="nx">file</span><span class="err">（查询向哪个</span><span class="nx">storage</span> <span class="nx">server</span> <span class="err">请求下载文件）</span>
 <span class="err">#</span> <span class="nx">request</span> <span class="nx">body</span><span class="o">:</span>
     <span class="err">@</span> <span class="nx">FDFS_GROUP_NAME_MAX_LEN</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">group</span> <span class="nx">name</span>
     <span class="err">@</span> <span class="nx">filename</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">filename</span>
@@ -926,7 +926,7 @@ TRACKER_PROTO_PKG_LEN_SIZE (8) bytes number buff is Big-Endian bytes
 <h3 id="4-storage-serverstorage-server">4. Storage server向Storage Server发送的命令</h3>
 <p>该类命令的response 是STORAGE_PROTO_CMD_RESP</p>
 <p><strong>STORAGE_PROTO_CMD_SYNC_CREATE_FILE</strong></p>
-<div class="hlcode"><pre><span class="err">#</span> <span class="kd">function</span><span class="o">:</span> <span class="nx">sync</span> <span class="k">new</span> <span class="nx">created</span> <span class="nx">file</span> <span class="err">（</span><span class="nx">同步新创建的文件</span><span class="err">）</span>
+<div class="hlcode"><pre><span class="err">#</span> <span class="kd">function</span><span class="o">:</span> <span class="nx">sync</span> <span class="k">new</span> <span class="nx">created</span> <span class="nx">file</span> <span class="err">（同步新创建的文件）</span>
 <span class="err">#</span> <span class="nx">request</span> <span class="nx">body</span><span class="o">:</span>
     <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">filename</span> <span class="nx">bytes</span>
     <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">file</span> <span class="nx">size</span><span class="o">/</span><span class="nx">bytes</span>
@@ -938,7 +938,7 @@ TRACKER_PROTO_PKG_LEN_SIZE (8) bytes number buff is Big-Endian bytes
 
 
 <p><strong>STORAGE_PROTO_CMD_SYNC_DELETE_FILE</strong></p>
-<div class="hlcode"><pre><span class="err">#</span> <span class="kd">function</span><span class="o">:</span> <span class="nx">sync</span> <span class="nx">deleted</span> <span class="nx">file</span><span class="err">（</span><span class="nx">同步删除的文件</span><span class="err">）</span>
+<div class="hlcode"><pre><span class="err">#</span> <span class="kd">function</span><span class="o">:</span> <span class="nx">sync</span> <span class="nx">deleted</span> <span class="nx">file</span><span class="err">（同步删除的文件）</span>
 <span class="err">#</span> <span class="nx">request</span> <span class="nx">body</span><span class="o">:</span>
     <span class="err">@</span> <span class="nx">FDFS_GROUP_NAME_MAX_LEN</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">group</span> <span class="nx">name</span>
     <span class="err">@</span> <span class="nx">filename</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">filename</span>
@@ -947,16 +947,16 @@ TRACKER_PROTO_PKG_LEN_SIZE (8) bytes number buff is Big-Endian bytes
 
 
 <p><strong>STORAGE_PROTO_CMD_SYNC_UPDATE_FILE</strong></p>
-<div class="hlcode"><pre><span class="err">#</span> <span class="kd">function</span><span class="o">:</span> <span class="nx">sync</span> <span class="nx">updated</span> <span class="nx">file</span> <span class="err">（</span><span class="nx">同步更新的文件</span><span class="err">）</span>
-<span class="err">#</span> <span class="nx">request</span> <span class="nx">body</span><span class="o">:</span> <span class="nx">same</span> <span class="nx">to</span> <span class="nx">command</span> <span class="nx">STORAGE_PROTO_CMD_SYNC_CREATE_FILE</span>
-<span class="err">#</span> <span class="nx">respose</span> <span class="nx">body</span><span class="o">:</span> <span class="nx">none</span>
+<div class="hlcode"><pre><span class="c"># function: sync updated file （同步更新的文件）</span>
+<span class="c"># request body: same to command STORAGE_PROTO_CMD_SYNC_CREATE_FILE</span>
+<span class="c"># respose body: none</span>
 </pre></div>
 
 
 <h3 id="clientstorage-server">client向storage server 发送的命令</h3>
 <p>该类命令的response是 STORAGE_PROTO_CMD_RESP</p>
 <p><strong>STORAGE_PROTO_CMD_UPLOAD_FILE</strong></p>
-<div class="hlcode"><pre><span class="err">#</span> <span class="kd">function</span><span class="o">:</span> <span class="nx">upload</span> <span class="nx">file</span> <span class="nx">to</span> <span class="nx">storage</span> <span class="nx">server</span><span class="p">(</span><span class="nx">上传文件到storage</span> <span class="nx">server</span><span class="p">)</span>
+<div class="hlcode"><pre><span class="err">#</span> <span class="kd">function</span><span class="o">:</span> <span class="nx">upload</span> <span class="nx">file</span> <span class="nx">to</span> <span class="nx">storage</span> <span class="nx">server</span><span class="p">(</span><span class="err">上传文件到</span><span class="nx">storage</span> <span class="nx">server</span><span class="p">)</span>
 <span class="err">#</span> <span class="nx">request</span> <span class="nx">body</span><span class="o">:</span>
     <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">meta</span> <span class="nx">data</span> <span class="nx">bytes</span>
     <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">file</span> <span class="nx">size</span>
@@ -985,7 +985,7 @@ TRACKER_PROTO_PKG_LEN_SIZE (8) bytes number buff is Big-Endian bytes
 
 
 <p><strong>STORAGE_PROTO_CMD_DELETE_FILE</strong></p>
-<div class="hlcode"><pre><span class="err">#</span> <span class="kd">function</span><span class="o">:</span> <span class="k">delete</span> <span class="nx">file</span> <span class="nx">from</span> <span class="nx">storage</span> <span class="nx">server</span><span class="p">(</span><span class="nx">从storage</span> <span class="nx">server中删除文件</span><span class="p">)</span>
+<div class="hlcode"><pre><span class="err">#</span> <span class="kd">function</span><span class="o">:</span> <span class="k">delete</span> <span class="nx">file</span> <span class="nx">from</span> <span class="nx">storage</span> <span class="nx">server</span><span class="p">(</span><span class="err">从</span><span class="nx">storage</span> <span class="nx">server</span><span class="err">中删除文件</span><span class="p">)</span>
 <span class="err">#</span> <span class="nx">request</span> <span class="nx">body</span><span class="o">:</span>
     <span class="err">@</span> <span class="nx">FDFS_GROUP_NAME_MAX_LEN</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">group</span> <span class="nx">name</span>
     <span class="err">@</span> <span class="nx">filename</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">filename</span>
@@ -994,13 +994,13 @@ TRACKER_PROTO_PKG_LEN_SIZE (8) bytes number buff is Big-Endian bytes
 
 
 <p><strong>STORAGE_PROTO_CMD_SET_METADATA</strong></p>
-<div class="hlcode"><pre><span class="err">#</span> <span class="kd">function</span><span class="o">:</span> <span class="k">delete</span> <span class="nx">file</span> <span class="nx">from</span> <span class="nx">storage</span> <span class="nx">server</span><span class="err">（</span><span class="nx">从storage</span> <span class="nx">server中删除文件</span><span class="err">）</span>
+<div class="hlcode"><pre><span class="err">#</span> <span class="kd">function</span><span class="o">:</span> <span class="k">delete</span> <span class="nx">file</span> <span class="nx">from</span> <span class="nx">storage</span> <span class="nx">server</span><span class="err">（从</span><span class="nx">storage</span> <span class="nx">server</span><span class="err">中删除文件）</span>
 <span class="err">#</span> <span class="nx">request</span> <span class="nx">body</span><span class="o">:</span>
     <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">filename</span> <span class="nx">length</span>
     <span class="err">@</span> <span class="nx">TRACKER_PROTO_PKG_LEN_SIZE</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">meta</span> <span class="nx">data</span> <span class="nx">size</span>
     <span class="err">@</span> <span class="mi">1</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">operation</span> <span class="nx">flag</span><span class="p">,</span>
-        <span class="s1">&#39;O&#39;</span> <span class="k">for</span> <span class="nx">overwrite</span> <span class="nx">all</span> <span class="nx">old</span> <span class="nx">metadata</span><span class="err">（</span><span class="nx">O</span><span class="p">,</span> <span class="nx">覆盖所有metadata</span><span class="err">）</span>
-        <span class="s1">&#39;M&#39;</span> <span class="k">for</span> <span class="nx">merge</span><span class="p">,</span> <span class="nx">insert</span> <span class="nx">when</span> <span class="nx">the</span> <span class="nx">meta</span> <span class="nx">item</span> <span class="nx">not</span> <span class="nx">exist</span><span class="p">,</span> <span class="nx">otherwise</span> <span class="nx">update</span> <span class="nx">it</span><span class="err">（</span><span class="nx">M</span><span class="p">,</span> <span class="nx">插入或更新metadata</span><span class="err">）</span>
+        <span class="s1">&#39;O&#39;</span> <span class="k">for</span> <span class="nx">overwrite</span> <span class="nx">all</span> <span class="nx">old</span> <span class="nx">metadata</span><span class="err">（</span><span class="nx">O</span><span class="p">,</span> <span class="err">覆盖所有</span><span class="nx">metadata</span><span class="err">）</span>
+        <span class="s1">&#39;M&#39;</span> <span class="k">for</span> <span class="nx">merge</span><span class="p">,</span> <span class="nx">insert</span> <span class="nx">when</span> <span class="nx">the</span> <span class="nx">meta</span> <span class="nx">item</span> <span class="nx">not</span> <span class="nx">exist</span><span class="p">,</span> <span class="nx">otherwise</span> <span class="nx">update</span> <span class="nx">it</span><span class="err">（</span><span class="nx">M</span><span class="p">,</span> <span class="err">插入或更新</span><span class="nx">metadata</span><span class="err">）</span>
     <span class="err">@</span> <span class="nx">FDFS_GROUP_NAME_MAX_LEN</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">group</span> <span class="nx">name</span>
     <span class="err">@</span> <span class="nx">filename</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">filename</span>
     <span class="err">@</span> <span class="nx">meta</span> <span class="nx">data</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">each</span> <span class="nx">meta</span> <span class="nx">data</span> <span class="nx">seperated</span> <span class="nx">by</span> <span class="err">\</span><span class="nx">x01</span><span class="p">,</span>
@@ -1010,7 +1010,7 @@ TRACKER_PROTO_PKG_LEN_SIZE (8) bytes number buff is Big-Endian bytes
 
 
 <p><strong>STORAGE_PROTO_CMD_DOWNLOAD_FILE</strong></p>
-<div class="hlcode"><pre><span class="err">#</span> <span class="kd">function</span><span class="o">:</span> <span class="nx">download</span><span class="o">/</span><span class="nx">fetch</span> <span class="nx">file</span> <span class="nx">from</span> <span class="nx">storage</span> <span class="nx">server</span><span class="err">（</span><span class="nx">从storage</span> <span class="nx">server下载文件</span><span class="err">）</span>
+<div class="hlcode"><pre><span class="err">#</span> <span class="kd">function</span><span class="o">:</span> <span class="nx">download</span><span class="o">/</span><span class="nx">fetch</span> <span class="nx">file</span> <span class="nx">from</span> <span class="nx">storage</span> <span class="nx">server</span><span class="err">（从</span><span class="nx">storage</span> <span class="nx">server</span><span class="err">下载文件）</span>
 <span class="err">#</span> <span class="nx">request</span> <span class="nx">body</span><span class="o">:</span>
     <span class="err">@</span> <span class="nx">FDFS_GROUP_NAME_MAX_LEN</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">group</span> <span class="nx">name</span>
     <span class="err">@</span> <span class="nx">filename</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">filename</span>
@@ -1020,7 +1020,7 @@ TRACKER_PROTO_PKG_LEN_SIZE (8) bytes number buff is Big-Endian bytes
 
 
 <p><strong>STORAGE_PROTO_CMD_GET_METADATA</strong></p>
-<div class="hlcode"><pre><span class="err">#</span> <span class="kd">function</span><span class="o">:</span> <span class="nx">get</span> <span class="nx">metat</span> <span class="nx">data</span> <span class="nx">from</span> <span class="nx">storage</span> <span class="nx">server</span><span class="err">（</span><span class="nx">从storage</span> <span class="nx">server获取metadata</span><span class="err">）</span>
+<div class="hlcode"><pre><span class="err">#</span> <span class="kd">function</span><span class="o">:</span> <span class="nx">get</span> <span class="nx">metat</span> <span class="nx">data</span> <span class="nx">from</span> <span class="nx">storage</span> <span class="nx">server</span><span class="err">（从</span><span class="nx">storage</span> <span class="nx">server</span><span class="err">获取</span><span class="nx">metadata</span><span class="err">）</span>
 <span class="err">#</span> <span class="nx">request</span> <span class="nx">body</span><span class="o">:</span>
     <span class="err">@</span> <span class="nx">FDFS_GROUP_NAME_MAX_LEN</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">group</span> <span class="nx">name</span>
     <span class="err">@</span> <span class="nx">filename</span> <span class="nx">bytes</span><span class="o">:</span> <span class="nx">filename</span>
@@ -1043,242 +1043,242 @@ TRACKER_PROTO_PKG_LEN_SIZE (8) bytes number buff is Big-Endian bytes
 
 <h2 id="php-client">php client端接口调用</h2>
 <p><strong>获取客户端版本号</strong></p>
-<div class="hlcode"><pre> string fastdfs_client_version()
+<div class="hlcode"><pre> <span class="n">string</span> <span class="n">fastdfs_client_version</span><span class="p">()</span>
 </pre></div>
 
 
 <p><strong>获取最近一个错误号</strong></p>
-<div class="hlcode"><pre>long fastdfs_get_last_error_no()
+<div class="hlcode"><pre><span class="kt">long</span> <span class="n">fastdfs_get_last_error_no</span><span class="p">()</span>
 </pre></div>
 
 
 <p><strong>获取最近一次错误的信息</strong></p>
-<div class="hlcode"><pre>string fastdfs_get_last_error_info()
+<div class="hlcode"><pre><span class="n">string</span> <span class="n">fastdfs_get_last_error_info</span><span class="p">()</span>
 </pre></div>
 
 
 <p><strong>为http下载获取防盗连接</strong></p>
-<div class="hlcode"><pre>string fastdfs_http_gen_token(string remote_filename, int timestamp)
-生成防盗连接
-参数：
-    @remote_filename:  远程文件名（不包含group name）
-    @timestamp: 时间戳
-返回：成功则返回token串，否则返回false
+<div class="hlcode"><pre><span class="n">string</span> <span class="n">fastdfs_http_gen_token</span><span class="p">(</span><span class="n">string</span> <span class="n">remote_filename</span><span class="p">,</span> <span class="kt">int</span> <span class="n">timestamp</span><span class="p">)</span>
+<span class="err">生成防盗连接</span>
+<span class="err">参数：</span>
+    <span class="err">@</span><span class="n">remote_filename</span><span class="o">:</span>  <span class="err">远程文件名（不包含</span><span class="n">group</span> <span class="n">name</span><span class="err">）</span>
+    <span class="err">@</span><span class="n">timestamp</span><span class="o">:</span> <span class="err">时间戳</span>
+<span class="err">返回：成功则返回</span><span class="n">token</span><span class="err">串，否则返回</span><span class="nb">false</span>
 </pre></div>
 
 
 <p><strong>获取文件信息</strong></p>
-<div class="hlcode"><pre>array fastdfs_get_file_info(string group_name, string remote_filename)
-获取文件的meta info
-参数：
-    @group_name: 文件所在的组名
-    @remote_filename: 文件在storage server上的名字
-返回：
-    成功则返回文件信息数组，否则返回false
-    文件信息数组包括以下信息：
-    create_timestamp: 文件创建的时间
-    file_size: 文件大小
-    source_ip_addr: 文件上传的源storage ip地址
+<div class="hlcode"><pre><span class="n">array</span> <span class="n">fastdfs_get_file_info</span><span class="p">(</span><span class="n">string</span> <span class="n">group_name</span><span class="p">,</span> <span class="n">string</span> <span class="n">remote_filename</span><span class="p">)</span>
+<span class="err">获取文件的</span><span class="n">meta</span> <span class="n">info</span>
+<span class="err">参数：</span>
+    <span class="err">@</span><span class="n">group_name</span><span class="o">:</span> <span class="err">文件所在的组名</span>
+    <span class="err">@</span><span class="n">remote_filename</span><span class="o">:</span> <span class="err">文件在</span><span class="n">storage</span> <span class="n">server</span><span class="err">上的名字</span>
+<span class="err">返回：</span>
+    <span class="err">成功则返回文件信息数组，否则返回</span><span class="nb">false</span>
+    <span class="err">文件信息数组包括以下信息：</span>
+    <span class="nl">create_timestamp:</span> <span class="err">文件创建的时间</span>
+    <span class="nl">file_size:</span> <span class="err">文件大小</span>
+    <span class="nl">source_ip_addr:</span> <span class="err">文件上传的源</span><span class="n">storage</span> <span class="n">ip</span><span class="err">地址</span>
 
-array fastdfs_get_file_info(string file_id)
-获取文件的meta info
-参数：
-    @file_id: 组名+远程文件名
+<span class="n">array</span> <span class="n">fastdfs_get_file_info</span><span class="p">(</span><span class="n">string</span> <span class="n">file_id</span><span class="p">)</span>
+<span class="err">获取文件的</span><span class="n">meta</span> <span class="n">info</span>
+<span class="err">参数：</span>
+    <span class="err">@</span><span class="n">file_id</span><span class="o">:</span> <span class="err">组名</span><span class="o">+</span><span class="err">远程文件名</span>
 </pre></div>
 
 
 <p><strong>判断文件是否存在</strong></p>
-<div class="hlcode"><pre>boolean fastdfs_storage_file_exist(string group_name, string remote_filename[, array tracker_server, array storage_server])
-判断文件是否存在
-参数：
-    @group_name: 文件所在的组名
-    @remote_filename: 远程文件名
-    @array tracker_server: tracker_server数组，包含ip_addr, port and sock
-    @array storage_server: storage_server数组，包含ip_addr, port and sock
-返回：
-    存在返回true，否则返回false
+<div class="hlcode"><pre><span class="n">boolean</span> <span class="n">fastdfs_storage_file_exist</span><span class="p">(</span><span class="n">string</span> <span class="n">group_name</span><span class="p">,</span> <span class="n">string</span> <span class="n">remote_filename</span><span class="p">[,</span> <span class="n">array</span> <span class="n">tracker_server</span><span class="p">,</span> <span class="n">array</span> <span class="n">storage_server</span><span class="p">])</span>
+<span class="err">判断文件是否存在</span>
+<span class="err">参数：</span>
+    <span class="err">@</span><span class="n">group_name</span><span class="o">:</span> <span class="err">文件所在的组名</span>
+    <span class="err">@</span><span class="n">remote_filename</span><span class="o">:</span> <span class="err">远程文件名</span>
+    <span class="err">@</span><span class="n">array</span> <span class="n">tracker_server</span><span class="o">:</span> <span class="n">tracker_server</span><span class="err">数组，包含</span><span class="n">ip_addr</span><span class="p">,</span> <span class="n">port</span> <span class="n">and</span> <span class="n">sock</span>
+    <span class="err">@</span><span class="n">array</span> <span class="n">storage_server</span><span class="o">:</span> <span class="n">storage_server</span><span class="err">数组，包含</span><span class="n">ip_addr</span><span class="p">,</span> <span class="n">port</span> <span class="n">and</span> <span class="n">sock</span>
+<span class="err">返回：</span>
+    <span class="err">存在返回</span><span class="nb">true</span><span class="err">，否则返回</span><span class="nb">false</span>
 
-boolean fastdfs_storage_file_exist1(string file_id)
+<span class="n">boolean</span> <span class="n">fastdfs_storage_file_exist1</span><span class="p">(</span><span class="n">string</span> <span class="n">file_id</span><span class="p">)</span>
 </pre></div>
 
 
 <p><strong>上传文件</strong></p>
-<div class="hlcode"><pre>array fastdfs_storage_upload_by_filename(string local_filename[, string file_ext_name, array meta_list, string group_name, array tracker_server, array storage_server])
-参数：
-    @local_filename: 本地要上传的文件名
-    @file_ext_name: 文件扩展名，不包含dot
-    @meta_list: 文件的一些元信息例如 array(&#39;width&#39;=&gt;1024,&#39;height&#39;=&gt;768)
-    @group_name: 指定文件存储到的组
-    @array tracker_server: tracker_server数组，包含ip_addr, port and sock
-    @array storage_server: storage_server数组，包含ip_addr, port and sock
-返回：
-    成功返回数组，否则返回false
-    数组包含以下字段：group_name, filename
+<div class="hlcode"><pre><span class="n">array</span> <span class="n">fastdfs_storage_upload_by_filename</span><span class="p">(</span><span class="n">string</span> <span class="n">local_filename</span><span class="p">[,</span> <span class="n">string</span> <span class="n">file_ext_name</span><span class="p">,</span> <span class="n">array</span> <span class="n">meta_list</span><span class="p">,</span> <span class="n">string</span> <span class="n">group_name</span><span class="p">,</span> <span class="n">array</span> <span class="n">tracker_server</span><span class="p">,</span> <span class="n">array</span> <span class="n">storage_server</span><span class="p">])</span>
+<span class="err">参数：</span>
+    <span class="err">@</span><span class="n">local_filename</span><span class="o">:</span> <span class="err">本地要上传的文件名</span>
+    <span class="err">@</span><span class="n">file_ext_name</span><span class="o">:</span> <span class="err">文件扩展名，不包含</span><span class="n">dot</span>
+    <span class="err">@</span><span class="n">meta_list</span><span class="o">:</span> <span class="err">文件的一些元信息例如</span> <span class="n">array</span><span class="p">(</span><span class="err">&#39;</span><span class="n">width</span><span class="err">&#39;</span><span class="o">=&gt;</span><span class="mi">1024</span><span class="p">,</span><span class="err">&#39;</span><span class="n">height</span><span class="err">&#39;</span><span class="o">=&gt;</span><span class="mi">768</span><span class="p">)</span>
+    <span class="err">@</span><span class="n">group_name</span><span class="o">:</span> <span class="err">指定文件存储到的组</span>
+    <span class="err">@</span><span class="n">array</span> <span class="n">tracker_server</span><span class="o">:</span> <span class="n">tracker_server</span><span class="err">数组，包含</span><span class="n">ip_addr</span><span class="p">,</span> <span class="n">port</span> <span class="n">and</span> <span class="n">sock</span>
+    <span class="err">@</span><span class="n">array</span> <span class="n">storage_server</span><span class="o">:</span> <span class="n">storage_server</span><span class="err">数组，包含</span><span class="n">ip_addr</span><span class="p">,</span> <span class="n">port</span> <span class="n">and</span> <span class="n">sock</span>
+<span class="err">返回：</span>
+    <span class="err">成功返回数组，否则返回</span><span class="nb">false</span>
+    <span class="err">数组包含以下字段：</span><span class="n">group_name</span><span class="p">,</span> <span class="n">filename</span>
 
-array fastdfs_storage_upload_by_filename1(string local_filename[, string file_ext_name, array meta_list, string group_name, array tracker_server, array storage_server])
-返回：
-    成功则返回file_id, 否则返回false
+<span class="n">array</span> <span class="n">fastdfs_storage_upload_by_filename1</span><span class="p">(</span><span class="n">string</span> <span class="n">local_filename</span><span class="p">[,</span> <span class="n">string</span> <span class="n">file_ext_name</span><span class="p">,</span> <span class="n">array</span> <span class="n">meta_list</span><span class="p">,</span> <span class="n">string</span> <span class="n">group_name</span><span class="p">,</span> <span class="n">array</span> <span class="n">tracker_server</span><span class="p">,</span> <span class="n">array</span> <span class="n">storage_server</span><span class="p">])</span>
+<span class="err">返回：</span>
+    <span class="err">成功则返回</span><span class="n">file_id</span><span class="p">,</span> <span class="err">否则返回</span><span class="nb">false</span>
 
-array fastdfs_storage_upload_by_filebuff(string file_buff[, string file_ext_name, array meta_list, string group_name, array tracker_server, array storage_server])
-参数：
-    @file_buff: 文件内容
-    @file_ext_name: 文件扩展名，不包含dot
-    @meta_list: 文件的一些元信息例如 array(&#39;width&#39;=&gt;1024,&#39;height&#39;=&gt;768)
-    @group_name: 指定文件存储到的组
-    @array tracker_server: tracker_server数组，包含ip_addr, port and sock
-    @array storage_server: storage_server数组，包含ip_addr, port and sock
-返回：
-    成功返回数组，否则返回false
-    数组包含以下字段：group_name, filename
+<span class="n">array</span> <span class="n">fastdfs_storage_upload_by_filebuff</span><span class="p">(</span><span class="n">string</span> <span class="n">file_buff</span><span class="p">[,</span> <span class="n">string</span> <span class="n">file_ext_name</span><span class="p">,</span> <span class="n">array</span> <span class="n">meta_list</span><span class="p">,</span> <span class="n">string</span> <span class="n">group_name</span><span class="p">,</span> <span class="n">array</span> <span class="n">tracker_server</span><span class="p">,</span> <span class="n">array</span> <span class="n">storage_server</span><span class="p">])</span>
+<span class="err">参数：</span>
+    <span class="err">@</span><span class="n">file_buff</span><span class="o">:</span> <span class="err">文件内容</span>
+    <span class="err">@</span><span class="n">file_ext_name</span><span class="o">:</span> <span class="err">文件扩展名，不包含</span><span class="n">dot</span>
+    <span class="err">@</span><span class="n">meta_list</span><span class="o">:</span> <span class="err">文件的一些元信息例如</span> <span class="n">array</span><span class="p">(</span><span class="err">&#39;</span><span class="n">width</span><span class="err">&#39;</span><span class="o">=&gt;</span><span class="mi">1024</span><span class="p">,</span><span class="err">&#39;</span><span class="n">height</span><span class="err">&#39;</span><span class="o">=&gt;</span><span class="mi">768</span><span class="p">)</span>
+    <span class="err">@</span><span class="n">group_name</span><span class="o">:</span> <span class="err">指定文件存储到的组</span>
+    <span class="err">@</span><span class="n">array</span> <span class="n">tracker_server</span><span class="o">:</span> <span class="n">tracker_server</span><span class="err">数组，包含</span><span class="n">ip_addr</span><span class="p">,</span> <span class="n">port</span> <span class="n">and</span> <span class="n">sock</span>
+    <span class="err">@</span><span class="n">array</span> <span class="n">storage_server</span><span class="o">:</span> <span class="n">storage_server</span><span class="err">数组，包含</span><span class="n">ip_addr</span><span class="p">,</span> <span class="n">port</span> <span class="n">and</span> <span class="n">sock</span>
+<span class="err">返回：</span>
+    <span class="err">成功返回数组，否则返回</span><span class="nb">false</span>
+    <span class="err">数组包含以下字段：</span><span class="n">group_name</span><span class="p">,</span> <span class="n">filename</span>
 
-array fastdfs_storage_upload_by_filebuff1(string file_buff[, string file_ext_name, array meta_list, string group_name, array tracker_server, array storage_server])
+<span class="n">array</span> <span class="n">fastdfs_storage_upload_by_filebuff1</span><span class="p">(</span><span class="n">string</span> <span class="n">file_buff</span><span class="p">[,</span> <span class="n">string</span> <span class="n">file_ext_name</span><span class="p">,</span> <span class="n">array</span> <span class="n">meta_list</span><span class="p">,</span> <span class="n">string</span> <span class="n">group_name</span><span class="p">,</span> <span class="n">array</span> <span class="n">tracker_server</span><span class="p">,</span> <span class="n">array</span> <span class="n">storage_server</span><span class="p">])</span>
 
-array fastdfs_storage_upload_by_callback()
+<span class="n">array</span> <span class="n">fastdfs_storage_upload_by_callback</span><span class="p">()</span>
 </pre></div>
 
 
 <p><strong>append modify接口暂时不用</strong></p>
 <p><strong>删除文件</strong></p>
-<div class="hlcode"><pre>boolean fastdfs_storage_delete_file(string group_name, string remote_filename[, array tracker_server, array storage_server])
-从storage server 删除文件
-参数：
-    @group_name: 文件的组名
-    @remote_filename: 文件在storage server上的名字
-    @array tracker_server: tracker_server数组，包含ip_addr, port and sock
-    @array storage_server: storage_server数组，包含ip_addr, port and sock
-返回：
-    成功则返回true, 否则返回false
+<div class="hlcode"><pre><span class="n">boolean</span> <span class="n">fastdfs_storage_delete_file</span><span class="p">(</span><span class="n">string</span> <span class="n">group_name</span><span class="p">,</span> <span class="n">string</span> <span class="n">remote_filename</span><span class="p">[,</span> <span class="n">array</span> <span class="n">tracker_server</span><span class="p">,</span> <span class="n">array</span> <span class="n">storage_server</span><span class="p">])</span>
+<span class="err">从</span><span class="n">storage</span> <span class="n">server</span> <span class="err">删除文件</span>
+<span class="err">参数：</span>
+    <span class="err">@</span><span class="n">group_name</span><span class="o">:</span> <span class="err">文件的组名</span>
+    <span class="err">@</span><span class="n">remote_filename</span><span class="o">:</span> <span class="err">文件在</span><span class="n">storage</span> <span class="n">server</span><span class="err">上的名字</span>
+    <span class="err">@</span><span class="n">array</span> <span class="n">tracker_server</span><span class="o">:</span> <span class="n">tracker_server</span><span class="err">数组，包含</span><span class="n">ip_addr</span><span class="p">,</span> <span class="n">port</span> <span class="n">and</span> <span class="n">sock</span>
+    <span class="err">@</span><span class="n">array</span> <span class="n">storage_server</span><span class="o">:</span> <span class="n">storage_server</span><span class="err">数组，包含</span><span class="n">ip_addr</span><span class="p">,</span> <span class="n">port</span> <span class="n">and</span> <span class="n">sock</span>
+<span class="err">返回：</span>
+    <span class="err">成功则返回</span><span class="nb">true</span><span class="p">,</span> <span class="err">否则返回</span><span class="nb">false</span>
 
- boolean fastdfs_storage_delete_file1(string file_id[, array tracker_server, array storage_server])
+ <span class="n">boolean</span> <span class="n">fastdfs_storage_delete_file1</span><span class="p">(</span><span class="n">string</span> <span class="n">file_id</span><span class="p">[,</span> <span class="n">array</span> <span class="n">tracker_server</span><span class="p">,</span> <span class="n">array</span> <span class="n">storage_server</span><span class="p">])</span>
 </pre></div>
 
 
 <p><strong>下载文件</strong></p>
-<div class="hlcode"><pre>string fastdfs_storage_download_file_to_buff(string group_name, string remote_filename[, long file_offset, long download_bytes, array tracker_server, array storage_server])
-从storage server下载文件
-参数：
-    @group_name；文件的组名
-    @remote_filename: 文件在storage server上的名字
-    @file_offset:0(默认)
-    @array tracker_server: tracker_server数组，包含ip_addr, port and sock
-    @array storage_server: storage_server数组，包含ip_addr, port and sock
-返回：
-    成功则返回文件的内容，否则返回false
+<div class="hlcode"><pre><span class="n">string</span> <span class="n">fastdfs_storage_download_file_to_buff</span><span class="p">(</span><span class="n">string</span> <span class="n">group_name</span><span class="p">,</span> <span class="n">string</span> <span class="n">remote_filename</span><span class="p">[,</span> <span class="kt">long</span> <span class="n">file_offset</span><span class="p">,</span> <span class="kt">long</span> <span class="n">download_bytes</span><span class="p">,</span> <span class="n">array</span> <span class="n">tracker_server</span><span class="p">,</span> <span class="n">array</span> <span class="n">storage_server</span><span class="p">])</span>
+<span class="err">从</span><span class="n">storage</span> <span class="n">server</span><span class="err">下载文件</span>
+<span class="err">参数：</span>
+    <span class="err">@</span><span class="n">group_name</span><span class="err">；文件的组名</span>
+    <span class="err">@</span><span class="n">remote_filename</span><span class="o">:</span> <span class="err">文件在</span><span class="n">storage</span> <span class="n">server</span><span class="err">上的名字</span>
+    <span class="err">@</span><span class="n">file_offset</span><span class="o">:</span><span class="mi">0</span><span class="p">(</span><span class="err">默认</span><span class="p">)</span>
+    <span class="err">@</span><span class="n">array</span> <span class="n">tracker_server</span><span class="o">:</span> <span class="n">tracker_server</span><span class="err">数组，包含</span><span class="n">ip_addr</span><span class="p">,</span> <span class="n">port</span> <span class="n">and</span> <span class="n">sock</span>
+    <span class="err">@</span><span class="n">array</span> <span class="n">storage_server</span><span class="o">:</span> <span class="n">storage_server</span><span class="err">数组，包含</span><span class="n">ip_addr</span><span class="p">,</span> <span class="n">port</span> <span class="n">and</span> <span class="n">sock</span>
+<span class="err">返回：</span>
+    <span class="err">成功则返回文件的内容，否则返回</span><span class="nb">false</span>
 
-string fastdfs_storage_download_file_to_buff1(string file_id[, long file_offset, long download_bytes, array tracker_server, array storage_server])
+<span class="n">string</span> <span class="n">fastdfs_storage_download_file_to_buff1</span><span class="p">(</span><span class="n">string</span> <span class="n">file_id</span><span class="p">[,</span> <span class="kt">long</span> <span class="n">file_offset</span><span class="p">,</span> <span class="kt">long</span> <span class="n">download_bytes</span><span class="p">,</span> <span class="n">array</span> <span class="n">tracker_server</span><span class="p">,</span> <span class="n">array</span> <span class="n">storage_server</span><span class="p">])</span>
 
-boolean fastdfs_storage_download_file_to_file(string group_name, string remote_filename, string local_filename[, long file_offset, long download_bytes, array tracker_server, array storage_server])
-从storage现在文件到本地文件
-参数：
-    @local_filename: 要保存到本地的文件名
-    其余参数同上
+<span class="n">boolean</span> <span class="n">fastdfs_storage_download_file_to_file</span><span class="p">(</span><span class="n">string</span> <span class="n">group_name</span><span class="p">,</span> <span class="n">string</span> <span class="n">remote_filename</span><span class="p">,</span> <span class="n">string</span> <span class="n">local_filename</span><span class="p">[,</span> <span class="kt">long</span> <span class="n">file_offset</span><span class="p">,</span> <span class="kt">long</span> <span class="n">download_bytes</span><span class="p">,</span> <span class="n">array</span> <span class="n">tracker_server</span><span class="p">,</span> <span class="n">array</span> <span class="n">storage_server</span><span class="p">])</span>
+<span class="err">从</span><span class="n">storage</span><span class="err">现在文件到本地文件</span>
+<span class="err">参数：</span>
+    <span class="err">@</span><span class="n">local_filename</span><span class="o">:</span> <span class="err">要保存到本地的文件名</span>
+    <span class="err">其余参数同上</span>
 </pre></div>
 
 
 <p><strong>设置、获取文件meta_data</strong></p>
-<div class="hlcode"><pre>boolean fastdfs_storage_set_metadata(string group_name, string remote_filename, array meta_list[, string op_type, array tracker_server, array storage server]
-设置文件metadata
-参数：
-    @meta_list:meta信息数组：array(&#39;width&#39;=&gt;1024,&#39;height&#39;=&gt;768)
-    @op_type: 操作有两种，合并或者覆盖
-        FDFS_STORAGE_SET_METADATA_FLAG_MERGE
-        FDFS_STORAGE_SET_METADATA_FLAG_OVERWRITE
-返回：
-    成功返回true,否则返回false
+<div class="hlcode"><pre><span class="n">boolean</span> <span class="n">fastdfs_storage_set_metadata</span><span class="p">(</span><span class="n">string</span> <span class="n">group_name</span><span class="p">,</span> <span class="n">string</span> <span class="n">remote_filename</span><span class="p">,</span> <span class="n">array</span> <span class="n">meta_list</span><span class="p">[,</span> <span class="n">string</span> <span class="n">op_type</span><span class="p">,</span> <span class="n">array</span> <span class="n">tracker_server</span><span class="p">,</span> <span class="n">array</span> <span class="n">storage</span> <span class="n">server</span><span class="p">]</span>
+<span class="err">设置文件</span><span class="n">metadata</span>
+<span class="err">参数：</span>
+    <span class="err">@</span><span class="n">meta_list</span><span class="o">:</span><span class="n">meta</span><span class="err">信息数组：</span><span class="n">array</span><span class="p">(</span><span class="err">&#39;</span><span class="n">width</span><span class="err">&#39;</span><span class="o">=&gt;</span><span class="mi">1024</span><span class="p">,</span><span class="err">&#39;</span><span class="n">height</span><span class="err">&#39;</span><span class="o">=&gt;</span><span class="mi">768</span><span class="p">)</span>
+    <span class="err">@</span><span class="n">op_type</span><span class="o">:</span> <span class="err">操作有两种，合并或者覆盖</span>
+        <span class="n">FDFS_STORAGE_SET_METADATA_FLAG_MERGE</span>
+        <span class="n">FDFS_STORAGE_SET_METADATA_FLAG_OVERWRITE</span>
+<span class="err">返回：</span>
+    <span class="err">成功返回</span><span class="nb">true</span><span class="p">,</span><span class="err">否则返回</span><span class="nb">false</span>
 
-array fastdfs_storage_get_metadata(string group_name, string remote_filename[, array tracker_server, array storage_server])
-获取文件的metadata
-返回：
-    成功则返回meta_data数组，否则返回false
+<span class="n">array</span> <span class="n">fastdfs_storage_get_metadata</span><span class="p">(</span><span class="n">string</span> <span class="n">group_name</span><span class="p">,</span> <span class="n">string</span> <span class="n">remote_filename</span><span class="p">[,</span> <span class="n">array</span> <span class="n">tracker_server</span><span class="p">,</span> <span class="n">array</span> <span class="n">storage_server</span><span class="p">])</span>
+<span class="err">获取文件的</span><span class="n">metadata</span>
+<span class="err">返回：</span>
+    <span class="err">成功则返回</span><span class="n">meta_data</span><span class="err">数组，否则返回</span><span class="nb">false</span>
 </pre></div>
 
 
 <p><strong>连接/断开连接到server</strong></p>
-<div class="hlcode"><pre>array fastdfs_connect_server(string ip_addr, int port)
-连接到server
-参数：
-    @ip_addr:  server的ip地址
-    @port: server的端口
-返回：
-    连接成功返回true;否则返回false
+<div class="hlcode"><pre><span class="n">array</span> <span class="n">fastdfs_connect_server</span><span class="p">(</span><span class="n">string</span> <span class="n">ip_addr</span><span class="p">,</span> <span class="kt">int</span> <span class="n">port</span><span class="p">)</span>
+<span class="err">连接到</span><span class="n">server</span>
+<span class="err">参数：</span>
+    <span class="err">@</span><span class="n">ip_addr</span><span class="o">:</span>  <span class="n">server</span><span class="err">的</span><span class="n">ip</span><span class="err">地址</span>
+    <span class="err">@</span><span class="n">port</span><span class="o">:</span> <span class="n">server</span><span class="err">的端口</span>
+<span class="err">返回：</span>
+    <span class="err">连接成功返回</span><span class="nb">true</span><span class="p">;</span><span class="err">否则返回</span><span class="nb">false</span>
 
-array fastdfs_disconnect_server(string ip_addr, int port)
-断开到server的连接
-参数：
-    同上
+<span class="n">array</span> <span class="n">fastdfs_disconnect_server</span><span class="p">(</span><span class="n">string</span> <span class="n">ip_addr</span><span class="p">,</span> <span class="kt">int</span> <span class="n">port</span><span class="p">)</span>
+<span class="err">断开到</span><span class="n">server</span><span class="err">的连接</span>
+<span class="err">参数：</span>
+    <span class="err">同上</span>
 </pre></div>
 
 
 <p><strong>Active 测试</strong></p>
-<div class="hlcode"><pre>boolean fastdfs_acitve_test(array server_info)
-给server发送active_test命令
-参数：
-    @server_info: array: ip_addr, port, sock
-返回：
-    active返回true，否则返回false
+<div class="hlcode"><pre><span class="n">boolean</span> <span class="n">fastdfs_acitve_test</span><span class="p">(</span><span class="n">array</span> <span class="n">server_info</span><span class="p">)</span>
+<span class="err">给</span><span class="n">server</span><span class="err">发送</span><span class="n">active_test</span><span class="err">命令</span>
+<span class="err">参数：</span>
+    <span class="err">@</span><span class="n">server_info</span><span class="o">:</span> <span class="n">array</span><span class="o">:</span> <span class="n">ip_addr</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">sock</span>
+<span class="err">返回：</span>
+    <span class="n">active</span><span class="err">返回</span><span class="nb">true</span><span class="err">，否则返回</span><span class="nb">false</span>
 </pre></div>
 
 
 <p><strong>获取连接</strong></p>
-<div class="hlcode"><pre>array fastdfs_tracker_get_connection()
-获取到tracker server的连接
-返回：
-    成功则返回数组，否则返回false
-    数组包括：ip_addr, port, sock
+<div class="hlcode"><pre><span class="n">array</span> <span class="n">fastdfs_tracker_get_connection</span><span class="p">()</span>
+<span class="err">获取到</span><span class="n">tracker</span> <span class="n">server</span><span class="err">的连接</span>
+<span class="err">返回：</span>
+    <span class="err">成功则返回数组，否则返回</span><span class="nb">false</span>
+    <span class="err">数组包括：</span><span class="n">ip_addr</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">sock</span>
 
-array fastdfs_tracker_make_all_connection()
-连接到所有的tracker server
-返回：
-    成功返回true;否则返回false
+<span class="n">array</span> <span class="n">fastdfs_tracker_make_all_connection</span><span class="p">()</span>
+<span class="err">连接到所有的</span><span class="n">tracker</span> <span class="n">server</span>
+<span class="err">返回：</span>
+    <span class="err">成功返回</span><span class="nb">true</span><span class="p">;</span><span class="err">否则返回</span><span class="nb">false</span>
 </pre></div>
 
 
 <p><strong>列出tracker的组</strong></p>
-<div class="hlcode"><pre>array fastdfs_tracker_list_groups([string group_name, array tracker_server])
-获取组信息
-参数：
-    @gourp_name:指定组名，默认列出所有组
-返回：
-    组信息数组，数组每一项是一个组
+<div class="hlcode"><pre><span class="n">array</span> <span class="n">fastdfs_tracker_list_groups</span><span class="p">([</span><span class="n">string</span> <span class="n">group_name</span><span class="p">,</span> <span class="n">array</span> <span class="n">tracker_server</span><span class="p">])</span>
+<span class="err">获取组信息</span>
+<span class="err">参数：</span>
+    <span class="err">@</span><span class="n">gourp_name</span><span class="o">:</span><span class="err">指定组名，默认列出所有组</span>
+<span class="err">返回：</span>
+    <span class="err">组信息数组，数组每一项是一个组</span>
 </pre></div>
 
 
 <p><strong>请求获取storage server to store（上传文件）</strong></p>
-<div class="hlcode"><pre>array fastdfs_tracker_query_storage_store([string group_name, array tracker_server])
-获取storage server的信息用以上传文件
-返回：
-    成功返回一个storage server信息，保存在数组，否则返回false；
-    数组包含：ip_addr, port, sock, store_path_index
+<div class="hlcode"><pre><span class="n">array</span> <span class="n">fastdfs_tracker_query_storage_store</span><span class="p">([</span><span class="n">string</span> <span class="n">group_name</span><span class="p">,</span> <span class="n">array</span> <span class="n">tracker_server</span><span class="p">])</span>
+<span class="err">获取</span><span class="n">storage</span> <span class="n">server</span><span class="err">的信息用以上传文件</span>
+<span class="err">返回：</span>
+    <span class="err">成功返回一个</span><span class="n">storage</span> <span class="n">server</span><span class="err">信息，保存在数组，否则返回</span><span class="nb">false</span><span class="err">；</span>
+    <span class="err">数组包含：</span><span class="n">ip_addr</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">sock</span><span class="p">,</span> <span class="n">store_path_index</span>
 
-array fastdfs_tracker_query_storage_store_list
-同上，但返回的是storage server列表
+<span class="n">array</span> <span class="n">fastdfs_tracker_query_storage_store_list</span>
+<span class="err">同上，但返回的是</span><span class="n">storage</span> <span class="n">server</span><span class="err">列表</span>
 </pre></div>
 
 
 <p><strong>请求storage server to update（更新meta data）</strong></p>
-<div class="hlcode"><pre>array fastdfs_tracker_query_storage_update(string group_name, string remote_filename[, array tracekr_server]
+<div class="hlcode"><pre><span class="n">array</span> <span class="n">fastdfs_tracker_query_storage_update</span><span class="p">(</span><span class="n">string</span> <span class="n">group_name</span><span class="p">,</span> <span class="n">string</span> <span class="n">remote_filename</span><span class="p">[,</span> <span class="n">array</span> <span class="n">tracekr_server</span><span class="p">]</span>
 </pre></div>
 
 
 <p><strong>请求storage server to fetch（下载文件）</strong></p>
-<div class="hlcode"><pre>array fastdfs_tracker_query_storage_fetch(string gourp_name, string remote_filename[, array tracker_server])
+<div class="hlcode"><pre><span class="n">array</span> <span class="n">fastdfs_tracker_query_storage_fetch</span><span class="p">(</span><span class="n">string</span> <span class="n">gourp_name</span><span class="p">,</span> <span class="n">string</span> <span class="n">remote_filename</span><span class="p">[,</span> <span class="n">array</span> <span class="n">tracker_server</span><span class="p">])</span>
 </pre></div>
 
 
 <p>**获取可下载某文件的storage server</p>
-<div class="hlcode"><pre>array fastdfs_tracker_query_storage_list(string group_name, string remote_filename[, array tracker_server])
-获取可以下载文件内容的storage server list
+<div class="hlcode"><pre><span class="n">array</span> <span class="n">fastdfs_tracker_query_storage_list</span><span class="p">(</span><span class="n">string</span> <span class="n">group_name</span><span class="p">,</span> <span class="n">string</span> <span class="n">remote_filename</span><span class="p">[,</span> <span class="n">array</span> <span class="n">tracker_server</span><span class="p">])</span>
+<span class="err">获取可以下载文件内容的</span><span class="n">storage</span> <span class="n">server</span> <span class="n">list</span>
 </pre></div>
 
 
 <p><strong>删除storage</strong></p>
-<div class="hlcode"><pre>boolean fastdfs_tracker_delete_storage(string group, string storage_ip)
-将storage 从集群中删除
-参数：
-    @group_name: storage所在的组名
-    @storage_ip: storage server 的ip
-返回：
-    成功返回true,否则返回false
+<div class="hlcode"><pre><span class="n">boolean</span> <span class="n">fastdfs_tracker_delete_storage</span><span class="p">(</span><span class="n">string</span> <span class="n">group</span><span class="p">,</span> <span class="n">string</span> <span class="n">storage_ip</span><span class="p">)</span>
+<span class="err">将</span><span class="n">storage</span> <span class="err">从集群中删除</span>
+<span class="err">参数：</span>
+    <span class="err">@</span><span class="n">group_name</span><span class="o">:</span> <span class="n">storage</span><span class="err">所在的组名</span>
+    <span class="err">@</span><span class="n">storage_ip</span><span class="o">:</span> <span class="n">storage</span> <span class="n">server</span> <span class="err">的</span><span class="n">ip</span>
+<span class="err">返回：</span>
+    <span class="err">成功返回</span><span class="nb">true</span><span class="p">,</span><span class="err">否则返回</span><span class="nb">false</span>
 </pre></div>
     </div>
 
